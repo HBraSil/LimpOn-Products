@@ -7,8 +7,9 @@ enum class Screen(val route: String) {
     SIGNUP_CODE("signup_code"),
     MAIN("main"),
     PRODUCT("product"),
-    SELLER_LOGIN("seller_login"),
     SELLER_REGISTER("seller_register"),
+    ABOUT("about"),
+    NOTIFICATION("notification"),
 
 
 

@@ -15,14 +15,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -30,10 +28,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.compose.Screen
+import com.example.produtosdelimpeza.compose.about.AboutScreen
 import com.example.produtosdelimpeza.compose.home.HomeScreen
+import com.example.produtosdelimpeza.compose.notifications.NotificationScreen
 import com.example.produtosdelimpeza.compose.profile.ProfileScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
-import com.example.produtosdelimpeza.compose.seller.SellerScreen
+import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
+import com.example.produtosdelimpeza.compose.seller.SellerRegister
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,9 +60,23 @@ fun MainScreenNavigation() {
 
             composable("${Screen.SELLER.route}/{nameSeller}") {
                 val nameSeller = it.arguments?.getString("nameSeller") ?: ""
-                SellerScreen(nameSeller) {
+                SellerProductsScreen(nameSeller) {
                     navController.navigateUp()
                 }
+            }
+
+            composable(Screen.ABOUT.route) {
+                AboutScreen(
+                    onNavigateUpClick = { navController.navigateUp() }
+                )
+            }
+
+            composable(route = Screen.SELLER_REGISTER.route) {
+                SellerRegister()
+            }
+
+            composable(route = Screen.NOTIFICATION.route) {
+                NotificationScreen()
             }
         }
 }

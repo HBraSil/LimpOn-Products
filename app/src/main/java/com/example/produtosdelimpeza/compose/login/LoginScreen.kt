@@ -2,17 +2,15 @@ package com.example.produtosdelimpeza.compose.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -95,7 +93,7 @@ fun LoginScreen(onBackNavigation: () -> Unit = {}, onSignupClick: () -> Unit = {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.limp_on_logo),
+                        painter = if (isSystemInDarkTheme()) painterResource(R.drawable.limp_on_dark_logo) else painterResource(R.drawable.limp_on_light_logo),
                         contentDescription = stringResource(R.string.login_image),
                         modifier = Modifier.padding(top = 20.dp)
                     )

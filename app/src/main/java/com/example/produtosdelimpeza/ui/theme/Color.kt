@@ -15,15 +15,6 @@ val LightBrown = Color(0xFF683904)
 
 
 //Dark theme colors
-val DarkBluePool = Color(0xFFB7CED2)
-val DarkNavyBlue = Color(0xFF002233)
-val DarkSmoothGreen = Color(0xFF909BD0)
-val GreenishGray = Color(0xFF688879)
-val DarkBlackBlue = Color(0xFF19334F)
-val DarkBlueOil = Color(0xB2777D98)
-val DarkSmoothWhite = Color(0xFFE6F7FA)
-val DarkBlue = Color(0xFF152A3C)
-val DarkGreenishWhite = Color(0xFFAAE5EC)
 
 
 // General colors

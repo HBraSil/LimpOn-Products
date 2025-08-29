@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.compose.initial.InitialScreen
 import com.example.produtosdelimpeza.compose.login.LoginScreen
 import com.example.produtosdelimpeza.compose.main.MainScreenNavigation
-import com.example.produtosdelimpeza.compose.seller.SellerLoginScreen
+import com.example.produtosdelimpeza.compose.seller.SellerRegister
 import com.example.produtosdelimpeza.compose.signup.SignupCodeScreen
 import com.example.produtosdelimpeza.compose.signup.SignupScreen
 
@@ -21,7 +21,7 @@ fun ProdutosLimpezaApp() {
 
 @Composable
 fun ProdutosLimpezaNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.INITIAL.route) {
+    NavHost(navController = navController, startDestination = Screen.MAIN.route) {
         composable(route = Screen.INITIAL.route) {
             InitialScreen(
                 onChoiceClick = { navController.navigate(Screen.LOGIN.route) },
@@ -50,10 +50,6 @@ fun ProdutosLimpezaNavHost(navController: NavHostController) {
 
         composable(route = Screen.MAIN.route) {
             MainScreenNavigation()
-        }
-
-        composable(route = Screen.SELLER_LOGIN.route) {
-            SellerLoginScreen()
         }
     }
 }

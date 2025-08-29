@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.profile
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,9 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -24,16 +26,16 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
+import androidx.compose.material3.Switch
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,8 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.BluishGreen
 
@@ -85,14 +86,14 @@ fun ProfileScreen(navController: NavHostController? = null) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
-                Card (
+                Card(
                     onClick = {},
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .size(100.dp),
                     shape = CircleShape,
                     elevation = CardDefaults.elevatedCardElevation(3.dp)
-                ){
+                ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -106,11 +107,10 @@ fun ProfileScreen(navController: NavHostController? = null) {
                 }
 
                 PersonalData()
-                Configurations()
-                GeneralInformation()
+                Configurations(navController)
+                GeneralInformation(navController)
             }
         }
-
 
 
     }
@@ -119,6 +119,16 @@ fun ProfileScreen(navController: NavHostController? = null) {
 
 @Composable
 fun PersonalData() {
+    val fieldsList = listOf("Nome", "Cidade", "Celular")
+    var fieldInformationalList by remember {
+        mutableStateOf(
+            mutableListOf(
+                "",
+                "Tuntum-Ma",
+                "(99) 99225-9452"
+            )
+        )
+    }
     var isFocused by remember { mutableStateOf(Pair<Int, Boolean>(0, false)) }
     var actualName by remember { mutableStateOf("Hilquias Brasil") }
     var actualPhone by remember { mutableStateOf("Tuntum-Ma") }
@@ -132,7 +142,7 @@ fun PersonalData() {
             .fillMaxWidth()
             .padding(top = 40.dp),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Text(
             text = "Dados pessoais",
             fontSize = 20.sp,
@@ -159,73 +169,81 @@ fun PersonalData() {
         }
     }
 
-    Row(
-        modifier = Modifier
-            .padding(top = 10.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "Nome",
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        BasicTextField(
-            value = newName,
-            onValueChange = { newValue ->
-                newName = newValue
-                isNamechanged = newName != actualName
-            },
+
+    fieldsList.forEachIndexed { index, field ->
+        Row(
             modifier = Modifier
-                .padding(end = 20.dp)
-                .onFocusChanged { focusState ->
-                    isFocused = Pair(1, focusState.isFocused)
-                    /*if (focusState.isFocused) {
-                        isFocused = false
-                    }*/
-                },
-            textStyle = if (isFocused.first == 1 && isFocused.second) TextStyle(
-                fontSize = 16.sp,
-                color = Black,
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = field,
+                fontSize = 15.sp,
                 textAlign = TextAlign.Center,
-                fontWeight = Bold
-            ) else TextStyle(
-                fontSize = 14.sp,
-                color = Gray,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 20.dp),
+                color = MaterialTheme.colorScheme.onBackground
             )
+            BasicTextField(
+                value = fieldInformationalList[index],
+                onValueChange = { newValue ->
+                    fieldInformationalList[index] = newValue
+                    isNamechanged = fieldInformationalList[index] != actualName
+                },
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .onFocusChanged { focusState ->
+                        isFocused = Pair(1, focusState.isFocused)
+                        /*if (focusState.isFocused) {
+                            isFocused = false
+                        }*/
+                    },
+                textStyle = if (isFocused.first == 1 && isFocused.second) TextStyle(
+                    fontSize = 16.sp,
+                    color = Black,
+                    textAlign = TextAlign.Center,
+                    fontWeight = Bold
+                ) else TextStyle(
+                    fontSize = 14.sp,
+                    color = Gray,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                )
+            )
+        }
+
+        Divider(
+            color = if (isFocused.first == 1 && isFocused.second) BluishGreen else Gray,
+            thickness = 1.dp
         )
     }
 
-    Divider(color = if (isFocused.first == 1 && isFocused.second) BluishGreen else Gray, thickness = 1.dp)
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = "Cidade",
-            fontSize = 15.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        BasicTextField(
-            value = actualCity,
-            onValueChange = { newValue ->
-                newName = newValue
-                isNamechanged = newName != actualName
-            },
-            modifier = Modifier
-                .padding(end = 20.dp)
-                .onFocusChanged { focusState ->
-                    isFocused = Pair(2, focusState.isFocused)
-                    /*if (focusState.isFocused) {
+    /*
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Cidade",
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 20.dp)
+            )
+            BasicTextField(
+                value = actualCity,
+                onValueChange = { newValue ->
+                    newName = newValue
+                    isNamechanged = newName != actualName
+                },
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .onFocusChanged { focusState ->
+                        isFocused = Pair(2, focusState.isFocused)
+                        *//*if (focusState.isFocused) {
                         isFocused. = false
-                    }*/
+                    }*//*
                 },
             textStyle = if (isFocused.first == 2 && isFocused.second) TextStyle(
                 fontSize = 16.sp,
@@ -259,9 +277,9 @@ fun PersonalData() {
                 .padding(end = 20.dp)
                 .onFocusChanged { focusState ->
                     isFocused = Pair(3, focusState.isFocused)
-                    /*if (focusState.isFocused) {
+                    *//*if (focusState.isFocused) {
                         isFocused = false
-                    }*/
+                    }*//*
                 },
             textStyle = if(isFocused.first == 3 && isFocused.second) TextStyle(
                 fontSize = 16.sp,
@@ -279,77 +297,124 @@ fun PersonalData() {
         )
     }
 
-    Divider(color = if (isFocused.first == 3 && isFocused.second) BluishGreen else Gray, thickness = 1.dp)
+    Divider(color = if (isFocused.first == 3 && isFocused.second) BluishGreen else Gray, thickness = 1.dp)*/
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Configurations() {
-    var checked by remember { mutableStateOf(false) }
-    var isCustomer by remember { mutableStateOf(false) }
+fun Configurations(navController: NavHostController?) {
+    var checkedDefaultMode by remember { mutableStateOf(false) }
+    var checkedDarkMode by remember { mutableStateOf(false) }
+    var isCustomer by remember { mutableStateOf(true) }
+    var isSheetOpen by remember { mutableStateOf(false) }
+
+
+    val configurationsItemList = listOf(
+        stringResource(R.string.enable_cupons),
+        stringResource(R.string.dark_mode),
+        stringResource(R.string.manage_notifications),
+        if (isCustomer)stringResource(R.string.become_a_seller) else null
+    )
 
     Text(
         text = "Configurações",
         fontSize = 20.sp,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(top = 50.dp),
-        fontWeight = ExtraBold
+        fontWeight = ExtraBold,
+        color = MaterialTheme.colorScheme.onBackground
     )
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = 10.dp)
-            .fillMaxWidth()
-            .clickable{},
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "Ativar cupons")
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-            contentDescription = stringResource(R.string.icon_navigate_next),
-        )
-    }
-    if (isCustomer) {
-        Divider(color = Gray, thickness = 1.dp)
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Se torne um vendedor", modifier = Modifier.padding(start = 20.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                contentDescription = stringResource(R.string.icon_navigate_next),
-                modifier = Modifier.padding(end = 20.dp)
-            )
+    configurationsItemList.forEachIndexed { index, item ->
+        if (item != null) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        when (index) {
+                            //0 -> TODO: Habilitar tela de cupons
+                            1 -> isSheetOpen = !isSheetOpen
+                            2 -> navController!!.navigate(Screen.NOTIFICATION.route)
+                            3 -> navController!!.navigate(Screen.SELLER_REGISTER.route)
+                        }
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                when (item) {
+                    stringResource(R.string.enable_cupons) -> {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                        )
+                    }
+
+                    stringResource(R.string.dark_mode) -> {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                        )
+                    }
+
+                    stringResource(R.string.manage_notifications) -> {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                        )
+                    }
+
+                    stringResource(R.string.become_a_seller) -> {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                            contentDescription = stringResource(R.string.navigate_screen_become_a_seller),
+                        )
+                    }
+                }
+
+            }
+            Divider(color = Gray, thickness = 1.dp)
         }
     }
-    Divider(color = Gray, thickness = 1.dp)
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Ativar modo escuro",
-            modifier = Modifier.padding(start = 20.dp),
-            fontSize = 15.sp,
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = { checked = it },
-            modifier = Modifier.padding(end = 20.dp)
-        )
-    }
-}
+
+    val optionsLightModeList = listOf("Usar configuração do sistema", "Ativar modo escuro")
+    if (isSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                isSheetOpen = false
+            },
+        ) {
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(vertical = 20.dp),
+            ) {
+                optionsLightModeList.forEach {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = it)
+                        Spacer(modifier = Modifier.padding(bottom = 10.dp))
+                        Switch(checked = checkedDefaultMode, onCheckedChange = { checkedDefaultMode = it })
+                    }
+
+                }
+            }
+        }
+    }}
 
 
 @Composable
-fun GeneralInformation() {
+fun GeneralInformation(navController: NavHostController?) {
     Text(
         text = "Informações Gerais",
         fontSize = 20.sp,
@@ -372,10 +437,10 @@ fun GeneralInformation() {
         Spacer(Modifier.weight(1f))
 
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                contentDescription = stringResource(R.string.icon_navigate_next_to_feedback),
-            )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+            contentDescription = stringResource(R.string.icon_navigate_next_to_feedback),
+        )
     }
 
     Divider(color = Gray, thickness = 1.dp)
@@ -383,7 +448,9 @@ fun GeneralInformation() {
     Row(
         modifier = Modifier
             .padding(horizontal = 20.dp)
-            .clickable {}
+            .clickable {
+                navController!!.navigate(Screen.ABOUT.route)
+            }
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -393,10 +460,10 @@ fun GeneralInformation() {
         Spacer(Modifier.weight(1f))
 
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                contentDescription = stringResource(R.string.icon_navigate_next),
-            )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+            contentDescription = stringResource(R.string.icon_navigate_next),
+        )
     }
 
     Divider(color = Gray, thickness = 1.dp)
@@ -406,11 +473,17 @@ fun GeneralInformation() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Versão do app", modifier = Modifier.padding(start = 20.dp))
-        Text(text = "1.0.0.1", modifier = Modifier.padding(end = 20.dp))
+        Text(text = "Sair", modifier = Modifier.padding(start = 20.dp))
     }
 
     Spacer(modifier = Modifier.padding(bottom = 20.dp))
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheet() {
+
 }
 
 

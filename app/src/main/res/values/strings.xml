@@ -37,6 +37,16 @@
     <string name="login_image">Imagem da tela de login</string>
     <string name="welcome_message">Encontre os melhores produtos para deixar sua casa sempre limpa e cheirosa. Praticidade e qualidade ao seu alcance.</string>
     <string name="edit_personal_data">Editar dados pessoais</string>
-    <string name="about_main_text">Nossa empresa nasceu com o propósito de levar mais praticidade, bem-estar e qualidade para o dia a dia das pessoas por meio de produtos de limpeza eficientes, acessíveis e sustentáveis.\n \nSomos movidos pelo compromisso de oferecer soluções que unem tecnologia, qualidade e respeito ao meio ambiente, sempre pensando na saúde e no conforto de nossos clientes.\n \nNosso objetivo é simplificar as tarefas de limpeza e garantir que cada produto entregue resultados de excelência. Trabalhamos com dedicação para desenvolver produtos que realmente façam diferença.</string>
+    <string name="about_main_text">Nossa empresa nasceu com o propósito de levar mais praticidade, bem-estar e qualidade para o dia a dia das pessoas por meio de produtos de limpeza eficientes e acessíveis.\n \nNosso objetivo é simplificar as tarefas de limpeza e garantir que cada produto entregue resultados de excelência. Trabalhamos com dedicação para desenvolver produtos que realmente façam diferença.</string>
     <string name="icon_navigate_next_to_feedback">Avalie o App</string>
+    <string name="favorites_products">Favoritos</string>
+    <string name="all_products">Todos os produtos</string>
+    <string name="back_to_profile">Voltar para a tela de perfil</string>
+    <string name="enable_cupons">Ativar cupons</string>
+    <string name="dark_mode">Modo escuro</string>
+    <string name="manage_notifications">Gerenciar notificações</string>
+    <string name="become_a_seller">Torne-se um vendedor</string>
+    <string name="navigate_screen_become_a_seller">Navegar para a tela de se tornar um vendedor</string>
+    <string name="navigate_screen_enable_coupons">Navegar para a tela de validação de cupons</string>
+    <string name="navigate_screen_manage_notifications">Navegar para a tela de gerenciamento de notificações</string>
 </resources>

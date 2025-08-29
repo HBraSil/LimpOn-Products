@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun SellerLoginScreen(modifier: Modifier = Modifier) {
+fun SellerRegister(modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxSize()) {
         Text("Seller Login Screen")
     }
