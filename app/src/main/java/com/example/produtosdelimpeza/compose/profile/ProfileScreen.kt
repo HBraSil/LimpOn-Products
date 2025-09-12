@@ -7,36 +7,45 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material.Surface
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.BrightnessMedium
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocalOffer
+import androidx.compose.material.icons.outlined.LocationCity
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +61,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,7 +68,6 @@ import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
-import com.example.produtosdelimpeza.ui.theme.BluishGreen
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -70,7 +77,6 @@ fun ProfileScreen(navController: NavHostController? = null) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            contentWindowInsets = WindowInsets.safeDrawing,
             bottomBar = {
                 MainBottomNavigation(navController!!)
             }
@@ -83,14 +89,15 @@ fun ProfileScreen(navController: NavHostController? = null) {
                         top = contentPadding.calculateTopPadding(),
                         bottom = contentPadding.calculateBottomPadding()
                     ),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 Card(
                     onClick = {},
                     modifier = Modifier
                         .padding(top = 20.dp)
-                        .size(100.dp),
+                        .size(100.dp)
+                        .align(Alignment.CenterHorizontally),
                     shape = CircleShape,
                     elevation = CardDefaults.elevatedCardElevation(3.dp)
                 ) {
@@ -119,48 +126,56 @@ fun ProfileScreen(navController: NavHostController? = null) {
 
 @Composable
 fun PersonalData() {
-    val fieldsList = listOf("Nome", "Cidade", "Celular")
+    val fieldsList = listOf("Nome", "Email", "Celular", "Cidade")
     var fieldInformationalList by remember {
         mutableStateOf(
             mutableListOf(
-                "",
+                "Hilquias Brasil",
+                "hilquias.brasil@gmail.com",
+                "(99) 99225-9452",
                 "Tuntum-Ma",
-                "(99) 99225-9452"
+            )
+        )
+    }
+    var iconsList by remember {
+        mutableStateOf(
+            mutableListOf(
+                Icons.Outlined.PersonOutline,
+                Icons.Outlined.Email,
+                Icons.Outlined.Phone,
+                Icons.Outlined.LocationCity,
             )
         )
     }
     var isFocused by remember { mutableStateOf(Pair<Int, Boolean>(0, false)) }
     var actualName by remember { mutableStateOf("Hilquias Brasil") }
-    var actualPhone by remember { mutableStateOf("Tuntum-Ma") }
-    var actualCity by remember { mutableStateOf("(99) 99225-9452") }
     var newName by remember { mutableStateOf(actualName) }
     var isNamechanged by remember { mutableStateOf(false) }
 
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 40.dp),
-        contentAlignment = Alignment.Center
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = "Dados pessoais",
             fontSize = 20.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(start = 15.dp),
             fontWeight = ExtraBold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
+        Spacer(Modifier.weight(1f))
         IconButton(
             onClick = {
                 actualName = newName
                 isNamechanged = false
             },
             enabled = isNamechanged,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 5.dp)
+            modifier = Modifier.padding(end = 16.dp)
         ) {
             Icon(
                 imageVector = Icons.Outlined.Check,
@@ -172,132 +187,58 @@ fun PersonalData() {
 
     fieldsList.forEachIndexed { index, field ->
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 35.dp)
         ) {
-            Text(
-                text = field,
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 20.dp),
-                color = MaterialTheme.colorScheme.onBackground
+
+            Icon(
+                imageVector = iconsList[index],
+                contentDescription = stringResource(R.string.icon_personal_data),
             )
-            BasicTextField(
-                value = fieldInformationalList[index],
-                onValueChange = { newValue ->
-                    fieldInformationalList[index] = newValue
-                    isNamechanged = fieldInformationalList[index] != actualName
-                },
+
+            Spacer(Modifier.width(20.dp))
+
+            Column(
                 modifier = Modifier
-                    .padding(end = 20.dp)
-                    .onFocusChanged { focusState ->
-                        isFocused = Pair(1, focusState.isFocused)
-                        /*if (focusState.isFocused) {
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = field,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                BasicTextField(
+                    value = fieldInformationalList[index],
+                    onValueChange = { newValue ->
+                        fieldInformationalList[index] = newValue
+                        isNamechanged = fieldInformationalList[index] != actualName
+                    },
+                    modifier = Modifier
+                        .padding(end = 20.dp)
+                        .onFocusChanged { focusState ->
+                            isFocused = Pair(1, focusState.isFocused)
+                            /*if (focusState.isFocused) {
                             isFocused = false
                         }*/
-                    },
-                textStyle = if (isFocused.first == 1 && isFocused.second) TextStyle(
-                    fontSize = 16.sp,
-                    color = Black,
-                    textAlign = TextAlign.Center,
-                    fontWeight = Bold
-                ) else TextStyle(
-                    fontSize = 14.sp,
-                    color = Gray,
-                    fontStyle = FontStyle.Italic,
-                    textAlign = TextAlign.Center,
-                )
-            )
-        }
-
-        Divider(
-            color = if (isFocused.first == 1 && isFocused.second) BluishGreen else Gray,
-            thickness = 1.dp
-        )
-    }
-
-
-    /*
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Cidade",
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 20.dp)
-            )
-            BasicTextField(
-                value = actualCity,
-                onValueChange = { newValue ->
-                    newName = newValue
-                    isNamechanged = newName != actualName
-                },
-                modifier = Modifier
-                    .padding(end = 20.dp)
-                    .onFocusChanged { focusState ->
-                        isFocused = Pair(2, focusState.isFocused)
-                        *//*if (focusState.isFocused) {
-                        isFocused. = false
-                    }*//*
-                },
-            textStyle = if (isFocused.first == 2 && isFocused.second) TextStyle(
-                fontSize = 16.sp,
-                color = Black,
-                textAlign = TextAlign.Center,
-                fontWeight = Bold
-            ) else TextStyle(
-                fontSize = 14.sp,
-                color = Gray,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.Center,
-            )
-        )
-    }
-
-    Divider(color = if (isFocused.first == 2 && isFocused.second) BluishGreen else Gray, thickness = 1.dp)
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "Celular", modifier = Modifier.padding(start = 20.dp))
-        BasicTextField(
-            value = actualPhone,
-            onValueChange = { newValue ->
-                newName = newValue
-                isNamechanged = newName != actualName
-            },
-            modifier = Modifier
-                .padding(end = 20.dp)
-                .onFocusChanged { focusState ->
-                    isFocused = Pair(3, focusState.isFocused)
-                    *//*if (focusState.isFocused) {
-                        isFocused = false
-                    }*//*
-                },
-            textStyle = if(isFocused.first == 3 && isFocused.second) TextStyle(
-                fontSize = 16.sp,
-                color = Black,
-                textAlign = TextAlign.Center,
-                fontWeight = Bold
-            ) else {
-                TextStyle(
-                    fontSize = 14.sp,
-                    color = Gray,
-                    fontStyle = FontStyle.Italic,
-                    textAlign = TextAlign.Center,
+                        },
+                    textStyle = if (isFocused.first == 1 && isFocused.second) TextStyle(
+                        fontSize = 16.sp,
+                        color = Black,
+                        fontWeight = Bold
+                    ) else TextStyle(
+                        fontSize = 14.sp,
+                        color = Gray,
+                        fontStyle = FontStyle.Italic,
+                    )
                 )
             }
-        )
-    }
+        }
 
-    Divider(color = if (isFocused.first == 3 && isFocused.second) BluishGreen else Gray, thickness = 1.dp)*/
+        Spacer(Modifier.height(2.dp))
+    }
 }
 
 
@@ -305,8 +246,6 @@ fun PersonalData() {
 @Composable
 fun Configurations(navController: NavHostController?) {
     var checkedDefaultMode by remember { mutableStateOf(false) }
-    var checkedDarkMode by remember { mutableStateOf(false) }
-    var isCustomer by remember { mutableStateOf(true) }
     var isSheetOpen by remember { mutableStateOf(false) }
 
 
@@ -314,14 +253,22 @@ fun Configurations(navController: NavHostController?) {
         stringResource(R.string.enable_cupons),
         stringResource(R.string.dark_mode),
         stringResource(R.string.manage_notifications),
-        if (isCustomer)stringResource(R.string.become_a_seller) else null
     )
+
+    var iconsList by remember {
+        mutableStateOf(
+            mutableListOf(
+                Icons.Outlined.LocalOffer,
+                Icons.Outlined.BrightnessMedium,
+                Icons.Outlined.Notifications
+            )
+        )
+    }
 
     Text(
         text = "Configurações",
         fontSize = 20.sp,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(top = 50.dp),
+        modifier = Modifier.padding(top = 20.dp, start = 15.dp, bottom = 10.dp),
         fontWeight = ExtraBold,
         color = MaterialTheme.colorScheme.onBackground
     )
@@ -330,23 +277,32 @@ fun Configurations(navController: NavHostController?) {
         if (item != null) {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 35.dp)
                     .fillMaxWidth()
                     .clickable {
                         when (index) {
                             //0 -> TODO: Habilitar tela de cupons
                             1 -> isSheetOpen = !isSheetOpen
                             2 -> navController!!.navigate(Screen.NOTIFICATION.route)
-                            3 -> navController!!.navigate(Screen.SELLER_REGISTER.route)
                         }
                     },
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                Icon(
+                    imageVector = iconsList[index],
+                    contentDescription = stringResource(R.string.icon_configurations),
+                )
+
+                Spacer(Modifier.width(20.dp))
+
                 Text(
                     text = item,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+
+                Spacer(Modifier.weight(1f))
 
                 when (item) {
                     stringResource(R.string.enable_cupons) -> {
@@ -369,17 +325,11 @@ fun Configurations(navController: NavHostController?) {
                             contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
                         )
                     }
-
-                    stringResource(R.string.become_a_seller) -> {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                            contentDescription = stringResource(R.string.navigate_screen_become_a_seller),
-                        )
-                    }
                 }
 
             }
-            Divider(color = Gray, thickness = 1.dp)
+            Spacer(Modifier.height(2.dp))
+
         }
     }
 
@@ -390,6 +340,7 @@ fun Configurations(navController: NavHostController?) {
             onDismissRequest = {
                 isSheetOpen = false
             },
+
         ) {
             Column(
                 modifier = Modifier
@@ -398,13 +349,29 @@ fun Configurations(navController: NavHostController?) {
             ) {
                 optionsLightModeList.forEach {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = it)
                         Spacer(modifier = Modifier.padding(bottom = 10.dp))
-                        Switch(checked = checkedDefaultMode, onCheckedChange = { checkedDefaultMode = it })
+                        Switch(
+                            checked = checkedDefaultMode,
+                            onCheckedChange = { checkedDefaultMode = it },
+                            thumbContent = if (checkedDefaultMode) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            } else {
+                                null
+                            }
+                        )
                     }
 
                 }
@@ -413,78 +380,88 @@ fun Configurations(navController: NavHostController?) {
     }}
 
 
+
 @Composable
 fun GeneralInformation(navController: NavHostController?) {
+
+    val generalInformationList = listOf(
+        stringResource(R.string.feedback),
+        stringResource(R.string.about),
+    )
+
+
+    var iconsList by remember {
+        mutableStateOf(
+            mutableListOf(
+                Icons.Outlined.Feedback,
+                Icons.Outlined.Info,
+            )
+        )
+    }
+
     Text(
         text = "Informações Gerais",
         fontSize = 20.sp,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(top = 50.dp),
-        fontWeight = ExtraBold
+        modifier = Modifier.padding(top = 20.dp, start = 15.dp, bottom = 10.dp),
+        fontWeight = ExtraBold,
+        color = MaterialTheme.colorScheme.onBackground
     )
 
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .padding(top = 10.dp)
-            .clickable {}
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "Avalie o App")
+    generalInformationList.forEach {item ->
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 35.dp)
+                .clickable {}
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = iconsList[generalInformationList.indexOf(item)],
+                contentDescription = stringResource(R.string.icon_configurations),
+            )
 
-        Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(20.dp))
+
+            Text(
+                text = item,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.weight(1f))
 
 
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-            contentDescription = stringResource(R.string.icon_navigate_next_to_feedback),
-        )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                contentDescription = stringResource(R.string.icon_navigate_next_to_feedback),
+            )
+        }
+
+        Spacer(Modifier.height(2.dp))
+
     }
 
-    Divider(color = Gray, thickness = 1.dp)
 
     Row(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .clickable {
-                navController!!.navigate(Screen.ABOUT.route)
-            }
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth()
+            .padding(start = 35.dp),
+        horizontalArrangement = Arrangement.Start,
     ) {
-        Text(text = "Sobre")
-
-        Spacer(Modifier.weight(1f))
-
-
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-            contentDescription = stringResource(R.string.icon_navigate_next),
+            imageVector = Icons.AutoMirrored.Outlined.Logout,
+            contentDescription = stringResource(R.string.icon_navigate_back),
         )
-    }
-
-    Divider(color = Gray, thickness = 1.dp)
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "Sair", modifier = Modifier.padding(start = 20.dp))
+        Text(
+            text = "Sair",
+            modifier = Modifier.padding(start = 20.dp),
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 
     Spacer(modifier = Modifier.padding(bottom = 20.dp))
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BottomSheet() {
-
-}
 
 
 @Preview

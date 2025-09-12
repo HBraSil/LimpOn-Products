@@ -5,24 +5,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.DrawerDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -39,11 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,9 +43,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.NewButton
-import com.example.produtosdelimpeza.compose.component.NewTxtField
-import com.example.produtosdelimpeza.ui.theme.GradientSignupMainText
+import com.example.produtosdelimpeza.compose.component.LimpOnButton
+import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +134,7 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                     )
                 }
 
-                NewTxtField(
+                LimpOnTxtField(
                     value = txtEmail,
                     onValueChange = { txtEmail = it },
                     label = R.string.email,
@@ -161,7 +151,7 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                     },
                 )
 
-                NewTxtField(
+                LimpOnTxtField(
                     value = txtPassword,
                     onValueChange = { txtPassword = it },
                     label = R.string.password,
@@ -198,7 +188,7 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                     }
                 )
 
-                NewTxtField(
+                LimpOnTxtField(
                     value = txtConfirmPassword,
                     onValueChange = { txtConfirmPassword = it },
                     label = R.string.confirm_password,
@@ -236,7 +226,7 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                 )
 
 
-                NewButton(
+                LimpOnButton(
                     R.string.to_signup,
                     modifier = Modifier
                         .padding(top = 100.dp, bottom = 20.dp),

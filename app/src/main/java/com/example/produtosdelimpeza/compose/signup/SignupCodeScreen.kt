@@ -53,13 +53,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.NewButton
+import com.example.produtosdelimpeza.compose.component.LimpOnButton
 
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupCodeScreen(modifier: Modifier = Modifier, onToSignupClick: () -> Unit = {}) {
+fun SignupCodeScreen(modifier: Modifier = Modifier, onToSignupClick: () -> Unit = {}, onMainScreenClick: () -> Unit = {}) {
     var code by remember { mutableStateOf(List(6) { "" }) }
     val focusRequesters = List(6) { FocusRequester() }
     val focusManager = LocalFocusManager.current // fazer um teste depois removendo essa linha
@@ -184,11 +184,11 @@ fun SignupCodeScreen(modifier: Modifier = Modifier, onToSignupClick: () -> Unit 
                     fontWeight = W900,
                 )
 
-                NewButton( // DEIXAR O BOTÃO DISABLED ATÉ Q SEJA VERIFICADO O CÓDIGO, E SÓ DEPOIS TORNA-LO ENABLED
+                LimpOnButton( // DEIXAR O BOTÃO DISABLED ATÉ Q SEJA VERIFICADO O CÓDIGO, E SÓ DEPOIS TORNA-LO ENABLED
                     text = R.string.move_on,
                     modifier = Modifier.padding(top = 100.dp).imePadding(),
                 ) {
-                    onToSignupClick()
+                    onMainScreenClick()
                 }
             }
         }

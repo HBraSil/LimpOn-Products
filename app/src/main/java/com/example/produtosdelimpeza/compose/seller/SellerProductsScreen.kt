@@ -1,5 +1,9 @@
 package com.example.produtosdelimpeza.compose.seller
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,13 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.Card
@@ -36,9 +38,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -46,19 +53,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.LimpCardProducts
+import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun SellerProductsScreen(nameSeller: String = "", onBackNavigation: () -> Unit = {}) {
+fun SellerProductsScreen(
+    nameSeller: String = "",
+    onBackNavigation: () -> Unit = {},
+    onClickCardSellerProfile: () -> Unit,
+) {
+    var expandableFavoriteState by remember { mutableStateOf(false) }
+    var expandableFeaturedState by remember { mutableStateOf(true) }
 
-    val rememberScroll = rememberScrollState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Aurubu", color = Black) },
+                    title = { },
                     navigationIcon = {
                         IconButton(onClick = { onBackNavigation() }) {
                             Icon(
@@ -68,46 +80,40 @@ fun SellerProductsScreen(nameSeller: String = "", onBackNavigation: () -> Unit =
                         }
                     }
                 )
-            }
+            },
+            containerColor = Color.Transparent
         ) {
             val produtos = List(10) { "Produto $it" }
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(it),
-                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                contentPadding = PaddingValues(14.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 // Header principal
                 item {
-                    InformationCard(nameSeller)
+                    InformationCard(nameSeller, onClickCardSellerProfile = onClickCardSellerProfile)
                 }
 
-                // Favoritos (linha com 3 cards)
+                // FAVORITOS
                 item {
-                    Column {
+                    ExpandableCardProducts(
+                        modifier = Modifier.padding(top = 20.dp),
+                        title = R.string.favorites_products,
+                        expanded = expandableFavoriteState,
+                    )
+                }
 
-                        Text(
-                            text = stringResource(R.string.favorites_products),
-                            modifier = Modifier.padding(start = 20.dp).padding(vertical = 20.dp),
-                            fontSize = 20.sp,
-                            fontWeight = Bold
-                        )
-
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            items(3) { fav ->
-                                LimpCardProducts(
-                                    modifier = Modifier
-                                        .width(120.dp)
-                                        .height(155.dp),
-                                    favorites = true
-                                )
-                            }
-                        }
-                    }
+                // DESTAQUES
+                item {
+                    ExpandableCardProducts(
+                        modifier = Modifier.padding(bottom = 20.dp),
+                        title = R.string.featured_products,
+                        expanded = expandableFeaturedState,
+                    )
                 }
 
                 // Todos os produtos (grid 2 colunas usando FlowRow)
@@ -115,7 +121,8 @@ fun SellerProductsScreen(nameSeller: String = "", onBackNavigation: () -> Unit =
                     Column {
                         Text(
                             text = stringResource(R.string.all_products),
-                            modifier = Modifier.padding(start = 20.dp).padding(vertical = 20.dp),
+                            modifier = Modifier
+                                .padding(start = 20.dp, bottom = 20.dp),
                             fontSize = 20.sp,
                             fontWeight = Bold
                         )
@@ -126,7 +133,7 @@ fun SellerProductsScreen(nameSeller: String = "", onBackNavigation: () -> Unit =
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             produtos.forEach { produto ->
-                                LimpCardProducts(
+                                LimpOnCardProducts(
                                     modifier = Modifier
                                         .weight(1f)
                                         .height(240.dp)
@@ -142,15 +149,20 @@ fun SellerProductsScreen(nameSeller: String = "", onBackNavigation: () -> Unit =
     }
 }
 
+
+
 @Composable
-fun InformationCard(nameSeller: String, modifier: Modifier = Modifier) {
+fun InformationCard(
+    nameSeller: String,
+    modifier: Modifier = Modifier,
+    onClickCardSellerProfile: () -> Unit,
+) {
     Card(
-        onClick = {},
+        onClick = onClickCardSellerProfile,
         modifier = Modifier
-            .padding(top = 20.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
+        elevation = CardDefaults.elevatedCardElevation(3.dp)
     ) {
         Row {
             Card(
@@ -159,7 +171,7 @@ fun InformationCard(nameSeller: String, modifier: Modifier = Modifier) {
                     .padding(top = 10.dp, start = 10.dp, bottom = 10.dp)
                     .size(100.dp),
                 shape = CircleShape,
-                elevation = CardDefaults.elevatedCardElevation(2.dp)
+                elevation = CardDefaults.elevatedCardElevation(1.dp)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -198,7 +210,7 @@ fun InformationCard(nameSeller: String, modifier: Modifier = Modifier) {
             Spacer(Modifier.weight(1f))
             Icon(
                 imageVector = Icons.Outlined.Circle,
-                contentDescription = stringResource(R.string.icon_navigate_back),
+                contentDescription = null,
                 modifier = Modifier
                     .size(30.dp)
                     .padding(top = 15.dp, end = 15.dp)
@@ -220,26 +232,81 @@ fun InformationCard(nameSeller: String, modifier: Modifier = Modifier) {
 }
 
 
-
 @Composable
-fun FavoritesProducts(modifier: Modifier = Modifier) {
+fun ExpandableCardProducts(
+    modifier: Modifier = Modifier,
+    title: Int,
+    expanded: Boolean,
+) {
 
+    var expandedState by remember { mutableStateOf(expanded) }
+    val rotationState by animateFloatAsState(
+        targetValue = if (expandedState) 180f else 0f
+    )
 
-
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(2),
-        contentPadding = PaddingValues(18.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+    Card(
+        onClick = {
+            expandedState = !expandedState
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 400,
+                    easing = LinearOutSlowInEasing
+                )
+            ),
+        shape = RoundedCornerShape(10.dp),
     ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(title),
+                modifier = Modifier
+                    .padding(start = 20.dp)
+                    .padding(vertical = 20.dp),
+                fontSize = 20.sp,
+                fontWeight = Bold
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            IconButton(
+                modifier = Modifier.rotate(rotationState),
+                onClick = { expandedState = !expandedState },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = stringResource(R.string.icon_navigate_back),
+                )
+            }
+
+        }
+        if (expandedState) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(6) { fav ->
+                    LimpOnCardProducts(
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(155.dp),
+                        favorites = true
+                    )
+                }
+            }
+        }
 
     }
-}
 
+}
 
 
 @Preview
 @Composable
 private fun SellerScreenPreview() {
-    SellerProductsScreen()
+    SellerProductsScreen(onClickCardSellerProfile = {})
 }

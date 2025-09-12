@@ -23,10 +23,10 @@ val BluishGreen = Color(0xFF00693C)
 
 val GradientSignupMainText = Brush.radialGradient(
     colors = listOf(
-        Color(0xFF106C9D), // Azul claro no centro
-        Color(0xFF6FAFA0), // Verde claro intermediário
-        Color(0x6F109F93)  // Verde escuro nas bordas
+        Color(0x6F109F93),
+        Color(0xFF7DBBB9),
+        Color(0xFF2481B4),
     ),
     center = Offset.Zero, // Pode ajustar depois
-    radius = 800f
+    radius = 1000f
 )

@@ -49,4 +49,12 @@
     <string name="navigate_screen_become_a_seller">Navegar para a tela de se tornar um vendedor</string>
     <string name="navigate_screen_enable_coupons">Navegar para a tela de validação de cupons</string>
     <string name="navigate_screen_manage_notifications">Navegar para a tela de gerenciamento de notificações</string>
+    <string name="feedback">Avalie o app</string>
+    <string name="about">Sobre</string>
+    <string name="exit">Sair</string>
+    <string name="featured_products">Destaques</string>
+    <string name="comment">Comentar</string>
+    <string name="time_to_expire">🕒︎</string>
+    <string name="icon_personal_data">Icones da aba de dados pessoais</string>
+    <string name="icon_configurations">Icones da aba de configurações</string>
 </resources>

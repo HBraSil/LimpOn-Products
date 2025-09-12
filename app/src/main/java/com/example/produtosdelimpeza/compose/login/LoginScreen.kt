@@ -49,14 +49,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.NewButton
-import com.example.produtosdelimpeza.compose.component.NewTxtField
+import com.example.produtosdelimpeza.compose.component.LimpOnButton
+import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onBackNavigation: () -> Unit = {}, onSignupClick: () -> Unit = {}) {
+fun LoginScreen(onSignupClick: () -> Unit = {}) {
     val verticalScrollState = rememberScrollState()
 
         Scaffold(
@@ -116,7 +116,7 @@ fun ContentLoginScreen() {
     var txtPassword by remember { mutableStateOf("") }
     var passwordHidden by remember { mutableStateOf(true) }
 
-    NewTxtField(
+    LimpOnTxtField(
         modifier = Modifier.padding(top = 10.dp),
         value = txtEmail,
         onValueChange = { txtEmail = it },
@@ -131,7 +131,7 @@ fun ContentLoginScreen() {
         },
     )
 
-    NewTxtField(
+    LimpOnTxtField(
         value = txtPassword,
         onValueChange = { txtPassword = it },
         label = R.string.password,
@@ -177,7 +177,7 @@ fun ContentLoginScreen() {
         )
     }
 
-    NewButton(
+    LimpOnButton(
         text = R.string.start,
         modifier = Modifier.padding(top = 30.dp, bottom = 30.dp),
     ){}

@@ -3,7 +3,6 @@ package com.example.produtosdelimpeza.compose.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 
 @Composable
-fun LimpCardProducts(modifier: Modifier = Modifier, favorites: Boolean = false, onClickProduct: () -> Unit = {}) {
+fun LimpOnCardProducts(modifier: Modifier = Modifier, favorites: Boolean = false, onClickProduct: () -> Unit = {}) {
 
     Column(
         modifier = modifier
@@ -53,7 +51,7 @@ fun LimpCardProducts(modifier: Modifier = Modifier, favorites: Boolean = false, 
                 text = "Sabão - 5 Litros ",
                 modifier = Modifier.padding(top = 6.dp, start = 6.dp),
                 fontSize = 14.sp,
-                fontWeight = Bold,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         } else {
@@ -93,5 +91,5 @@ fun LimpCardProducts(modifier: Modifier = Modifier, favorites: Boolean = false, 
 @Preview
 @Composable
 private fun LimpCardProductsPreview() {
-    LimpCardProducts()
+    LimpOnCardProducts()
 }

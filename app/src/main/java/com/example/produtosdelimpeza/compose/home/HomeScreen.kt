@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.home
 
-import android.app.Activity
-import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,7 +34,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,8 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
@@ -90,7 +84,7 @@ fun HomeScreen(navController: NavHostController, onCardSellerClick: (String) -> 
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "LimpOn", /*color = Black*/) },
+                    title = { Text(text = "LimpOn") },
                     actions = {
                         IconButton(onClick = { showDialog = true }) {
                             Icon(
@@ -182,7 +176,7 @@ fun HomeInfoDialog(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = Icons.Outlined.Circle,
                         contentDescription = null,
                         modifier = Modifier
@@ -203,46 +197,52 @@ fun HomeInfoDialog(
 
 @Composable
 fun ItemCard(item: ItemInitialCard, onClick: () -> Unit) {
-    Column(
+    Box(
         modifier = Modifier
             .size(150.dp)
+            .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .size(100.dp)
-                .border(0.dp, Black, shape = CircleShape),
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
         ) {
-            Image(
-                painter = painterResource(id = item.image),
-                contentDescription = item.name,
-                modifier = Modifier.clip(CircleShape),
-                contentScale = ContentScale.FillBounds
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-
-            Icon(
-                imageVector  = Icons.Outlined.Circle,
-                contentDescription = item.name,
+            Box(
                 modifier = Modifier
-                    .size(15.dp)
-                    .padding(top = 2.dp),
-                tint = item.colorIcon
-            )
-
+                    .padding(top = 5.dp)
+                    .size(100.dp)
+                    .border(0.dp, Black, shape = CircleShape),
+            ) {
+                Image(
+                    painter = painterResource(id = item.image),
+                    contentDescription = item.name,
+                    modifier = Modifier.clip(CircleShape),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
 
             Text(
                 text = item.name,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-
+        // 🔹 Badge verde no canto superior direito
+        Canvas(
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.TopEnd)
+        ) {
+            val path = Path().apply {
+                moveTo(size.width, 0f) // canto superior direito
+                lineTo(size.width, size.height) // desce
+                lineTo(0f, 0f) // volta pro canto superior esquerdo
+                close()
+            }
+            drawPath(path, color = Color(0xFF4CAF50)) // verde
+        }
     }
 }
 

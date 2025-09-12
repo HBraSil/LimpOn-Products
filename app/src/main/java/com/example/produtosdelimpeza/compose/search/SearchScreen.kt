@@ -19,20 +19,20 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.KeyboardVoice
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
@@ -164,7 +164,7 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Outlined.Send,
+                                        imageVector = Icons.AutoMirrored.Outlined.Send,
                                         contentDescription = null,
                                         modifier = Modifier.size(20.dp)
                                     )

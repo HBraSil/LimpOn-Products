@@ -10,6 +10,7 @@ enum class Screen(val route: String) {
     SELLER_REGISTER("seller_register"),
     ABOUT("about"),
     NOTIFICATION("notification"),
+    SELLER_PROFILE("seller_profile"),
 
 
 

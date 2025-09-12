@@ -34,6 +34,7 @@ import com.example.produtosdelimpeza.compose.notifications.NotificationScreen
 import com.example.produtosdelimpeza.compose.profile.ProfileScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
+import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
 
 
@@ -60,9 +61,15 @@ fun MainScreenNavigation() {
 
             composable("${Screen.SELLER.route}/{nameSeller}") {
                 val nameSeller = it.arguments?.getString("nameSeller") ?: ""
-                SellerProductsScreen(nameSeller) {
-                    navController.navigateUp()
-                }
+                SellerProductsScreen(
+                    nameSeller,
+                    onBackNavigation = {
+                        navController.navigateUp()
+                    },
+                    onClickCardSellerProfile = {
+                        navController.navigate(Screen.SELLER_PROFILE.route)
+                    }
+                )
             }
 
             composable(Screen.ABOUT.route) {
@@ -77,6 +84,10 @@ fun MainScreenNavigation() {
 
             composable(route = Screen.NOTIFICATION.route) {
                 NotificationScreen()
+            }
+
+            composable(route = Screen.SELLER_PROFILE.route) {
+                SellerProfileScreen()
             }
         }
 }

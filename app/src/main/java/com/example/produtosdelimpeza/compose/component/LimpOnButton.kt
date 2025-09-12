@@ -3,7 +3,6 @@ package com.example.produtosdelimpeza.compose.component
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -17,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.R
 
 @Composable
-fun NewButton(text: Int, modifier: Modifier = Modifier, onClickNewBtn: () -> Unit) {
+fun LimpOnButton(text: Int, modifier: Modifier = Modifier, onClickNewBtn: () -> Unit) {
     OutlinedButton(
         onClick = onClickNewBtn,
         modifier = modifier
@@ -37,5 +36,5 @@ fun NewButton(text: Int, modifier: Modifier = Modifier, onClickNewBtn: () -> Uni
 @Preview
 @Composable
 fun NewButtonPreview() {
-    NewButton(text = R.string.start, onClickNewBtn = {})
+    LimpOnButton(text = R.string.start, onClickNewBtn = {})
 }
