@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SellerProfileScreen(modifier: Modifier = Modifier, onNavigateUpClick: () -> Unit = {}) {
+fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
 
     val tabItems = listOf(
         "Avaliações",
@@ -74,7 +74,7 @@ fun SellerProfileScreen(modifier: Modifier = Modifier, onNavigateUpClick: () -> 
             selectedTabIndex = pagerState.targetPage
         }
 
-        CustomHeader({}, {}) { }
+        CustomHeader(onBackClick = onNavigateUpClick, {}) { }
 
         Text(
             text = "RA Produtos de Limpeza",
@@ -289,7 +289,7 @@ fun RatingBarStars(
                 }
 
                 // desenha estrela vazia
-                drawPath(path as Path, color = emptyColor)
+                drawPath(path, color = emptyColor)
 
                 // desenha preenchimento parcial
                 clipPath(path) {

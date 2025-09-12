@@ -59,7 +59,6 @@ fun DiscountTicketCardEvenOdd(
     modifier: Modifier = Modifier,
     discountText: String = "12%",
     description: String = "Válidos para compra acima de R$ 100",
-    code: String = "1234567890"
 ) {
     Box(modifier = modifier.padding(16.dp)) {
         Canvas(

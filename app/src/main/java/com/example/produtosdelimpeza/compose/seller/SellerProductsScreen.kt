@@ -154,7 +154,6 @@ fun SellerProductsScreen(
 @Composable
 fun InformationCard(
     nameSeller: String,
-    modifier: Modifier = Modifier,
     onClickCardSellerProfile: () -> Unit,
 ) {
     Card(
