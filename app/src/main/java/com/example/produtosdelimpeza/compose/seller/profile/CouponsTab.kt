@@ -77,9 +77,9 @@ fun DiscountTicketCardEvenOdd(
                 addRoundRect(RoundRect(rect, CornerRadius(corner, corner)))
                 arcTo(
                     rect = Rect(
-                        left = -cutR,              // começa antes da borda esquerda
+                        left = -cutR,
                         top = h / 2f - cutR,
-                        right = cutR,              // até o meio do círculo
+                        right = cutR,
                         bottom = h / 2f + cutR
                     ),
                     startAngleDegrees = -90f,
@@ -91,9 +91,9 @@ fun DiscountTicketCardEvenOdd(
                 // recorte da direita
                 arcTo(
                     rect = Rect(
-                        left = w - cutR,           // começa no meio do círculo encostado na borda
+                        left = w - cutR,
                         top = h / 2f - cutR,
-                        right = w + cutR,          // passa um pouco pra fora da borda
+                        right = w + cutR,
                         bottom = h / 2f + cutR
                     ),
                     startAngleDegrees = -270f,
@@ -104,7 +104,6 @@ fun DiscountTicketCardEvenOdd(
                 fillType = PathFillType.EvenOdd
             }
 
-            // gradiente horizontal
             val gradient = GradientSignupMainText
 
             drawPath(path = path, brush = gradient)
@@ -112,14 +111,14 @@ fun DiscountTicketCardEvenOdd(
             val dashEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 12f), 0f)
             drawLine(
                 color = Color.White,
-                start = Offset(w - 160f, 0f), // posição do traço (ajuste 80f conforme o espaço desejado)
+                start = Offset(w - 160f, 0f),
                 end = Offset(w - 160f, h),
                 strokeWidth = 4f,
                 pathEffect = dashEffect
             )
         }
 
-        // Conteúdo por cima do Canvas
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -186,7 +185,7 @@ fun DiscountTicketCardEvenOdd(
                         modifier = Modifier.size(12.dp),
                         tint = Color.Gray.copy(alpha = 0.9f)
                     )
-                    Spacer(modifier = Modifier.width(4.dp)) // Espaçamento entre ícone e texto
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Vence em 20 de outubro",
                         style = MaterialTheme.typography.bodySmall,
@@ -194,7 +193,7 @@ fun DiscountTicketCardEvenOdd(
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.weight(1f)) // Espaçamento entre ícone e texto
+                    Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = "USAR",
                         fontSize = 15.sp,
