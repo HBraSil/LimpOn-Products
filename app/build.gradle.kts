@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -28,14 +30,22 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "11"
+        compileOptions {
+            jvmTarget = "21"
+        }
     }
     buildFeatures {
         compose = true
+    }
+
+    room {
+        // Define o diretório onde o Room salvará os arquivos JSON do esquema.
+        // O local recomendado é dentro da pasta 'schemas' do seu projeto.
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
@@ -65,7 +75,12 @@ dependencies {
     //NAVIGATION
     implementation(libs.androidx.navigation)
 
-
     //Local Storage
     implementation(libs.datastore.preferences)
+
+    //Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    annotationProcessor(libs.room.compiler)
 }

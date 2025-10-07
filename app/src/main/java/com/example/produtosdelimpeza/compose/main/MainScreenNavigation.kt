@@ -29,6 +29,7 @@ import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.compose.about.AboutScreen
+import com.example.produtosdelimpeza.compose.cart.CartScreen
 import com.example.produtosdelimpeza.compose.home.HomeScreen
 import com.example.produtosdelimpeza.compose.notifications.NotificationScreen
 import com.example.produtosdelimpeza.compose.profile.ProfileScreen
@@ -44,22 +45,22 @@ fun MainScreenNavigation() {
     val navController = rememberNavController()
 
         NavHost(navController = navController, startDestination = Screen.HOME.route,  modifier = Modifier.background(White)) {
-            composable(Screen.HOME.route) {
-                HomeScreen(navController) {nameSeller ->
+            composable(route = Screen.HOME.route) {
+                HomeScreen(navController = navController) { nameSeller ->
                     navController.navigate("${Screen.SELLER.route}/$nameSeller")
                 }
             }
-            composable(Screen.SEARCH.route) {
+            composable(route = Screen.SEARCH.route) {
                 SearchScreen(navController)
             }
-            composable(Screen.PROFILE.route) {
+            composable(route = Screen.PROFILE.route) {
                 ProfileScreen(navController)
             }
-            composable(Screen.PRODUCT.route) {
+            composable(route = Screen.PRODUCT.route) {
                 //Área do vendedor(navController)
             }
 
-            composable("${Screen.SELLER.route}/{nameSeller}") {
+            composable(route = "${Screen.SELLER.route}/{nameSeller}") {
                 val nameSeller = it.arguments?.getString("nameSeller") ?: ""
                 SellerProductsScreen(
                     nameSeller,
@@ -68,11 +69,14 @@ fun MainScreenNavigation() {
                     },
                     onClickCardSellerProfile = {
                         navController.navigate(Screen.SELLER_PROFILE.route)
+                    },
+                    onClickCartScreen = {
+                        navController.navigate(Screen.CART.route)
                     }
                 )
             }
 
-            composable(Screen.ABOUT.route) {
+            composable(route = Screen.ABOUT.route) {
                 AboutScreen(
                     onNavigateUpClick = { navController.navigateUp() }
                 )
@@ -83,11 +87,17 @@ fun MainScreenNavigation() {
             }
 
             composable(route = Screen.NOTIFICATION.route) {
-                NotificationScreen()
+                NotificationScreen(
+                    onNavigateBack = { navController.navigateUp() }
+                )
             }
 
             composable(route = Screen.SELLER_PROFILE.route) {
                 SellerProfileScreen()
+            }
+
+            composable(route = Screen.CART.route) {
+                CartScreen()
             }
         }
 }

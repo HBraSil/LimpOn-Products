@@ -1,9 +1,14 @@
 package com.example.produtosdelimpeza.compose.seller
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,19 +32,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,99 +62,168 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.compose.basescaffold.BaseScaffold
 import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
+import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.viewmodels.CartViewModel
+import java.util.UUID
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SellerProductsScreen(
     nameSeller: String = "",
     onBackNavigation: () -> Unit = {},
-    onClickCardSellerProfile: () -> Unit,
+    onClickCardSellerProfile: () -> Unit = {},
+    onClickCartScreen: () -> Unit = {},
+    cartViewModel: CartViewModel = viewModel(factory = CartViewModel.Factory),
 ) {
     var expandableFavoriteState by remember { mutableStateOf(false) }
     var expandableFeaturedState by remember { mutableStateOf(true) }
 
+    var items by remember { mutableIntStateOf(0) }
+    var price by remember { mutableDoubleStateOf(0.0) }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { },
-                    navigationIcon = {
-                        IconButton(onClick = { onBackNavigation() }) {
+    val totalQuantity by cartViewModel.totalQuantity.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
+
+    BaseScaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { onBackNavigation() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = stringResource(R.string.icon_navigate_back),
+                        )
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            CartBottomBarScaffoldStyle(
+                items = totalQuantity    ,
+                total = totalPrice,
+                onOpenCart = {
+                    onClickCartScreen()
+                }
+            )
+        },
+        containerColor = Color.Transparent
+    ) {
+        val produtos = listOf(
+            CartProduct(id = 1, name = "Sabão líquido 5 litros", price = 25.0, quantity = 1),
+            CartProduct(id = 2, name = "Desinfetante Floral 2L", price = 15.0, quantity = 1),
+            CartProduct(id = 3, name = "Detergente Neutro 500ml", price = 5.0, quantity = 1),
+            CartProduct(id = 4, name = "Álcool 70% 1L", price = 10.0, quantity = 1),
+            CartProduct(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = 1),
+            CartProduct(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = 1),
+            CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = 1),
+            CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = 1),
+            CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = 1),
+            CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = 1)
+        )
+
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            contentPadding = PaddingValues(14.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            // Header principal
+            item {
+                InformationCard(nameSeller, onClickCardSellerProfile = onClickCardSellerProfile)
+            }
+
+            // FAVORITOS
+            item {
+                ExpandableCardProducts(
+                    modifier = Modifier.padding(top = 20.dp),
+                    title = R.string.favorites_products,
+                    expanded = expandableFavoriteState,
+                )
+            }
+
+            // DESTAQUES
+            item {
+                ExpandableCardProducts(
+                    modifier = Modifier.padding(bottom = 20.dp),
+                    title = R.string.featured_products,
+                    expanded = expandableFeaturedState,
+                )
+            }
+
+            // Todos os produtos (grid 2 colunas usando FlowRow)
+            item {
+                Column {
+                    Row(
+                        modifier = Modifier.padding(bottom = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.all_products),
+                            modifier = Modifier,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(Modifier.weight(1f))
+
+                        IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = stringResource(R.string.icon_navigate_back),
+                                imageVector = Icons.Default.FilterAlt,
+                                contentDescription = null,
                             )
                         }
                     }
-                )
-            },
-            containerColor = Color.Transparent
-        ) {
-            val produtos = List(10) { "Produto $it" }
+                    FlowRow(
+                        maxItemsInEachRow = 2,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        produtos.forEachIndexed { index, product ->
+                            LimpOnCardProducts(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(270.dp),
+                                product = product,
+                                onClickProduct = { /*TODO*/ },
+                                subOfProducts = { name, quantity, price ->
+                                    cartViewModel.addOrUpdateProduct(
+                                        CartProduct(
+                                            name = name,
+                                            price = price,
+                                            quantity = quantity
+                                        )
+                                    )
+                                },
+                                sumOfProducts = { name, quantity, curPrice ->
+                                    items++
+                                    price += curPrice
+                                    // os dois itens acima são utilizados para atualizar o composable do bottomBar
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it),
-                contentPadding = PaddingValues(14.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
 
-                // Header principal
-                item {
-                    InformationCard(nameSeller, onClickCardSellerProfile = onClickCardSellerProfile)
-                }
-
-                // FAVORITOS
-                item {
-                    ExpandableCardProducts(
-                        modifier = Modifier.padding(top = 20.dp),
-                        title = R.string.favorites_products,
-                        expanded = expandableFavoriteState,
-                    )
-                }
-
-                // DESTAQUES
-                item {
-                    ExpandableCardProducts(
-                        modifier = Modifier.padding(bottom = 20.dp),
-                        title = R.string.featured_products,
-                        expanded = expandableFeaturedState,
-                    )
-                }
-
-                // Todos os produtos (grid 2 colunas usando FlowRow)
-                item {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.all_products),
-                            modifier = Modifier
-                                .padding(start = 20.dp, bottom = 20.dp),
-                            fontSize = 20.sp,
-                            fontWeight = Bold
-                        )
-                        FlowRow(
-                            maxItemsInEachRow = 2,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            produtos.forEach { produto ->
-                                LimpOnCardProducts(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(240.dp)
-                                ) {
-                                    // TODO: Navegar para a tela de detalhes do produto
+                                    cartViewModel.addOrUpdateProduct(
+                                        CartProduct(
+                                            id = index,
+                                            name = name,
+                                            price = price,
+                                            quantity = quantity
+                                        )
+                                    )
                                 }
-                            }
+                            )
                         }
                     }
                 }
@@ -149,6 +232,65 @@ fun SellerProductsScreen(
     }
 }
 
+
+
+@Composable
+fun CartBottomBarScaffoldStyle(
+    items: Int,
+    total: Double,
+    onOpenCart: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // anima entrada/saída vertical
+    AnimatedVisibility(
+        visible = items > 0,
+        enter = slideInVertically(
+            initialOffsetY = { it /* começa abaixo */ },
+            animationSpec = tween(400)
+        ) + fadeIn(animationSpec = tween(200)),
+        exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250)) + fadeOut(),
+    ) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .navigationBarsPadding(), // evita área da nav bar
+            tonalElevation = 6.dp,
+            shadowElevation = 8.dp,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // ícone com badge
+                BadgedBox(
+                    badge = {
+                        if (items > 0) Badge { Text("$items") }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Carrinho"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Total: R$ ${"%.2f".format(total)}", fontWeight = FontWeight.Bold)
+                    Text("$items item(s)", style = MaterialTheme.typography.bodySmall)
+                }
+
+                Button(onClick = onOpenCart) {
+                    Text("Ver sacola")
+                }
+            }
+        }
+    }
+}
 
 
 @Composable
@@ -195,7 +337,7 @@ fun InformationCard(
                 Text(
                     text = nameSeller,
                     fontSize = 18.sp,
-                    fontWeight = Bold,
+                    fontWeight = FontWeight.Bold,
                     color = White
                 )
 
@@ -266,7 +408,7 @@ fun ExpandableCardProducts(
                     .padding(start = 20.dp)
                     .padding(vertical = 20.dp),
                 fontSize = 20.sp,
-                fontWeight = Bold
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(Modifier.weight(1f))
@@ -284,7 +426,8 @@ fun ExpandableCardProducts(
         }
         if (expandedState) {
             LazyRow(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -293,6 +436,11 @@ fun ExpandableCardProducts(
                         modifier = Modifier
                             .width(120.dp)
                             .height(155.dp),
+                        product = CartProduct(
+                            name = "Sabão líquido 5 litros",
+                            price = 25.0,
+                            quantity = 1
+                        ),
                         favorites = true
                     )
                 }
@@ -307,5 +455,5 @@ fun ExpandableCardProducts(
 @Preview
 @Composable
 private fun SellerScreenPreview() {
-    SellerProductsScreen(onClickCardSellerProfile = {})
+    SellerProductsScreen(onClickCardSellerProfile = {}, onClickCartScreen = {})
 }

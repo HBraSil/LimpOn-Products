@@ -274,63 +274,60 @@ fun Configurations(navController: NavHostController?) {
     )
 
     configurationsItemList.forEachIndexed { index, item ->
-        if (item != null) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 35.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        when (index) {
-                            //0 -> TODO: Habilitar tela de cupons
-                            1 -> isSheetOpen = !isSheetOpen
-                            2 -> navController!!.navigate(Screen.NOTIFICATION.route)
-                        }
-                    },
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Icon(
-                    imageVector = iconsList[index],
-                    contentDescription = stringResource(R.string.icon_configurations),
-                )
-
-                Spacer(Modifier.width(20.dp))
-
-                Text(
-                    text = item,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                when (item) {
-                    stringResource(R.string.enable_cupons) -> {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                        )
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 35.dp)
+                .fillMaxWidth()
+                .clickable {
+                    when (index) {
+                        //0 -> TODO: Habilitar tela de cupons
+                        1 -> isSheetOpen = !isSheetOpen
+                        2 -> navController!!.navigate(Screen.NOTIFICATION.route)
                     }
+                },
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-                    stringResource(R.string.dark_mode) -> {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                        )
-                    }
+            Icon(
+                imageVector = iconsList[index],
+                contentDescription = stringResource(R.string.icon_configurations),
+            )
 
-                    stringResource(R.string.manage_notifications) -> {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                            contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                        )
-                    }
+            Spacer(Modifier.width(20.dp))
+
+            Text(
+                text = item,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            when (item) {
+                stringResource(R.string.enable_cupons) -> {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                    )
                 }
 
+                stringResource(R.string.dark_mode) -> {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                    )
+                }
+
+                stringResource(R.string.manage_notifications) -> {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
+                    )
+                }
             }
-            Spacer(Modifier.height(2.dp))
 
         }
+        Spacer(Modifier.height(2.dp))
     }
 
 
@@ -407,11 +404,16 @@ fun GeneralInformation(navController: NavHostController?) {
         color = MaterialTheme.colorScheme.onBackground
     )
 
-    generalInformationList.forEach {item ->
+    generalInformationList.forEachIndexed {index, item ->
         Row(
             modifier = Modifier
                 .padding(horizontal = 35.dp)
-                .clickable {}
+                .clickable {
+                    when (index) {
+                        //stringResource(R.string.feedback) -> navController!!.navigate(Screen.FEEDBACK.route)
+                        1 -> navController!!.navigate(Screen.ABOUT.route)
+                    }
+                }
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically

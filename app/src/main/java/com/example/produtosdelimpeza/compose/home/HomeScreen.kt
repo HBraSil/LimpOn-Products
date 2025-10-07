@@ -1,5 +1,11 @@
 package com.example.produtosdelimpeza.compose.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,23 +23,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,69 +66,99 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.compose.basescaffold.BaseScaffold
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.LightGreenCircle
 import com.example.produtosdelimpeza.ui.theme.RedCircle
+import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
 data class ItemInitialCard(
     val image: Int,
     val name: String,
     val colorIcon: Color,
-    val description: String
+    val description: String,
 )
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, onCardSellerClick: (String) -> Unit) {
-
+fun HomeScreen(
+    cartViewModel: CartViewModel = viewModel(factory = CartViewModel.Factory),
+    navController: NavHostController, onCardSellerClick: (String) -> Unit
+) {
+    val totalQuantity by cartViewModel.totalQuantity.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
 
+
     val items = listOf(
-        ItemInitialCard(R.drawable.highlight, "Raimundo", LightGreenCircle, "Este vendedor passa na sua cidade"),
-        ItemInitialCard(R.drawable.highlight, "Iran", LightGreenCircle, "Este vendedor passa na sua cidade"),
-        ItemInitialCard(R.drawable.highlight, "Francialdo", RedCircle, "Este vendedor não passa na sua cidade"),
+        ItemInitialCard(
+            R.drawable.highlight,
+            "Raimundo",
+            LightGreenCircle,
+            "Este vendedor passa na sua cidade"
+        ),
+        ItemInitialCard(
+            R.drawable.highlight,
+            "Iran",
+            LightGreenCircle,
+            "Este vendedor passa na sua cidade"
+        ),
+        ItemInitialCard(
+            R.drawable.highlight,
+            "Francialdo",
+            RedCircle,
+            "Este vendedor não passa na sua cidade"
+        ),
     )
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(text = "LimpOn") },
-                    actions = {
-                        IconButton(onClick = { showDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = stringResource(R.string.icon_info)
-                            )
-                        }
+
+    BaseScaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "LimpOn") },
+                actions = {
+                    IconButton(onClick = { showDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = stringResource(R.string.icon_info)
+                        )
                     }
+                }
+            )
+        },
+        bottomBar = {
+            Column {
+                CartBottomBarScaffoldStyle(
+                    items = totalQuantity,
+                    total = totalPrice,
+                    onOpenCart = { navController.navigate("cart") }
                 )
-            },
-            bottomBar = {
                 MainBottomNavigation(navController)
-            },
-            modifier = Modifier.navigationBarsPadding()
-        ) { contentPadding ->
-            Column (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = contentPadding.calculateTopPadding(),
-                    )
+            }
+        },
+        modifier = Modifier.navigationBarsPadding()
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                )
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(items.size) {
-                        ItemCard(item = items[it]) {
-                            onCardSellerClick(items[it].name)
-                        }
+                items(items.size) {
+                    ItemCard(item = items[it]) {
+                        onCardSellerClick(items[it].name)
                     }
                 }
             }
@@ -128,9 +170,69 @@ fun HomeScreen(navController: NavHostController, onCardSellerClick: (String) -> 
     }
 }
 
+
+@Composable
+fun CartBottomBarScaffoldStyle(
+    items: Int,
+    total: Double,
+    onOpenCart: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // anima entrada/saída vertical
+    AnimatedVisibility(
+        visible = items > 0,
+        enter = slideInVertically(
+            initialOffsetY = { it /* começa abaixo */ },
+            animationSpec = tween(400)
+        ) + fadeIn(animationSpec = tween(200)),
+        exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250)) + fadeOut(),
+    ) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .navigationBarsPadding(), // evita área da nav bar
+            tonalElevation = 6.dp,
+            shadowElevation = 8.dp,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // ícone com badge
+                BadgedBox(
+                    badge = {
+                        if (items > 0) Badge { Text("$items") }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Carrinho"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Total: R$ ${"%.2f".format(total)}", fontWeight = FontWeight.Bold)
+                    Text("$items item(s)", style = MaterialTheme.typography.bodySmall)
+                }
+
+                Button(onClick = onOpenCart) {
+                    Text("Ver sacola")
+                }
+            }
+        }
+    }
+}
+
+
 @Composable
 fun HomeInfoDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     Dialog(onDismissRequest = { onDismiss() }) {
         Box(
@@ -202,7 +304,10 @@ fun ItemCard(item: ItemInitialCard, onClick: () -> Unit) {
             .size(150.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
-            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)),
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(8.dp)
+            ),
         contentAlignment = Alignment.Center
     ) {
 

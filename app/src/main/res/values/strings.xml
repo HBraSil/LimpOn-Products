@@ -21,7 +21,7 @@
     <string name="move_on">Continuar</string>
     <string name="home">Início</string>
     <string name="profile">Perfil</string>
-    <string name="product">Produtos</string>
+    <string name="product">Produto</string>
     <string name="image_profile">Imagem do perfil do usuário</string>
     <string name="edit_profile_name_and_city">Editar nome e cidade do usuário</string>
     <string name="search">Pesquisar</string>
@@ -57,4 +57,5 @@
     <string name="time_to_expire">🕒︎</string>
     <string name="icon_personal_data">Icones da aba de dados pessoais</string>
     <string name="icon_configurations">Icones da aba de configurações</string>
+    <string name="back_button">botão de voltar</string>
 </resources>
