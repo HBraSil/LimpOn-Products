@@ -16,17 +16,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,15 +54,17 @@ fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
     favorites: Boolean = false,
     product: CartProduct,
+    txtQuantity: Int = 0,
     onClickProduct: () -> Unit = {},
     sumOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
-    subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->}
+    subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
 ) {
+    var showLeftBtn by remember { mutableStateOf(txtQuantity > 0) } // ativa o botão da esquerda quando quantity for maior do que 0
+    LaunchedEffect(txtQuantity) {// Quando quantity mudar, sincroniza showLeftBtn automaticamente
+        showLeftBtn = txtQuantity > 0
+    }
 
-    var productName by remember { mutableStateOf("Sabão líquido 5 litros") }
-    var qntProduct by remember { mutableIntStateOf(0) }
-    var showLeftBtn by remember { mutableStateOf(false) }
-    var productPrice by remember { mutableDoubleStateOf(25.0) }
+    var qntProduct by remember { mutableIntStateOf(txtQuantity) }
     val leftAlpha by animateFloatAsState(
         targetValue = if (showLeftBtn) 1f else 0f,
         animationSpec = tween(
@@ -68,7 +72,6 @@ fun LimpOnCardProducts(
             easing = LinearEasing // como a velocidade se comporta (linear, acelerando, desacelerando)
         )
     )
-
 
     Column(
         modifier = modifier
@@ -90,7 +93,7 @@ fun LimpOnCardProducts(
 
         if (favorites) {
             Text(
-                text = productName,
+                text = product.name,
                 modifier = Modifier.padding(top = 6.dp, start = 6.dp),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -100,7 +103,9 @@ fun LimpOnCardProducts(
             Text(
                 text = product.name,
                 modifier = Modifier.padding(top = 6.dp, start = 6.dp),
-                fontSize = 18.sp
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -112,30 +117,41 @@ fun LimpOnCardProducts(
                 .align(Alignment.Start),
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
 
         Spacer(Modifier.weight(1f))
 
-        Text(
-            text = product.price.toString(),
+        Row(
             modifier = Modifier
                 .padding(top = 10.dp, bottom = 10.dp, start = 10.dp),
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 18.sp
-        )
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = "R$ ${product.price}",
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 16.sp
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "unidade",
+                fontWeight = FontWeight.ExtraLight,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 14.sp
+            )
+        }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, bottom = 10.dp, end = 10.dp, top = 5.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp, bottom = 10.dp, end = 10.dp, top = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Card(
-                onClick = {
-                    qntProduct--
-                    if (qntProduct < 1) showLeftBtn = false
-                    subOfProducts(productName, qntProduct, productPrice)
-                },
+                onClick = { subOfProducts(product.name, txtQuantity, product.price) },
                 enabled = showLeftBtn,
                 modifier = Modifier
                     .width(35.dp)
@@ -147,7 +163,7 @@ fun LimpOnCardProducts(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Remove,
+                    imageVector = if (txtQuantity > 1) Icons.Default.Remove else Icons.Default.Delete,
                     contentDescription = null
                 )
             }
@@ -163,16 +179,12 @@ fun LimpOnCardProducts(
                 contentAlignment = Alignment.Center
             ){
                 Text(
-                    text = product.quantity.toString()
+                    text = txtQuantity.toString()
                 )
             }
 
             Card(
-                onClick = {
-                    qntProduct++
-                    showLeftBtn = true
-                    sumOfProducts(productName, qntProduct, productPrice)
-                },
+                onClick = { sumOfProducts(product.name, qntProduct, product.price) },
                 modifier = Modifier
                     .width(35.dp)
                     .height(30.dp),
@@ -189,6 +201,7 @@ fun LimpOnCardProducts(
         }
     }
 }
+
 
 @Preview
 @Composable

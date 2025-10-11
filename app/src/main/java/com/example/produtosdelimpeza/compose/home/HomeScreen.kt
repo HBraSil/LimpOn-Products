@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.compose.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -66,6 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
@@ -74,7 +76,6 @@ import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.LightGreenCircle
 import com.example.produtosdelimpeza.ui.theme.RedCircle
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
-
 
 data class ItemInitialCard(
     val image: Int,
@@ -87,11 +88,15 @@ data class ItemInitialCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    cartViewModel: CartViewModel = viewModel(factory = CartViewModel.Factory),
+    cartViewModel: CartViewModel = viewModel(),
     navController: NavHostController, onCardSellerClick: (String) -> Unit
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
+
+    Log.d("CartView", "Home Screen Total Quantity: ${totalQuantity} --- Total Price: ${totalPrice}")
+
+
     var showDialog by remember { mutableStateOf(false) }
 
 

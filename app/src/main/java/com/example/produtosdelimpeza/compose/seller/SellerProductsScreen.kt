@@ -52,10 +52,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -72,26 +72,26 @@ import com.example.produtosdelimpeza.compose.basescaffold.BaseScaffold
 import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.model.CartProduct
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
-import java.util.UUID
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SellerProductsScreen(
+    cartViewModel: CartViewModel = viewModel(),
     nameSeller: String = "",
     onBackNavigation: () -> Unit = {},
     onClickCardSellerProfile: () -> Unit = {},
     onClickCartScreen: () -> Unit = {},
-    cartViewModel: CartViewModel = viewModel(factory = CartViewModel.Factory),
 ) {
     var expandableFavoriteState by remember { mutableStateOf(false) }
     var expandableFeaturedState by remember { mutableStateOf(true) }
 
-    var items by remember { mutableIntStateOf(0) }
-    var price by remember { mutableDoubleStateOf(0.0) }
-
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
+    val cartItems by cartViewModel.cartItems.collectAsState()
+
+    val cartIdxQuantity = remember { List(10) { 0 }.toMutableStateList() }
+
+    var price by remember { mutableDoubleStateOf(0.0) }
 
     BaseScaffold(
         topBar = {
@@ -109,7 +109,7 @@ fun SellerProductsScreen(
         },
         bottomBar = {
             CartBottomBarScaffoldStyle(
-                items = totalQuantity    ,
+                items = totalQuantity,
                 total = totalPrice,
                 onOpenCart = {
                     onClickCartScreen()
@@ -118,17 +118,17 @@ fun SellerProductsScreen(
         },
         containerColor = Color.Transparent
     ) {
-        val produtos = listOf(
-            CartProduct(id = 1, name = "Sabão líquido 5 litros", price = 25.0, quantity = 1),
-            CartProduct(id = 2, name = "Desinfetante Floral 2L", price = 15.0, quantity = 1),
-            CartProduct(id = 3, name = "Detergente Neutro 500ml", price = 5.0, quantity = 1),
-            CartProduct(id = 4, name = "Álcool 70% 1L", price = 10.0, quantity = 1),
-            CartProduct(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = 1),
-            CartProduct(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = 1),
-            CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = 1),
-            CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = 1),
-            CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = 1),
-            CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = 1)
+        val sampleProducts = listOf(
+            CartProduct(id = 1, name = "Sabão líquido 5 litros", price = 25.0, quantity = cartIdxQuantity[0]),
+            CartProduct(id = 2, name = "Desinfetante Floral 2L", price = 15.0, quantity = cartIdxQuantity[1]),
+            CartProduct(id = 3, name = "Detergente Neutro 500ml", price = 5.0, quantity = cartIdxQuantity[2]),
+            CartProduct(id = 4, name = "Álcool 70% 1L", price = 10.0, quantity = cartIdxQuantity[3]),
+            CartProduct(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
+            CartProduct(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
+            CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
+            CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
+            CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
+            CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
         )
 
 
@@ -192,16 +192,20 @@ fun SellerProductsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        produtos.forEachIndexed { index, product ->
+                        sampleProducts.forEachIndexed { index, product ->
+                            val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
+
                             LimpOnCardProducts(
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(270.dp),
                                 product = product,
+                                txtQuantity = quantity,
                                 onClickProduct = { /*TODO*/ },
                                 subOfProducts = { name, quantity, price ->
-                                    cartViewModel.addOrUpdateProduct(
+                                    cartViewModel.deleteOrRemoveProduct(
                                         CartProduct(
+                                            id = index,
                                             name = name,
                                             price = price,
                                             quantity = quantity
@@ -209,11 +213,6 @@ fun SellerProductsScreen(
                                     )
                                 },
                                 sumOfProducts = { name, quantity, curPrice ->
-                                    items++
-                                    price += curPrice
-                                    // os dois itens acima são utilizados para atualizar o composable do bottomBar
-
-
                                     cartViewModel.addOrUpdateProduct(
                                         CartProduct(
                                             id = index,
@@ -441,7 +440,7 @@ fun ExpandableCardProducts(
                             price = 25.0,
                             quantity = 1
                         ),
-                        favorites = true
+                        favorites = true,
                     )
                 }
             }

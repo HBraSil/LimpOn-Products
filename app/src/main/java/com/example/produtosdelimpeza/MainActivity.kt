@@ -11,7 +11,9 @@ import androidx.compose.ui.graphics.toArgb
 import com.example.produtosdelimpeza.compose.ProdutosLimpezaApp
 import com.example.produtosdelimpeza.ui.theme.LightBluishGray
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

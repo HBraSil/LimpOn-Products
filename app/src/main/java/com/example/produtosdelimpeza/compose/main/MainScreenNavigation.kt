@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -37,71 +38,81 @@ import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
+import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreenNavigation() {
     val navController = rememberNavController()
+    val cartViewModel: CartViewModel = hiltViewModel()
 
-        NavHost(navController = navController, startDestination = Screen.HOME.route,  modifier = Modifier.background(White)) {
-            composable(route = Screen.HOME.route) {
-                HomeScreen(navController = navController) { nameSeller ->
-                    navController.navigate("${Screen.SELLER.route}/$nameSeller")
-                }
-            }
-            composable(route = Screen.SEARCH.route) {
-                SearchScreen(navController)
-            }
-            composable(route = Screen.PROFILE.route) {
-                ProfileScreen(navController)
-            }
-            composable(route = Screen.PRODUCT.route) {
-                //Área do vendedor(navController)
-            }
-
-            composable(route = "${Screen.SELLER.route}/{nameSeller}") {
-                val nameSeller = it.arguments?.getString("nameSeller") ?: ""
-                SellerProductsScreen(
-                    nameSeller,
-                    onBackNavigation = {
-                        navController.navigateUp()
-                    },
-                    onClickCardSellerProfile = {
-                        navController.navigate(Screen.SELLER_PROFILE.route)
-                    },
-                    onClickCartScreen = {
-                        navController.navigate(Screen.CART.route)
-                    }
-                )
-            }
-
-            composable(route = Screen.ABOUT.route) {
-                AboutScreen(
-                    onNavigateUpClick = { navController.navigateUp() }
-                )
-            }
-
-            composable(route = Screen.SELLER_REGISTER.route) {
-                SellerRegister()
-            }
-
-            composable(route = Screen.NOTIFICATION.route) {
-                NotificationScreen(
-                    onNavigateBack = { navController.navigateUp() }
-                )
-            }
-
-            composable(route = Screen.SELLER_PROFILE.route) {
-                SellerProfileScreen()
-            }
-
-            composable(route = Screen.CART.route) {
-                CartScreen()
+    NavHost(
+        navController = navController,
+        startDestination = Screen.HOME.route,
+        modifier = Modifier.background(White)
+    ) {
+        composable(route = Screen.HOME.route) {
+            HomeScreen(navController = navController, cartViewModel = cartViewModel) { nameSeller ->
+                navController.navigate("${Screen.SELLER.route}/$nameSeller")
             }
         }
-}
 
+        composable(route = Screen.SEARCH.route) {
+            SearchScreen(navController)
+        }
+        composable(route = Screen.PROFILE.route) {
+            ProfileScreen(navController)
+        }
+        composable(route = Screen.PRODUCT.route) {
+            //Área do vendedor(navController)
+        }
+
+        composable(route = "${Screen.SELLER.route}/{nameSeller}") { navBackStackEntry ->
+            val nameSeller = navBackStackEntry.arguments?.getString("nameSeller") ?: ""
+            SellerProductsScreen(
+                cartViewModel = cartViewModel,
+                nameSeller,
+                onBackNavigation = {
+                    navController.navigateUp()
+                },
+                onClickCardSellerProfile = {
+                    navController.navigate(Screen.SELLER_PROFILE.route)
+                },
+                onClickCartScreen = {
+                    navController.navigate(Screen.CART.route)
+                }
+            )
+        }
+
+        composable(route = Screen.ABOUT.route) {
+            AboutScreen(
+                onNavigateUpClick = { navController.navigateUp() }
+            )
+        }
+
+        composable(route = Screen.SELLER_REGISTER.route) {
+            SellerRegister()
+        }
+
+        composable(route = Screen.NOTIFICATION.route) {
+            NotificationScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(route = Screen.SELLER_PROFILE.route) {
+            SellerProfileScreen()
+        }
+
+        composable(route = Screen.CART.route) {
+            CartScreen(
+                onBackNavigation = { navController.navigateUp() },
+                cartViewModel = cartViewModel
+            )
+        }
+    }
+}
 
 
 @Composable
