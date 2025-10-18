@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 data class CartProduct(
     @PrimaryKey
     val id: Int = 0,
-    val name: String,
-    var price: Double,
-    var quantity: Int
+    var name: String = "",
+    var price: Double = 0.0,
+    var badges: List<String> = emptyList(),
+    var quantity: Int = 0
 )

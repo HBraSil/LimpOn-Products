@@ -88,6 +88,8 @@ dependencies {
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)
 
+    implementation("com.google.code.gson:gson:2.10.1")
+
     //Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)

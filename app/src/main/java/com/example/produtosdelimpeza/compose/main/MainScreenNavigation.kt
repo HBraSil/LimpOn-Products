@@ -70,9 +70,10 @@ fun MainScreenNavigation() {
 
         composable(route = "${Screen.SELLER.route}/{nameSeller}") { navBackStackEntry ->
             val nameSeller = navBackStackEntry.arguments?.getString("nameSeller") ?: ""
+
             SellerProductsScreen(
                 cartViewModel = cartViewModel,
-                nameSeller,
+                nameSeller = nameSeller,
                 onBackNavigation = {
                     navController.navigateUp()
                 },
@@ -104,6 +105,19 @@ fun MainScreenNavigation() {
         composable(route = Screen.SELLER_PROFILE.route) {
             SellerProfileScreen()
         }
+
+/*
+        composable(route = "${Screen.PRODUCT.route}/{productId}") {
+            val productId = it.arguments?.getString("productId")!!
+            ProductScreen(
+                productId = productId,
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
+        }
+*/
+
 
         composable(route = Screen.CART.route) {
             CartScreen(

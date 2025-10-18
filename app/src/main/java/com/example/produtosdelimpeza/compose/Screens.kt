@@ -12,6 +12,7 @@ enum class Screen(val route: String) {
     NOTIFICATION("notification"),
     SELLER_PROFILE("seller_profile"),
     CART("cart"),
+    PRODUCTS("products"),
 
 
 

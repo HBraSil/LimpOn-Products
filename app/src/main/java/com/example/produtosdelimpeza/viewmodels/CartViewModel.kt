@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.viewmodels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.data.CartProductRepository
@@ -30,7 +31,6 @@ class CartViewModel @Inject constructor(
             loadCart()
         }
     }
-
 
     fun loadCart() {
         viewModelScope.launch {
@@ -72,6 +72,17 @@ class CartViewModel @Inject constructor(
         }
     }
 
+    fun getTotalPriceForProduct(productId: Int): Double {
+        val product = _cartItems.value.find { it.id == productId }
+        val quantity = product?.quantity ?: 0
+        val totalPriceForThisProduct = product?.price?.times(quantity) ?: 0.0
+
+        return totalPriceForThisProduct
+    }
+
+    fun getProductForId(productId: Int): CartProduct? {
+        return _cartItems.value.find { it.id == productId }
+    }
 
     private fun updateTotals(products: List<CartProduct>) {
         _totalQuantity.value = products.sumOf { it.quantity }

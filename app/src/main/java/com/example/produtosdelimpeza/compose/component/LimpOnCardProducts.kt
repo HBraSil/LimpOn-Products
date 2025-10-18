@@ -1,8 +1,6 @@
 package com.example.produtosdelimpeza.compose.component
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,28 +12,29 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -46,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
 import com.example.produtosdelimpeza.model.CartProduct
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -53,150 +53,154 @@ import com.example.produtosdelimpeza.model.CartProduct
 fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
     favorites: Boolean = false,
-    product: CartProduct,
+    product: CartProduct = CartProduct(),
     txtQuantity: Int = 0,
+    isProductScreen: Boolean = true,
+    contentBackgroundColor: Color = Color.Transparent,
     onClickProduct: () -> Unit = {},
-    sumOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
-    subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
+    subOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
+    sumOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
 ) {
-    var showLeftBtn by remember { mutableStateOf(txtQuantity > 0) } // ativa o botão da esquerda quando quantity for maior do que 0
-    LaunchedEffect(txtQuantity) {// Quando quantity mudar, sincroniza showLeftBtn automaticamente
-        showLeftBtn = txtQuantity > 0
-    }
-
-    var qntProduct by remember { mutableIntStateOf(txtQuantity) }
-    val leftAlpha by animateFloatAsState(
-        targetValue = if (showLeftBtn) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 200, // duração da animação em milissegundos
-            easing = LinearEasing // como a velocidade se comporta (linear, acelerando, desacelerando)
-        )
-    )
-
-    Column(
-        modifier = modifier
-            .width(150.dp)
-            .height(250.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(color = MaterialTheme.colorScheme.primary)
-            .clickable { onClickProduct() },
-        horizontalAlignment = Alignment.Start
+    Card(
+        onClick = onClickProduct,
+        shape = RoundedCornerShape(10.dp),
+        modifier = modifier.wrapContentWidth(),
+        elevation = CardDefaults.cardElevation(8.dp),
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.highlight),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
-        )
+                .height(140.dp)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.sabao_lava_roupa),
+                contentDescription = "Product Image",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.align(Alignment.Center),
+                alignment = Alignment.Center
+            )
 
-        if (favorites) {
+
+            IconButton(onClick = {},
+                modifier = Modifier
+                    .size(42.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp, end = 6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorite",
+                    tint = Color.Red
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.95f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        )
+                    )
+                )
+        ) {
             Text(
                 text = product.name,
                 modifier = Modifier.padding(top = 6.dp, start = 6.dp),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                maxLines = 1,
+                color = Color.Black,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Center
             )
-        } else {
+
             Text(
-                text = product.name,
-                modifier = Modifier.padding(top = 6.dp, start = 6.dp),
-                fontSize = 16.sp,
+                text = "Lava roupas, lava louça",
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .align(Alignment.Start),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light,
                 maxLines = 1,
+                color = Color.DarkGray,
                 overflow = TextOverflow.Ellipsis,
             )
-        }
 
+            Spacer(Modifier.height(10.dp))
 
-        Text(
-            text = "Lava roupas, lava louça",
-            modifier = Modifier
-                .padding(start = 6.dp)
-                .align(Alignment.Start),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Light,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Spacer(Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier
-                .padding(top = 10.dp, bottom = 10.dp, start = 10.dp),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "R$ ${product.price}",
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 16.sp
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = "unidade",
-                fontWeight = FontWeight.ExtraLight,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 14.sp
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, bottom = 10.dp, end = 10.dp, top = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Card(
-                onClick = { subOfProducts(product.name, txtQuantity, product.price) },
-                enabled = showLeftBtn,
+            Row(
                 modifier = Modifier
-                    .width(35.dp)
-                    .height(30.dp)
-                    .alpha(leftAlpha),
-                shape = RoundedCornerShape(
-                    topStart = 6.dp,
-                    bottomStart = 6.dp
-                )
+                    .padding(start = 10.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.Bottom
             ) {
-                Icon(
-                    imageVector = if (txtQuantity > 1) Icons.Default.Remove else Icons.Default.Delete,
-                    contentDescription = null
-                )
-            }
-
-            Box(
-                modifier = modifier
-                    .width(20.dp)
-                    .height(15.dp)
-                    .background(
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(10.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ){
                 Text(
-                    text = txtQuantity.toString()
+                    text = "R$ ${product.price}",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "/unidade",
+                    fontWeight = FontWeight.ExtraLight,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 14.sp
                 )
             }
 
-            Card(
-                onClick = { sumOfProducts(product.name, qntProduct, product.price) },
-                modifier = Modifier
-                    .width(35.dp)
-                    .height(30.dp),
-                shape = RoundedCornerShape(
-                    topEnd = 6.dp,
-                    bottomEnd = 6.dp
-                )
+            Row(
+                modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null
-                )
+                product.badges.forEach { badge ->
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(50),
+                        tonalElevation = 2.dp
+                    ) {
+                        Text(
+                            badge,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+
+            if (isProductScreen) {
+                Row(
+                    modifier = Modifier.padding(bottom = 6.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AddAndSubButton(
+                        modifier = Modifier,
+                        txtQuantity = txtQuantity,
+                        product = product,
+                        subOfProducts = subOfProducts,
+                        sumOfProducts = sumOfProducts
+                    )
+
+                    IconButton(
+                        onClick = {},
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = "Adicionar ao carrinho",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
             }
         }
     }

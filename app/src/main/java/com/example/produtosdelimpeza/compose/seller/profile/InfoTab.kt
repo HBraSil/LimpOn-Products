@@ -70,7 +70,7 @@ fun InfoTab() {
 
 
 @Composable
-fun Address(modifier: Modifier = Modifier) {
+fun Address() {
     Text(
         text = "Endereço",
         fontSize = 20.sp,
