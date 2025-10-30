@@ -1,17 +1,19 @@
 package com.example.produtosdelimpeza.compose.home
 
-import android.util.Log
+import SwipeableCardOne
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,26 +27,45 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.LocalGroceryStore
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Sanitizer
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.filled.South
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,87 +75,121 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
-import com.example.produtosdelimpeza.ui.theme.LightGreenCircle
-import com.example.produtosdelimpeza.ui.theme.RedCircle
+import com.example.produtosdelimpeza.controller.SystemBarController
+import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
-data class ItemInitialCard(
-    val image: Int,
-    val name: String,
-    val colorIcon: Color,
-    val description: String,
+sealed class HomeCardItem {
+    data class ItemInitialCard(
+        val id: Int,
+        val name: String,
+        val image: Int,
+        val city: String,
+        val isPhysicalStore: Boolean,
+        val sellerPassesByYourCity: Boolean = false
+    ) : HomeCardItem()
+
+    data class Category(
+        val id: Int,
+        val label: String,
+        val icon: ImageVector,
+        val color: Color,
+    ) : HomeCardItem()
+}
+
+data class Product(val id: Int, val name: String, val price: String, val icon: ImageVector)
+
+// --- Sample data ---
+private val sampleCategories = listOf(
+    HomeCardItem.Category(1, "Limpeza", Icons.Default.CleaningServices, Color(0xFFBEECC8)),
+    HomeCardItem.Category(2, "Super", Icons.Default.LocalGroceryStore, Color(0xFFFFF3C4)),
+    HomeCardItem.Category(3, "Bebidas", Icons.Default.LocalBar, Color(0xFFD6EEFF)),
+    HomeCardItem.Category(4, "Higiene", Icons.Default.Sanitizer, Color(0xFFE6F7FF)),
+    HomeCardItem.Category(5, "Pet", Icons.Default.Pets, Color(0xFFFFE6E6))
 )
 
+data class AddressItem(
+    val id: String,
+    val name: String? = null, // e.g., "Casa", "Trabalho"
+    val fullAddress: String,
+    val isDefault: Boolean = false,
+    val eta: String? = null, // e.g., "25-35 min"
+    val distance: String? = null // e.g., "1.2 km"
+)
+
+private val itemsLista = listOf(
+    HomeCardItem.ItemInitialCard(
+        1,
+        "Raimundo",
+        R.drawable.sabao_lava_roupa,
+        "Tuntum - MA",
+        true,
+    ),
+    HomeCardItem.ItemInitialCard(
+        2,
+        "Iran",
+        R.drawable.highlight,
+        "Barra do Corda - MA",
+        false,
+        true
+    ),
+    HomeCardItem.ItemInitialCard(
+        3,
+        "Francialdo",
+        R.drawable.highlight,
+        "Tuntum - MA",
+        false,
+        false
+    ),
+)
+
+private val sampleProducts = listOf(
+    CartProduct(1, "Detergente Líquido", 62.71),
+    CartProduct(2, "Sabao Líquido", 6.49),
+    CartProduct(2, "Kiboa", 2.39),
+    CartProduct(2, "Brilho", 1.69),
+    CartProduct(2, "Amaciante Líquidp", 10.00),
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     cartViewModel: CartViewModel = viewModel(),
     navController: NavHostController,
-    onCardSellerClick: (String) -> Unit
+    onCardSellerClick: (String) -> Unit = {},
+    onCategoryClick: (HomeCardItem.Category) -> Unit = {},
+    onProductAdd: (Product) -> Unit = {},
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
-
-    Log.d("CartView", "Home Screen Total Quantity: $totalQuantity --- Total Price: $totalPrice")
-
-
     var showDialog by remember { mutableStateOf(false) }
 
+    var expandedCard by remember { mutableStateOf(false) } // Assumindo que expanded é uma variável de estado
 
-    val items = listOf(
-        ItemInitialCard(
-            R.drawable.highlight,
-            "Raimundo",
-            LightGreenCircle,
-            "Este vendedor passa na sua cidade"
-        ),
-        ItemInitialCard(
-            R.drawable.highlight,
-            "Iran",
-            LightGreenCircle,
-            "Este vendedor passa na sua cidade"
-        ),
-        ItemInitialCard(
-            R.drawable.highlight,
-            "Francialdo",
-            RedCircle,
-            "Este vendedor não passa na sua cidade"
-        ),
-    )
 
+    //SystemBarController(false)
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "LimpOn") },
-                actions = {
-                    IconButton(onClick = { showDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = stringResource(R.string.icon_info)
-                        )
-                    }
-                }
-            )
-        },
         bottomBar = {
             Column {
                 CartBottomBarScaffoldStyle(
@@ -146,31 +201,624 @@ fun HomeScreen(
             }
         },
         modifier = Modifier.navigationBarsPadding()
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                )
-        ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    //.verticalScroll(rememberScrollState())
+                    .padding(paddingValues),
             ) {
-                items(items.size) {
-                    ItemCard(item = items[it]) {
-                        onCardSellerClick(items[it].name)
+                item {
+                    Box(
+                        modifier = Modifier
+                        //.padding(paddingValues) // Aplica o padding do Scaffold
+                    ) {
+
+                        Column(
+                            modifier = Modifier
+                                // Aqui está a chave: Adicionamos um padding TOP DINÂMICO
+                                // Ele garante que o conteúdo da Column SEMPRE comece logo
+                                // abaixo da altura MINIMIZADA do CardDeLocalizacao.
+                                .padding(top = 100.dp)
+                        ) {
+                            // Se o usuário puder rolar, use LazyColumn.
+
+                            // --- Banner de Ofertas ---
+                            BannerDeOfertas(
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            // Resto do conteúdo da tela abaixo do banner...
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        CardDeLocalizacao(
+                            isExpanded = expandedCard,
+                            onToggleExpand = { expandedCard = !expandedCard },
+                            address = AddressItem(
+                                id = "1",
+                                name = "Casa",
+                                fullAddress = "Rua Arsenio Da Silva 1",
+                                eta = "25-35 min",
+                                distance = "1.2 km"
+                            ),
+                            savedAddresses = listOf(
+                                AddressItem(
+                                    id = "1",
+                                    name = "Casa",
+                                    fullAddress = "Rua Arsenio Da Silva 1"
+                                ),
+                                AddressItem(
+                                    id = "2",
+                                    name = "Trabalho",
+                                    fullAddress = "Rua Arsenio Da Silva 2"
+                                )
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter) // Fixa no topo
+                        )
                     }
+                }
+
+                item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                item { SectionHeader(title = "Categorias") { } }
+                item { CategoriesRow(categories = sampleCategories, onClick = {}) }
+
+                item { Spacer(modifier = Modifier.height(30.dp)) }
+
+                item { SectionHeader(title = "Destaques para você", actionLabel = "Ver todos") { } }
+                item { FeaturedProductsRow(products = sampleProducts, onAdd = {}) }
+
+                item { Spacer(modifier = Modifier.height(30.dp)) }
+
+
+                item { SectionHeader(title = "Vendedores", actionLabel = "") { } }
+
+                items(itemsLista) {item ->
+                    ItemCard(seller = item) {
+                        onCardSellerClick(item.name)
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                }
+        }
+    }
+
+}
+
+@Composable
+fun FeaturedProductsRow(products: List<CartProduct>, onAdd: (CartProduct) -> Unit) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(start = 12.dp)
+    ) {
+        items(products) { productCart ->
+            SampleFeaturedProducts(
+                modifier = Modifier.padding(end = 12.dp),
+                productCart = productCart,
+                onAdd = onAdd
+            )
+        }
+    }
+}
+
+@Composable
+fun SampleFeaturedProducts(
+    modifier: Modifier = Modifier,
+    productCart: CartProduct,
+    onAdd: (CartProduct) -> Unit
+) {
+    Card(
+        modifier = modifier.width(160.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.South,
+                    contentDescription = productCart.name,
+                    modifier = Modifier.size(44.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Column {
+                Text(
+                    text = productCart.name, style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "R$ ${productCart.price.toBrazilianCurrency()}",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Surface(
+                    onClick = { onAdd(productCart) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    Text(
+                        text = "Adicionar",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
     }
+}
 
-    if (showDialog) {
-        HomeInfoDialog { showDialog = false }
+
+// --- Section header (title + action) ---
+@Composable
+fun SectionHeader(title: String, actionLabel: String = "", onAction: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge
+        )
+        TextButton(onClick = onAction) {
+            Text(
+                text = actionLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+
+@Composable
+fun CardDeLocalizacao(
+    modifier: Modifier = Modifier,
+    titleSaved: String = "Localização salva",
+    etaPrefix: String = "ETA",
+    address: AddressItem? = null,
+    savedAddresses: List<AddressItem> = emptyList(),
+    isExpanded: Boolean,
+    onEditAddress: (AddressItem?) -> Unit = {},
+    onChangeAddress: () -> Unit = {},
+    onSetDefault: (AddressItem?, Boolean) -> Unit = { _, _ -> },
+    onSelectShortcut: (String) -> Unit = {},
+    onToggleExpand: () -> Unit,
+) {
+
+    val roundedCornerShapeONne = RoundedCornerShape(
+        topStart = 0.dp,
+        topEnd = 0.dp,
+        bottomStart = 16.dp, // Use a forma desejada para o card superior
+        bottomEnd = 16.dp
+    )
+    val titleSaved = "Endereço salvo"
+    val addAddressCTA = "Adicionar endereço"
+    val editLabel = "Editar"
+    val changeLabel = "Alterar / Selecionar outro"
+    val setDefaultLabel = "Definir como padrão"
+    val etaPrefix = "Entrega ~"
+    val distancePrefix = ""
+
+
+    Surface(
+        shadowElevation = 12.dp,
+        shape = roundedCornerShapeONne,
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .zIndex(1f) // Aplica o Z-Index animado
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onToggleExpand() }
+    ) {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { /* perfil */ }) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile",
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                Text(
+                    text = "Olá, Hilquias!",
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+
+                Spacer(Modifier.weight(1f))
+
+                IconButton(onClick = { /* perfil */ }) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "notification",
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.padding(bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Rua Arsenio Da Silva 1",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
+                )
+                Spacer(Modifier.width(20.dp))
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+
+                )
+            }
+
+
+            // Animação para expandir/colapsar o conteúdo extra
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                // Transição de Saída (Ao Retrair)
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top, animationSpec = tween(500)) // Efeito de retração
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            contentDescription =
+                                if (address != null) "Painel de endereço expandido" else "Painel de adicionar endereço"
+                        },
+                    shape = RoundedCornerShape(0.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        // Left: content column
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                        ) {
+                            if (address != null) {
+                                // Title row: icon + title + optional default star
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "Ícone de endereço",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = address.name ?: titleSaved,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1
+                                    )
+                                    Spacer(Modifier.weight(1f))
+                                    if (address.isDefault) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = "Endereço padrão",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(Modifier.height(8.dp))
+
+                                // Address body (selectable optional)
+                                Text(
+                                    text = address.fullAddress,
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                    maxLines = 4,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            contentDescription =
+                                                "Endereço completo: ${address.fullAddress}"
+                                        }
+                                )
+
+                                Spacer(Modifier.height(10.dp))
+
+                                // ETA and distance row
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (!address.eta.isNullOrBlank()) {
+                                        Text(
+                                            text = "$etaPrefix${address.eta}",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    if (!address.distance.isNullOrBlank()) {
+                                        Text(
+                                            text = address.distance,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+
+                                Spacer(Modifier.height(12.dp))
+
+                                // Action buttons: Edit + Change
+                                AddressActions(
+                                    onEdit = { onEditAddress(address) },
+                                    onChange = { onChangeAddress() }
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 12.dp)
+                                )
+
+                                Spacer(Modifier.height(10.dp))
+
+                                // Shortcuts chips (optional)
+                                if (savedAddresses.isNotEmpty()) {
+                                    FlowRow(
+                                        mainAxisSpacing = 8,
+                                        crossAxisSpacing = 8,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        savedAddresses.forEach { item ->
+                                            AddressShortcutChip(
+                                                name = item.name ?: "Endereço",
+                                                isSelected = item.id == address.id,
+                                                onClick = { onSelectShortcut(item.name ?: item.id) }
+                                            )
+
+                                            Spacer(Modifier.width(18.dp))
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Empty state UI
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.Start
+                                ) {
+                                    Text(text = "Nenhum endereço salvo", style = MaterialTheme.typography.titleMedium)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        text = "Adicione um endereço para ver informações de entrega, ETA e selecionar rapidamente em futuras compras.",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Spacer(Modifier.height(12.dp))
+                                    Button(
+                                        onClick = { /* wiring: open add address flow */ },
+                                        modifier = Modifier
+                                            .semantics { contentDescription = "Adicionar endereço" }
+                                    ) {
+                                        Text(text = addAddressCTA)
+                                    }
+                                }
+                            }
+                        } // end Column
+
+                        // Right: mini-map thumbnail or placeholder
+                        MapThumbnail(
+                            modifier = Modifier
+                                .size(width = 110.dp, height = 90.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentDescription = address?.fullAddress ?: "Mini mapa do endereço",
+                            hasAddress = address != null
+                        )
+                    } // end Row
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun FlowRow(
+    mainAxisSpacing: Int = 0,
+    crossAxisSpacing: Int = 0,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    // For simplicity in a single-file example, use Column with Row children.
+    // For production prefer Accompanist FlowRow or Layout.
+    Column(modifier = modifier) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            content()
+        }
+    }
+}
+
+
+@Composable
+private fun MapThumbnail(
+    modifier: Modifier = Modifier,
+    contentDescription: String,
+    hasAddress: Boolean
+) {
+    Box(
+        modifier = modifier
+            .then(Modifier)
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(8.dp))
+            .semantics { this.contentDescription = contentDescription }
+    ) {
+        if (hasAddress) {
+            // Placeholder for a map preview. Replace with real image or Map snapshot.
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(6.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // A fake thumbnail using icons/text to simulate real map preview
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Pin do mapa",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Mapa",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Text(
+                    text = "Preview",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+        } else {
+            // Empty placeholder
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Placeholder mapa",
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(text = "Sem mapa", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun AddressShortcutChip(
+    name: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val tonalColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    AssistChip(
+        onClick = onClick,
+        label = { Text(text = name) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Atalho $name",
+                modifier = Modifier.size(16.dp)
+            )
+        },
+        colors = AssistChipDefaults.assistChipColors(containerColor = tonalColor)
+    )
+}
+
+
+@Composable
+private fun AddressActions(
+    onEdit: () -> Unit,
+    onChange: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Edit button (primary)
+        ElevatedButton(
+            onClick = onEdit,
+            modifier = Modifier.height(40.dp)
+        ) {
+            Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar endereço", modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(text = "Editar")
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        // Change/Select other address (secondary)
+        TextButton(
+            onClick = onChange,
+            modifier = Modifier.height(40.dp)
+        ) {
+            Text(text = "Alterar / Selecionar outro")
+        }
+    }
+}
+
+@Composable
+fun BannerDeOfertas(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            // Aqui você pode adicionar um pequeno paddingTop negativo
+            // se quiser uma leve sobreposição inicial
+            //.offset(y = (-16).dp)
+            .padding(top = 16.dp) // Exemplo: Adiciona um espaçamento para o banner
+    ) {
+        SwipeableCardOne(
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -226,7 +874,11 @@ fun CartBottomBarScaffoldStyle(
                 }
 
                 Button(onClick = onOpenCart) {
-                    Text("Ver sacola")
+                    Text(
+                        text = "Ver sacola",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
@@ -235,66 +887,94 @@ fun CartBottomBarScaffoldStyle(
 
 
 @Composable
-fun HomeInfoDialog(
-    onDismiss: () -> Unit,
+fun SellerRow(sellers: List<HomeCardItem.ItemInitialCard>) {
+    LazyRow(contentPadding = PaddingValues(start = 12.dp)) {
+        items(sellers) { category ->
+            SellersAndCategoryCards(item = category, modifier = Modifier.padding(end = 12.dp)) {
+
+            }
+        }
+    }
+}
+
+
+// --- Categories row ---
+@Composable
+fun CategoriesRow(categories: List<HomeCardItem>, onClick: (HomeCardItem) -> Unit) {
+    LazyRow(contentPadding = PaddingValues(start = 12.dp)) {
+        items(categories) { category ->
+            SellersAndCategoryCards(item = category, modifier = Modifier.padding(end = 12.dp)) {
+                onClick(category)
+            }
+        }
+    }
+}
+
+@Composable
+fun SellersAndCategoryCards(
+    item: HomeCardItem,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
-    Dialog(onDismissRequest = { onDismiss() }) {
+
+    val imageVector: ImageVector
+    val name: String
+    when (item) {
+        is HomeCardItem.Category -> {
+            imageVector = item.icon
+            name = item.label
+        }
+
+        is HomeCardItem.ItemInitialCard -> {
+            imageVector = Icons.Default.Favorite
+            name = item.name
+        }
+    }
+
+    Card(
+        modifier = modifier
+            .size(width = 140.dp, height = 96.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .background(White, shape = RoundedCornerShape(16.dp))
-                .padding(20.dp)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.onSurface),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color(0xFF8FB9A8),
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when (item) {
+                        is HomeCardItem.Category -> {
+                            Icon(
+                                imageVector = imageVector,
+                                contentDescription = item.label,
+                                tint = MaterialTheme.colorScheme.background
+                            )
+                        }
+
+                        is HomeCardItem.ItemInitialCard -> {
+                            // Aqui você colocaria o que deve aparecer caso seja InitialItem
+                            // Por exemplo, Image(painterResource(item.image), ...)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Informações Importantes",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.padding(top = 15.dp),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Circle,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(15.dp)
-                            .padding(top = 4.dp),
-                        tint = LightGreenCircle,
-                    )
-                    Text(
-                        text = "Vendedor passa na sua cidade",
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Circle,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(15.dp)
-                            .padding(top = 4.dp),
-                        tint = RedCircle,
-                    )
-                    Text(
-                        text = "Vendedor NÃO passa na sua cidade",
-                        textAlign = TextAlign.Center
-                    )
-                }
             }
         }
     }
@@ -302,61 +982,130 @@ fun HomeInfoDialog(
 
 
 @Composable
-fun ItemCard(item: ItemInitialCard, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(150.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(8.dp)
-            ),
-        contentAlignment = Alignment.Center
+fun ItemCard(modifier: Modifier = Modifier, seller: HomeCardItem.ItemInitialCard, onClick: () -> Unit) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() },
+        color = Color.Transparent
     ) {
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(12.dp)
         ) {
+            // Avatar B1 Style
             Box(
                 modifier = Modifier
-                    .padding(top = 5.dp)
-                    .size(100.dp)
-                    .border(0.dp, Black, shape = CircleShape),
+                    .size(58.dp)
+                    .shadow(4.dp, CircleShape, clip = false)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Image(
-                    painter = painterResource(id = item.image),
-                    contentDescription = item.name,
-                    modifier = Modifier.clip(CircleShape),
-                    contentScale = ContentScale.FillBounds
+                    painter = painterResource(seller.image),
+                    contentDescription = "Foto do vendedor",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.clip(CircleShape)
                 )
             }
 
-            Text(
-                text = item.name,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        // 🔹 Badge verde no canto superior direito
-        Canvas(
-            modifier = Modifier
-                .size(32.dp)
-                .align(Alignment.TopEnd)
-        ) {
-            val path = Path().apply {
-                moveTo(size.width, 0f) // canto superior direito
-                lineTo(size.width, size.height) // desce
-                lineTo(0f, 0f) // volta pro canto superior esquerdo
-                close()
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = seller.name,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = seller.city,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Badge de tipo do vendedor + status
+                Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    val typeEmoji = if (seller.isPhysicalStore) "🏪 Loja física" else "🧍 Ambulante"
+                    Text(
+                        text = typeEmoji,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.small
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    val passColor by animateColorAsState(
+                        if (seller.sellerPassesByYourCity) Color(0xFF0FA958)
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    val passText = if (seller.sellerPassesByYourCity) {
+                        "Passa na sua cidade ✅"
+                    } else if (!seller.isPhysicalStore) {
+                        "Não passa 🚫"
+                    } else {
+                        ""
+                    }
+
+                    Text(
+                        text = passText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = passColor,
+                        maxLines = 1
+                    )
+                }
             }
-            drawPath(path, color = Color(0xFF4CAF50)) // verde
+
+            // Botão favorito
+            FavoriteButton()
         }
     }
 }
+@Composable
+private fun FavoriteButton() {
+
+    var isFavorite by remember { mutableStateOf(false) }
+    val tint by animateColorAsState(
+        if (isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    IconButton(
+        onClick = {
+            isFavorite = !isFavorite
+        },
+        modifier = Modifier
+            .semantics { contentDescription = "Favoritar vendedor" }
+    ) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+            contentDescription = null,
+            tint = tint
+        )
+    }
+}
+
 
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    //HomeScreen() {}
+    HomeScreen(
+        navController = NavHostController(LocalContext.current),
+        onCardSellerClick = {}
+    )
 }

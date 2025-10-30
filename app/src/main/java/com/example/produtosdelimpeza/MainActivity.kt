@@ -3,11 +3,15 @@ package com.example.produtosdelimpeza
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import com.example.produtosdelimpeza.compose.ProdutosLimpezaApp
 import com.example.produtosdelimpeza.ui.theme.LightBluishGray
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
@@ -19,18 +23,43 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ProdutosDeLimpezaTheme {
-                enableEdgeToEdge(
-                    navigationBarStyle = if (isSystemInDarkTheme()) {
-                        SystemBarStyle.dark(
-                            MaterialTheme.colorScheme.secondary.toArgb() // cor no dark
+                // Obtenha a Activity e a cor desejada (Branco para o fundo)
+                val activity = LocalActivity.current as ComponentActivity
+                val statusBarColor = Color.White.toArgb() // Fundo da Status Bar BRANCO
+
+                // Configuração para forçar os itens (ícones e texto) a serem pretos
+                DisposableEffect(Unit) {
+
+                    // 1. Define o estilo da Status Bar
+                    val statusBarStyle = SystemBarStyle.light(
+                        scrim = statusBarColor, // Define o fundo da Status Bar como BRANCO
+                        darkScrim = statusBarColor
+                        // Não precisamos definir darkContent, pois SystemBarStyle.light()
+                        // já define que os ícones devem ser ESCUROS por padrão.
+                    )
+
+                    // 2. Aplica o novo estilo
+                    activity.enableEdgeToEdge(
+                        // Aplica o novo estilo à Status Bar
+                        statusBarStyle = statusBarStyle,
+
+                        // Mantém a Navigation Bar com o estilo que você já tinha (ou o padrão)
+                        navigationBarStyle = SystemBarStyle.light(
+                            Color.Transparent.toArgb(),
+                            Color.Transparent.toArgb()
                         )
-                    } else {
-                        SystemBarStyle.light(
-                            LightBluishGray.toArgb(), // cor no light
-                            LightBluishGray.toArgb()  // enforced contrast
+                    )
+
+                    onDispose {
+                        // 3. Ao sair, você deve restaurar o estilo definido na MainActivity (ou o padrão)
+                        activity.enableEdgeToEdge(
+                            // Restaurar para a configuração padrão da sua app ou da MainActivity
+                            // Neste caso, vamos restaurar apenas o comportamento padrão.
+                            statusBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb()),
+                            navigationBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb())
                         )
                     }
-                )
+                }
 
                 ProdutosLimpezaApp()
             }

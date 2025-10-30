@@ -1,6 +1,7 @@
 package com.example.produtosdelimpeza.compose.seller
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,6 +46,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.FilterAlt
@@ -53,6 +56,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -86,19 +91,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
 import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -109,9 +120,6 @@ fun SellerProductsScreen(
     onClickCardSellerProfile: () -> Unit = {},
     onClickCartScreen: () -> Unit = {},
 ) {
-    var expandableFavoriteState by remember { mutableStateOf(false) }
-    var expandableFeaturedState by remember { mutableStateOf(true) }
-
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
@@ -119,27 +127,9 @@ fun SellerProductsScreen(
     val cartIdxQuantity = remember { List(10) { 0 }.toMutableStateList() }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isSheetOpen by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var isSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { onBackNavigation() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = stringResource(R.string.icon_navigate_back),
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },
         bottomBar = {
             CartBottomBarScaffoldStyle(
                 items = totalQuantity,
@@ -164,16 +154,19 @@ fun SellerProductsScreen(
             CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
         )
 
-        val favAndHighLightsOption = listOf(stringResource(R.string.favorites_products), stringResource(R.string.featured_products))
+        val sampleHighlights = List(6) {
+            CartProduct(
+                name = listOf("Esponja multiuso (pacote com 3)", "Pizza Artesanal", "Amaciante Concentrado 1L", "Limpa vidros 500ml", "Suco Natural", "Café Torrado")[it],
+                price = listOf(12.0, 29.0, 10.22, 12.00, 40.00, 11.11)[it]
+            )
+        }
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding),
-            contentPadding = PaddingValues(14.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
             // Header principal
             item {
                 InformationCard(nameSeller, onClickCardSellerProfile = onClickCardSellerProfile)
@@ -181,66 +174,31 @@ fun SellerProductsScreen(
 
             // FAVORITOS
             item {
-                val primary = MaterialTheme.colorScheme.primary
-                val surface = MaterialTheme.colorScheme.surface
-
-                var selectedIndex by remember { mutableIntStateOf(0) }
-
-                Row(
-                    modifier = Modifier.padding(top = 20.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
                 ) {
+                    Text(
+                        text = "Destaques",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
 
-                    favAndHighLightsOption.forEachIndexed { index, option ->
-                        val selected = index == selectedIndex
-                        val bg = if (selected) Brush.horizontalGradient(listOf(primary, primary.copy(alpha = 0.2f))) else Brush.linearGradient(listOf(surface, surface))
-                        val contentColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
-
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 6.dp)
-                                .weight(1f) // distribute pill widths evenly
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable {
-                                    selectedIndex = index
-                                }
-                                .background(bg)
-                                .border(
-                                    width = if (!selected) 0.dp else 1.dp,
-                                    color = if (!selected) Color.Transparent else MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(12.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                // small icon representing the tab (optional)
-                                if (index == 0) {
-                                    Icon(
-                                        imageVector = Icons.Default.Favorite,
-                                        contentDescription = "Favoritos",
-                                        tint = contentColor,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.Star,
-                                        contentDescription = "Destaques",
-                                        tint = contentColor,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = option,
-                                    color = contentColor,
-                                    fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
-                                    fontSize = 14.sp
-                                )
-                            }
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp)
+                    ) {
+                        items(sampleHighlights) { product ->
+                            ProductCard(
+                                product = product,
+                                //isFavorite = favorites[product.id] == true,
+                                onToggleFavorite = {  },
+                                onClick = {   },
+                                modifier = Modifier
+                                    .width(180.dp)
+                                    .height(250.dp)
+                            )
                         }
                     }
                 }
@@ -249,15 +207,16 @@ fun SellerProductsScreen(
             // Todos os produtos (grid 2 colunas usando FlowRow)
             item {
                 Spacer(Modifier.height(20.dp))
-                Column {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = stringResource(R.string.all_products),
                             modifier = Modifier,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.titleLarge
                         )
 
                         Spacer(Modifier.weight(1f))
@@ -275,7 +234,9 @@ fun SellerProductsScreen(
                         maxItemsInEachRow = 2,
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(26.dp),
-                        modifier = Modifier.fillMaxWidth().padding(top = 30.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
                     ) {
                         sampleProducts.forEachIndexed { index, product ->
                             val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
@@ -455,7 +416,7 @@ fun SellerProductsScreen(
                             text = "ver todas as formas de pagamento",
                             modifier = Modifier
                                 .padding(start = 26.dp)
-                                .clickable{},
+                                .clickable {},
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
@@ -574,6 +535,120 @@ fun SellerProductsScreen(
 
 
 @Composable
+fun ProductCarousel(
+    title: String,
+    items: List<CartProduct>,
+    favorites: Map<String, Boolean>,
+    onToggleFavorite: (String) -> Unit,
+    onItemClick: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(items) { product ->
+                ProductCard(
+                    product = product,
+                    //isFavorite = favorites[product.id] == true,
+                    onToggleFavorite = onToggleFavorite,
+                    onClick = onItemClick,
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(250.dp)
+                )
+            }
+        }
+    }
+}
+
+// ---------- Card do produto ----------
+@Composable
+fun ProductCard(
+    product: CartProduct,
+    //isFavorite: Boolean,
+    onToggleFavorite: (String) -> Unit,
+    onClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    cardShape: RoundedCornerShape = RoundedCornerShape(20.dp),
+    cardElevation: Dp = 6.dp
+) {
+    Card(
+        modifier = modifier
+            .clickable { onClick(product.name) },
+        shape = cardShape,
+        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+                        )
+                    )
+                )
+                .padding(12.dp)
+        ) {
+            // Imagem simulada
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.inverseOnSurface)
+            ) {
+                Text(
+                    text = "Imagem",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+
+                IconButton(
+                    onClick = { onToggleFavorite(product.name) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        //.scale(favScale)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Favoritar",
+                        //tint = favColor
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = product.name,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "R$ ${product.price.toBrazilianCurrency()}",
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+
+
+@Composable
 fun CartBottomBarScaffoldStyle(
     items: Int,
     total: Double,
@@ -637,79 +712,155 @@ fun InformationCard(
     nameSeller: String,
     onClickCardSellerProfile: () -> Unit,
 ) {
-    Card(
-        onClick = onClickCardSellerProfile,
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(3.dp)
-    ) {
-        Row {
-            Card(
-                onClick = {},
-                modifier = Modifier
-                    .padding(top = 10.dp, start = 10.dp, bottom = 10.dp)
-                    .size(100.dp),
-                shape = CircleShape,
-                elevation = CardDefaults.elevatedCardElevation(1.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = stringResource(R.string.icon_navigate_back),
-                        modifier = Modifier.size(60.dp)
+    val bannerHeight = 160
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Banner (placeholder) - replace by Image when integrating real assets
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(bannerHeight.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primaryContainer
+                        )
                     )
-                }
-            }
-            Spacer(Modifier.weight(1f))
-
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(15.dp)
-            ) {
-                Text(
-                    text = nameSeller,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
                 )
-
-                Text(
-                    text = "Tuntum-Ma",
-                    fontSize = 13.sp,
-                    color = Color.White
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-            Icon(
-                imageVector = Icons.Outlined.Circle,
-                contentDescription = null,
+        ) {
+            // Optional: small decorative text on banner
+            Text(
+                text = "Banner do vendedor",
                 modifier = Modifier
-                    .size(30.dp)
-                    .padding(top = 15.dp, end = 15.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
 
-        Text(
-            text = "Avaliações: ★ 4,5 (40 avaliações)",
-            modifier = Modifier.padding(top = 10.dp, start = 10.dp),
-            fontSize = 16.sp,
-        )
+        // Row posicionada sobre o banner, respeitando a status bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp, horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Text(
-            text = "Próximo dia em Gonçalves Dias - 23/05",
-            modifier = Modifier.padding(top = 10.dp, start = 10.dp, bottom = 15.dp),
-            fontSize = 13.sp,
-        )
+            // Botão Voltar
+            IconButton(
+                onClick = { },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary.copy(0.6f)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBackIosNew,
+                    contentDescription = "Voltar",
+                    tint = MaterialTheme.colorScheme.background,
+                )
+            }
+
+            // Botão Favoritar
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favoritar",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+
+
+        Column(
+            modifier = Modifier.padding(top = (bannerHeight / 1.8).dp),
+            horizontalAlignment = Alignment.End
+        ) {
+            Card(
+                onClick = onClickCardSellerProfile,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.elevatedCardElevation(3.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
+            ) {
+                Row {
+                    Card(
+                        onClick = {},
+                        modifier = Modifier
+                            .padding(top = 10.dp, start = 10.dp, bottom = 10.dp)
+                            .size(100.dp),
+                        shape = CircleShape,
+                        elevation = CardDefaults.elevatedCardElevation(1.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = stringResource(R.string.icon_navigate_back),
+                                modifier = Modifier.size(60.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.weight(1f))
+
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
+                    ) {
+                        Text(
+                            text = nameSeller,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+
+                        Text(
+                            text = "Tuntum-Ma",
+                            fontSize = 13.sp,
+                        )
+                    }
+
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = "🧍 Ambulante",
+                        modifier = Modifier.padding(top = 16.dp, end = 16.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.9f),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Text(
+                    text = "Avaliações: ★ 4,5 (40 avaliações)",
+                    modifier = Modifier.padding(top = 10.dp, start = 10.dp),
+                    fontSize = 16.sp,
+                )
+
+                Text(
+                    text = "Próximo dia em Gonçalves Dias - 23/05",
+                    modifier = Modifier.padding(top = 10.dp, start = 10.dp, bottom = 15.dp),
+                    fontSize = 13.sp,
+                )
+            }
+
+            TextButton(
+                onClick = {}
+            ) {
+                Text("favoritos deste vendedor")
+            }
+        }
     }
 }
+
 
 
 @Composable
@@ -767,7 +918,7 @@ fun ExpandableCardProducts(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding( vertical = 10.dp),
+                    .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(6) { fav ->

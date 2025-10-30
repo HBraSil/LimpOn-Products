@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
 import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -134,26 +135,6 @@ fun LimpOnCardProducts(
             Spacer(Modifier.height(10.dp))
 
             Row(
-                modifier = Modifier
-                    .padding(start = 10.dp, bottom = 14.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
-                    text = "R$ ${product.price}",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "/unidade",
-                    fontWeight = FontWeight.ExtraLight,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 14.sp
-                )
-            }
-
-            Row(
                 modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
@@ -173,6 +154,28 @@ fun LimpOnCardProducts(
                 }
             }
 
+            Spacer(Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier
+                    .padding(start = 10.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    text = "R$ ${product.price.toBrazilianCurrency()}",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "/unidade",
+                    fontWeight = FontWeight.ExtraLight,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 14.sp
+                )
+            }
+
             if (isProductScreen) {
                 Row(
                     modifier = Modifier.padding(bottom = 6.dp).fillMaxWidth(),
@@ -186,20 +189,6 @@ fun LimpOnCardProducts(
                         subOfProducts = subOfProducts,
                         sumOfProducts = sumOfProducts
                     )
-
-                    IconButton(
-                        onClick = {},
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        )
-                    ){
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = "Adicionar ao carrinho",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.White
-                        )
-                    }
                 }
             }
         }
@@ -209,7 +198,7 @@ fun LimpOnCardProducts(
 
 @Preview
 @Composable
-private fun LimpCardProductsPreview() {
+private fun LimpCardProductsPreview(modifier: Modifier = Modifier) {
     LimpOnCardProducts(
         product = CartProduct(
             name = "Sabão líquido 5 litros",

@@ -53,9 +53,13 @@ fun MainScreenNavigation() {
         modifier = Modifier.background(White)
     ) {
         composable(route = Screen.HOME.route) {
-            HomeScreen(navController = navController, cartViewModel = cartViewModel) { nameSeller ->
-                navController.navigate("${Screen.SELLER.route}/$nameSeller")
-            }
+            HomeScreen(
+                navController = navController,
+                cartViewModel = cartViewModel,
+                onCardSellerClick = { nameSeller ->
+                    navController.navigate("${Screen.SELLER.route}/$nameSeller")
+                }
+            )
         }
 
         composable(route = Screen.SEARCH.route) {

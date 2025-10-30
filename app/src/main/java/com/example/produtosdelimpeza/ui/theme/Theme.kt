@@ -29,9 +29,9 @@ private val LightColorScheme = lightColorScheme(
     secondary = Color(0xFF023069),
     onSecondary = Color(0xFFFFFFFF),
     background = Color(0xFFFFFFFF),
-    onBackground = Color(0xFF0F0C52),
+    onBackground = Color(0xDA0F0C52),
     surface = LightBluishGray,
-    onSurface = Color(0xFF051185)
+    onSurface = Color(0xFF04129F)
 )
 
 @Composable
@@ -47,7 +47,7 @@ fun ProdutosDeLimpezaTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        darkTheme -> LightColorScheme
         else -> LightColorScheme
     }
 
