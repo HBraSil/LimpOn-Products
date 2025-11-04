@@ -39,17 +39,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocalBar
-import androidx.compose.material.icons.filled.LocalGroceryStore
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Sanitizer
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.South
 import androidx.compose.material.icons.filled.Star
@@ -58,6 +53,7 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
@@ -94,12 +90,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
-import com.example.produtosdelimpeza.controller.SystemBarController
 import com.example.produtosdelimpeza.model.CartProduct
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
-sealed class HomeCardItem {
     data class ItemInitialCard(
         val id: Int,
         val name: String,
@@ -107,25 +101,24 @@ sealed class HomeCardItem {
         val city: String,
         val isPhysicalStore: Boolean,
         val sellerPassesByYourCity: Boolean = false
-    ) : HomeCardItem()
+    )
 
     data class Category(
         val id: Int,
         val label: String,
-        val icon: ImageVector,
+        val icon: Int,
         val color: Color,
-    ) : HomeCardItem()
-}
+    )
 
 data class Product(val id: Int, val name: String, val price: String, val icon: ImageVector)
 
 // --- Sample data ---
 private val sampleCategories = listOf(
-    HomeCardItem.Category(1, "Limpeza", Icons.Default.CleaningServices, Color(0xFFBEECC8)),
-    HomeCardItem.Category(2, "Super", Icons.Default.LocalGroceryStore, Color(0xFFFFF3C4)),
-    HomeCardItem.Category(3, "Bebidas", Icons.Default.LocalBar, Color(0xFFD6EEFF)),
-    HomeCardItem.Category(4, "Higiene", Icons.Default.Sanitizer, Color(0xFFE6F7FF)),
-    HomeCardItem.Category(5, "Pet", Icons.Default.Pets, Color(0xFFFFE6E6))
+    Category(1, "Limpeza", R.drawable.cleaning_icon, Color(0xFFBEECC8)),
+    Category(2, "Restaurant", R.drawable.restaurant_icon, Color(0xFF9F4141)),
+    Category(3, "Super", R.drawable.supermarket_icon, Color(0xFFFFF3C4)),
+    Category(4, "Bebidas", R.drawable.drink_icon, Color(0xFFD6EEFF)),
+    Category(5, "Pet", R.drawable.pet_icon, Color(0xFFFFE6E6)),
 )
 
 data class AddressItem(
@@ -138,14 +131,14 @@ data class AddressItem(
 )
 
 private val itemsLista = listOf(
-    HomeCardItem.ItemInitialCard(
+    ItemInitialCard(
         1,
         "Raimundo",
         R.drawable.sabao_lava_roupa,
         "Tuntum - MA",
         true,
     ),
-    HomeCardItem.ItemInitialCard(
+    ItemInitialCard(
         2,
         "Iran",
         R.drawable.highlight,
@@ -153,7 +146,7 @@ private val itemsLista = listOf(
         false,
         true
     ),
-    HomeCardItem.ItemInitialCard(
+    ItemInitialCard(
         3,
         "Francialdo",
         R.drawable.highlight,
@@ -177,8 +170,6 @@ fun HomeScreen(
     cartViewModel: CartViewModel = viewModel(),
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
-    onCategoryClick: (HomeCardItem.Category) -> Unit = {},
-    onProductAdd: (Product) -> Unit = {},
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
@@ -233,8 +224,9 @@ fun HomeScreen(
                         }
 
                         CardDeLocalizacao(
-                            isExpanded = expandedCard,
-                            onToggleExpand = { expandedCard = !expandedCard },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter),
                             address = AddressItem(
                                 id = "1",
                                 name = "Casa",
@@ -254,10 +246,9 @@ fun HomeScreen(
                                     fullAddress = "Rua Arsenio Da Silva 2"
                                 )
                             ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.TopCenter) // Fixa no topo
-                        )
+                            isExpanded = expandedCard
+                        ) { expandedCard = !expandedCard } // Fixa no topo
+
                     }
                 }
 
@@ -396,14 +387,11 @@ fun SectionHeader(title: String, actionLabel: String = "", onAction: () -> Unit)
 @Composable
 fun CardDeLocalizacao(
     modifier: Modifier = Modifier,
-    titleSaved: String = "Localização salva",
-    etaPrefix: String = "ETA",
     address: AddressItem? = null,
     savedAddresses: List<AddressItem> = emptyList(),
     isExpanded: Boolean,
     onEditAddress: (AddressItem?) -> Unit = {},
     onChangeAddress: () -> Unit = {},
-    onSetDefault: (AddressItem?, Boolean) -> Unit = { _, _ -> },
     onSelectShortcut: (String) -> Unit = {},
     onToggleExpand: () -> Unit,
 ) {
@@ -416,11 +404,7 @@ fun CardDeLocalizacao(
     )
     val titleSaved = "Endereço salvo"
     val addAddressCTA = "Adicionar endereço"
-    val editLabel = "Editar"
-    val changeLabel = "Alterar / Selecionar outro"
-    val setDefaultLabel = "Definir como padrão"
     val etaPrefix = "Entrega ~"
-    val distancePrefix = ""
 
 
     Surface(
@@ -616,8 +600,6 @@ fun CardDeLocalizacao(
                                 // Shortcuts chips (optional)
                                 if (savedAddresses.isNotEmpty()) {
                                     FlowRow(
-                                        mainAxisSpacing = 8,
-                                        crossAxisSpacing = 8,
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         savedAddresses.forEach { item ->
@@ -672,8 +654,6 @@ fun CardDeLocalizacao(
 
 @Composable
 internal fun FlowRow(
-    mainAxisSpacing: Int = 0,
-    crossAxisSpacing: Int = 0,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -873,37 +853,26 @@ fun CartBottomBarScaffoldStyle(
                     Text("$items item(s)", style = MaterialTheme.typography.bodySmall)
                 }
 
-                Button(onClick = onOpenCart) {
-                    Text(
-                        text = "Ver sacola",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                ElevatedButton(
+                    onClick = onOpenCart,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
                     )
+                ) {
+                    Text("Ver sacola")
                 }
             }
         }
     }
 }
 
-
-@Composable
-fun SellerRow(sellers: List<HomeCardItem.ItemInitialCard>) {
-    LazyRow(contentPadding = PaddingValues(start = 12.dp)) {
-        items(sellers) { category ->
-            SellersAndCategoryCards(item = category, modifier = Modifier.padding(end = 12.dp)) {
-
-            }
-        }
-    }
-}
-
-
 // --- Categories row ---
 @Composable
-fun CategoriesRow(categories: List<HomeCardItem>, onClick: (HomeCardItem) -> Unit) {
+fun CategoriesRow(categories: List<Category>, onClick: (Category) -> Unit) {
     LazyRow(contentPadding = PaddingValues(start = 12.dp)) {
         items(categories) { category ->
-            SellersAndCategoryCards(item = category, modifier = Modifier.padding(end = 12.dp)) {
+            CategoryCards(item = category, modifier = Modifier.padding(end = 12.dp)) {
                 onClick(category)
             }
         }
@@ -911,29 +880,14 @@ fun CategoriesRow(categories: List<HomeCardItem>, onClick: (HomeCardItem) -> Uni
 }
 
 @Composable
-fun SellersAndCategoryCards(
-    item: HomeCardItem,
+fun CategoryCards(
+    item: Category,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-
-    val imageVector: ImageVector
-    val name: String
-    when (item) {
-        is HomeCardItem.Category -> {
-            imageVector = item.icon
-            name = item.label
-        }
-
-        is HomeCardItem.ItemInitialCard -> {
-            imageVector = Icons.Default.Favorite
-            name = item.name
-        }
-    }
-
-    Card(
+     Card(
         modifier = modifier
-            .size(width = 140.dp, height = 96.dp)
+            .width(120.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -941,48 +895,40 @@ fun SellersAndCategoryCards(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.onSurface),
+                .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    when (item) {
-                        is HomeCardItem.Category -> {
-                            Icon(
-                                imageVector = imageVector,
-                                contentDescription = item.label,
-                                tint = MaterialTheme.colorScheme.background
-                            )
-                        }
-
-                        is HomeCardItem.ItemInitialCard -> {
-                            // Aqui você colocaria o que deve aparecer caso seja InitialItem
-                            // Por exemplo, Image(painterResource(item.image), ...)
-                        }
-                    }
+                    Image(
+                        painter = painterResource(item.icon),
+                        contentDescription = item.label,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    name,
+                    item.label,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSecondary
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.background
                 )
             }
         }
-    }
+     }
 }
 
 
 @Composable
-fun ItemCard(modifier: Modifier = Modifier, seller: HomeCardItem.ItemInitialCard, onClick: () -> Unit) {
+fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: () -> Unit) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -1040,6 +986,7 @@ fun ItemCard(modifier: Modifier = Modifier, seller: HomeCardItem.ItemInitialCard
                     val typeEmoji = if (seller.isPhysicalStore) "🏪 Loja física" else "🧍 Ambulante"
                     Text(
                         text = typeEmoji,
+                        color = MaterialTheme.colorScheme.background,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
                             .background(

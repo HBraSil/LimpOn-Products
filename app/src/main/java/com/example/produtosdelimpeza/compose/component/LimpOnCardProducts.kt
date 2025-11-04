@@ -1,9 +1,7 @@
 package com.example.produtosdelimpeza.compose.component
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,22 +16,17 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -53,11 +46,9 @@ import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 @Composable
 fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
-    favorites: Boolean = false,
     product: CartProduct = CartProduct(),
     txtQuantity: Int = 0,
     isProductScreen: Boolean = true,
-    contentBackgroundColor: Color = Color.Transparent,
     onClickProduct: () -> Unit = {},
     subOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
     sumOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
@@ -132,33 +123,37 @@ fun LimpOnCardProducts(
                 overflow = TextOverflow.Ellipsis,
             )
 
-            Spacer(Modifier.height(10.dp))
 
-            Row(
-                modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
-            ) {
-                product.badges.forEach { badge ->
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(50),
-                        tonalElevation = 2.dp
-                    ) {
-                        Text(
-                            badge,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+            if (product.badges.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(start = 6.dp, end = 6.dp, top = 4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
+                ) {
+                    product.badges.forEach { badge ->
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+                            shape = RoundedCornerShape(50),
+                            tonalElevation = 2.dp
+                        ) {
+                            Text(
+                                badge,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 }
             }
-
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier
-                    .padding(start = 10.dp, bottom = 14.dp),
+                    .padding(start = 10.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
@@ -169,16 +164,20 @@ fun LimpOnCardProducts(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "/unidade",
-                    fontWeight = FontWeight.ExtraLight,
+                    text = "unid.",
+                    fontWeight = FontWeight.Normal,
+                    overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 14.sp
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 3.dp)
                 )
             }
 
             if (isProductScreen) {
                 Row(
-                    modifier = Modifier.padding(bottom = 6.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(bottom = 6.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

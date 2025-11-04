@@ -123,6 +123,8 @@ fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier.padding(top = 16.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = Color.Black
         ) {
             tabItems.forEachIndexed { index, title ->
                 Tab(
@@ -138,9 +140,9 @@ fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
             modifier = Modifier.fillMaxWidth()
         ) {index ->
             when(index) {
-                0 -> FeedbackTab()
+                0 -> InfoTab()
                 1 -> CouponsTab()
-                2 -> InfoTab()
+                2 -> FeedbackTab()
             }
         }
     }

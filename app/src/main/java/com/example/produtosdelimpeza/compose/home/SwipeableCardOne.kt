@@ -400,10 +400,10 @@ fun Modifier.swipeToBackOne(
             }
         }
     }
-        .offset { IntOffset(offsetX.value.roundToInt(), 0) }
-        .graphicsLayer {
-            transformOrigin = TransformOrigin.Center
-            rotationZ = rotateZ.value
-        }
+    .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+    .graphicsLayer {
+        transformOrigin = TransformOrigin.Center
+        rotationZ = rotateZ.value
+    }
 }
 

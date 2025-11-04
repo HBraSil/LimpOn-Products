@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.seller
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,24 +44,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -81,7 +77,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -91,14 +86,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -127,7 +121,8 @@ fun SellerProductsScreen(
     val cartIdxQuantity = remember { List(10) { 0 }.toMutableStateList() }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isSheetOpen by rememberSaveable { mutableStateOf(false) }
+    var isSheetProductOpen by rememberSaveable { mutableStateOf(false) }
+    var isSheetFilterOpen by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
@@ -197,7 +192,6 @@ fun SellerProductsScreen(
                                 onClick = {   },
                                 modifier = Modifier
                                     .width(180.dp)
-                                    .height(250.dp)
                             )
                         }
                     }
@@ -221,11 +215,11 @@ fun SellerProductsScreen(
 
                         Spacer(Modifier.weight(1f))
 
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Default.FilterAlt,
-                                contentDescription = null,
-                            )
+                        IconButton(
+                            onClick = { isSheetFilterOpen = true },
+                            modifier = Modifier.semantics { contentDescription = "Abrir filtros" }
+                        ) {
+                            Icon(Icons.Default.FilterList, contentDescription = null)
                         }
                     }
 
@@ -248,9 +242,8 @@ fun SellerProductsScreen(
                                 .wrapContentHeight(),
                                 product = product,
                                 txtQuantity = quantity,
-                                contentBackgroundColor = MaterialTheme.colorScheme.primary,
                                 onClickProduct = {
-                                    isSheetOpen = true
+                                    isSheetProductOpen = true
                                 },
                                 subOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.deleteOrRemoveProduct(
@@ -279,11 +272,26 @@ fun SellerProductsScreen(
             }
         }
     }
+    if (isSheetFilterOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isSheetFilterOpen = false },
+            sheetState = sheetState,
+            modifier = Modifier.statusBarsPadding(),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
 
-    if (isSheetOpen) {
+            FilterBottomSheetContent(
+                onApply = { isSheetFilterOpen = false },
+                onClear = { /* callback if needed */ },
+            )
+        }
+    }
+
+
+    if (isSheetProductOpen) {
         ModalBottomSheet(
             onDismissRequest = {
-                isSheetOpen = false
+                isSheetProductOpen = false
             },
             sheetState = sheetState,
             dragHandle = null,
@@ -296,7 +304,7 @@ fun SellerProductsScreen(
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    isSheetOpen = false
+                                    isSheetProductOpen = false
                                 },
                                 colors = IconButtonDefaults.iconButtonColors(
                                     containerColor = Color(0xFFD3D5DC)
@@ -339,9 +347,7 @@ fun SellerProductsScreen(
                                 .padding(horizontal = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            AddAndSubButton(
-                                txtQuantity = 1
-                            )
+                            AddAndSubButton(txtQuantity = 1)
 
                             Spacer(Modifier.weight(1f))
 
@@ -349,7 +355,8 @@ fun SellerProductsScreen(
                                 onClick = {}
                             ) {
                                 Text(
-                                    text = "Adicionar ao carrinho"
+                                    text = "Adicionar ao carrinho",
+                                    color = MaterialTheme.colorScheme.background
                                 )
                             }
                         }
@@ -357,7 +364,7 @@ fun SellerProductsScreen(
                 }
             ) { contentPadding ->
                 val sampleProductsOfSpecificSeller = listOf(
-                    CartProduct(id = 6, name = "Sabão em pó 1kg", price = 12.0),
+                    CartProduct(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
                     CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
                     CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0),
                     CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0),
@@ -392,7 +399,8 @@ fun SellerProductsScreen(
                     Text(
                         text = "Detergente",
                         modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -418,7 +426,7 @@ fun SellerProductsScreen(
                                 .padding(start = 26.dp)
                                 .clickable {},
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = MaterialTheme.colorScheme.secondary,
                             fontWeight = FontWeight.Bold
                         )
 
@@ -522,7 +530,6 @@ fun SellerProductsScreen(
                                     ),
                                 product = product,
                                 isProductScreen = false,
-                                favorites = true,
                                 onClickProduct = {}
                             )
                         }
@@ -580,25 +587,16 @@ fun ProductCard(
     onToggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    cardShape: RoundedCornerShape = RoundedCornerShape(20.dp),
     cardElevation: Dp = 6.dp
 ) {
     Card(
         modifier = modifier
             .clickable { onClick(product.name) },
-        shape = cardShape,
+        shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
     ) {
         Column(
             modifier = Modifier
-                .background(
-                    brush = Brush.verticalGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
-                        )
-                    )
-                )
                 .padding(12.dp)
         ) {
             // Imagem simulada
@@ -634,13 +632,15 @@ fun ProductCard(
 
             Text(
                 text = product.name,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "R$ ${product.price.toBrazilianCurrency()}",
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.titleSmall
             )
         }
     }
@@ -698,7 +698,13 @@ fun CartBottomBarScaffoldStyle(
                     Text("$items item(s)", style = MaterialTheme.typography.bodySmall)
                 }
 
-                Button(onClick = onOpenCart) {
+                ElevatedButton(
+                    onClick = onOpenCart,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
                     Text("Ver sacola")
                 }
             }

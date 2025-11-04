@@ -54,8 +54,6 @@ import com.example.produtosdelimpeza.R
 
 @Composable
 fun InfoTab() {
-
-
     Column(
         modifier = Modifier
             .padding(16.dp)
