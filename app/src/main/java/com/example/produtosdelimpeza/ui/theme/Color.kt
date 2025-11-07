@@ -18,8 +18,7 @@ val LightBrown = Color(0xFF683904)
 
 
 // General colors
-    val RedCircle = Color(0xFFFFE926)
-val BluishGreen = Color(0xFF00693C)
+val StarColor = Color(0xFFFFE926)
 
 val GradientBackCardsComponents = Brush.radialGradient(
     colors = listOf(

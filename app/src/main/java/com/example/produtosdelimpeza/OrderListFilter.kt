@@ -1,226 +1,175 @@
-package com.example.produtosdelimpeza.compose.seller
+package com.example.produtosdelimpeza
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import com.example.produtosdelimpeza.compose.seller.fractionToValue
+import com.example.produtosdelimpeza.compose.seller.valueToFraction
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.roundToInt
 
-// --- Dados fictícios para preview/demo
-private val sampleCategories = listOf("Limpeza", "Mercado", "Bebidas", "Lanches", "Higiene")
 
-/** Helpers de conversão */
-internal fun valueToFraction(value: Float, start: Float, end: Float): Float {
-    if (end - start == 0f) return 0f
-    return ((value - start) / (end - start)).coerceIn(0f, 1f)
+enum class PedidoStatus(val label: String, val color: Color) {
+    RECEBIDO("Pedido Recebido", Color(0xFF1976D2)),
+    EM_PREPARO("Em preparo", Color(0xFFFFA000)),
+    A_CAMINHO("A caminho", Color(0xFF0288D1)),
+    ENTREGUE("Entregue", Color(0xFF2E7D32)),
+    CANCELADO("Cancelado", Color(0xFFD32F2F))
 }
 
-internal fun fractionToValue(frac: Float, start: Float, end: Float): Float {
-    return (start + frac * (end - start)).coerceIn(start, end)
-}
-/**
- * Conteúdo do bottom sheet com todos os controles de filtragem.
- * Usa rememberSaveable para a maioria dos estados; faixa de preço salva dois floats.
- */
+// ------------------------
+// Filters: model & sheet (USANDO DOIS SLIDERS)
+// ------------------------
+data class OrderFilters(
+    val statuses: Set<PedidoStatus> = emptySet(),
+    val minValue: Float? = null,
+    val maxValue: Float? = null
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterBottomSheetContent(
-    onApply: () -> Unit,
-    onClear: () -> Unit,
+fun FiltersBottomSheet_DoubleSliders(
+    initialFilters: OrderFilters = OrderFilters(),
+    availableStatuses: List<PedidoStatus> = PedidoStatus.entries,
+    minPossibleValue: Float = 0f,
+    maxPossibleValue: Float = 200f,
+    onApply: (OrderFilters) -> Unit,
+    onDismissRequest: () -> Unit
 ) {
-    var onlyDiscount by rememberSaveable { mutableStateOf(false) }
-    var onlyFastDelivery by rememberSaveable { mutableStateOf(false) }
-    var selectedSort by rememberSaveable { mutableStateOf("Mais vendidos") }
-    var priceStart by rememberSaveable { mutableFloatStateOf(0f) }      // salvo como Float
-    var priceEnd by rememberSaveable { mutableFloatStateOf(100f) }      // salvo como Float
-    var selectedCategories by rememberSaveable { mutableStateOf(setOf<String>()) }
-    var minRating by rememberSaveable { mutableIntStateOf(0) }
+    var selectedStatuses by remember { mutableStateOf(initialFilters.statuses.toMutableSet()) }
+    var minSelected by remember { mutableFloatStateOf(initialFilters.minValue ?: minPossibleValue) }
+    var maxSelected by remember { mutableFloatStateOf(initialFilters.maxValue ?: maxPossibleValue) }
 
-    val activeFilters = remember(
-        onlyDiscount,
-        onlyFastDelivery,
-        selectedCategories,
-        minRating,
-        selectedSort,
-        priceStart,
-        priceEnd
-    ) {
-        listOfNotNull(
-            onlyDiscount.takeIf { it },
-            onlyFastDelivery.takeIf { it },
-            selectedCategories.takeIf { it.isNotEmpty() },
-            minRating.takeIf { it > 0 },
-            if (priceStart != 0f || priceEnd != 100f) "price" else null
-        ).size
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Filtros", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-
-        AnimatedVisibility(visible = activeFilters > 0) {
-            Text("$activeFilters filtros ativos", color = MaterialTheme.colorScheme.surfaceVariant)
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Text("Apenas produtos com desconto", Modifier.weight(1f))
-            Switch(
-                checked = onlyDiscount,
-                onCheckedChange = { onlyDiscount = it },
-                modifier = Modifier.semantics { contentDescription = "Apenas com desconto" })
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Text("Somente entrega rápida", Modifier.weight(1f))
-
-            Switch(
-                checked = onlyFastDelivery,
-                onCheckedChange = { onlyFastDelivery = it },
-                modifier = Modifier.semantics { contentDescription = "Somente entrega rápida" })
-        }
-
-        SortOptions(selectedSort = selectedSort, onSelect = { selectedSort = it })
-
-
-        Spacer(Modifier.height(1.dp))
-        Text("Faixa de valor (R$)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-
-        // Aqui usamos o FancyRangeSelector (custom)
-        FancyRangeSelector(
-            priceStart = priceStart,
-            priceEnd = priceEnd,
-            onRangeChange = { s, e ->
-                priceStart = s.coerceAtLeast(0f)
-                priceEnd = e.coerceAtMost(100f)
-            },
-            valueRange = 0f..100f,
-            steps = 0,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        CategoryChips(
-            categories = sampleCategories,
-            selected = selectedCategories,
-            onSelect = { selectedCategories = it }
-        )
-
-        RatingSelector(rating = minRating, onRatingChange = { minRating = it })
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedButton(
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text("Filtrar pedidos", style = MaterialTheme.typography.titleLarge)
+            TextButton(
                 onClick = {
-                    onlyDiscount = false
-                    onlyFastDelivery = false
-                    selectedSort = "Mais vendidos"
-                    priceStart = 0f
-                    priceEnd = 100f
-                    selectedCategories = emptySet()
-                    minRating = 0
-                    onClear()
+                    selectedStatuses = mutableSetOf()
+                    minSelected = minPossibleValue
+                    maxSelected = maxPossibleValue
                 },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.weight(1f)
-            ) { Text("Limpar") }
+                modifier = Modifier.semantics { contentDescription = "Limpar filtros" },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary.copy(blue = 1.5f))
+            ) {
+                Text("Limpar")
+            }
+        }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text("Status", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            availableStatuses.forEach { status ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (selectedStatuses.contains(status)) selectedStatuses.remove(status) else selectedStatuses.add(status)
+                        }
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = selectedStatuses.contains(status),
+                        onCheckedChange = { checked ->
+                            if (checked) selectedStatuses.add(status) else selectedStatuses.remove(status)
+                        },
+                        modifier = Modifier.semantics { contentDescription = "Checkbox ${status.label}" }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = status.label, style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Faixa de valor (R$)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Slider para MIN
+        FancyRangeSelectorOrderFilter(
+            modifier = Modifier.fillMaxWidth(),
+            priceStart = minSelected,
+            priceEnd = maxSelected,
+            onRangeChange = { start, end ->
+                minSelected = start
+                maxSelected = end
+            },
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(
+                onClick = onDismissRequest,
+                modifier = Modifier.semantics { contentDescription = "Cancelar filtros" },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Text("Cancelar")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = onApply,
-                modifier = Modifier.weight(1f),
+                onClick = {
+                    val filters = OrderFilters(
+                        statuses = selectedStatuses.toSet(),
+                        minValue = minSelected,
+                        maxValue = maxSelected
+                    )
+                    onApply(filters)
+                    onDismissRequest()
+                },
+                modifier = Modifier.semantics { contentDescription = "Aplicar filtros" },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSecondary,
+                    containerColor = MaterialTheme.colorScheme.secondary,
                     contentColor = MaterialTheme.colorScheme.background
                 )
-            ) { Text("Aplicar") }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-    }
-}
-
-/** Ordenação simples com RadioButtons */
-@Composable
-private fun SortOptions(selectedSort: String, onSelect: (String) -> Unit) {
-    Column {
-        Text("Ordenar por", fontWeight = FontWeight.SemiBold)
-        val options = listOf(
-            "Mais barato → Mais caro",
-            "Mais caro → Mais barato",
-            "Mais vendidos",
-            "Mais avaliados"
-        )
-        options.forEach { option ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
             ) {
-                RadioButton(
-                    selected = selectedSort == option,
-                    onClick = { onSelect(option) },
-                    modifier = Modifier.semantics { contentDescription = "Ordenar por $option" }
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(option)
+                Text("Aplicar")
             }
         }
     }
 }
 
-/**
- * FancyRangeSelector - Slider customizado desenhado em Canvas com duas "bolhas" acima.
- * Correções:
- * - evita que bolhas saiam da tela (clamp usando largura da bolha medida)
- * - evita sobreposição mantendo um gap mínimo entre bolhas quando próximos
- */
 @Composable
-fun FancyRangeSelector(
+fun FancyRangeSelectorOrderFilter(
     modifier: Modifier = Modifier,
     priceStart: Float,
     priceEnd: Float,
     onRangeChange: (Float, Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float> = 0f..100f,
     steps: Int = 0,
-) {
+)  {
     // layout size em px
     var sizePx by remember { mutableStateOf(IntSize(0, 0)) }
 
@@ -334,7 +283,7 @@ fun FancyRangeSelector(
             // Left bubble — agora posicionamos pela borda esquerda calculada (sem padding extra)
             Box(
                 modifier = Modifier
-                    .offset { androidx.compose.ui.unit.IntOffset(leftPosPx.roundToInt(), 0) }
+                    .offset { IntOffset(leftPosPx.roundToInt(), 0) }
                     .onSizeChanged { leftBubbleWidthPx = it.width }
             ) {
                 Surface(
@@ -355,7 +304,7 @@ fun FancyRangeSelector(
             // Right bubble
             Box(
                 modifier = Modifier
-                    .offset { androidx.compose.ui.unit.IntOffset(rightPosPx.roundToInt(), 0) }
+                    .offset { IntOffset(rightPosPx.roundToInt(), 0) }
                     .onSizeChanged { rightBubbleWidthPx = it.width }
             ) {
                 Surface(
@@ -481,72 +430,6 @@ fun FancyRangeSelector(
                     center = Offset(endX, centerY)
                 )
                 drawCircle(color = onPrimaryColor, radius = 2f, center = Offset(endX, centerY))
-            }
-        }
-    }
-}
-/** Chips de categorias com multi-seleção */
-@Composable
-private fun CategoryChips(
-    categories: List<String>,
-    selected: Set<String>,
-    onSelect: (Set<String>) -> Unit,
-) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Categorias", fontWeight = FontWeight.SemiBold)
-            val allSelected = selected.size == categories.size
-            TextButton(onClick = { onSelect(if (allSelected) emptySet() else categories.toSet()) }) {
-                Text(
-                    text = if (allSelected) "Limpar seleção" else "Selecionar tudo",
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 8.dp)
-        ) {
-            items(categories) { category ->
-                FilterChip(
-                    selected = category in selected,
-                    onClick = { onSelect(if (category in selected) selected - category else selected + category) },
-                    label = { Text(category) },
-                    modifier = Modifier.semantics { contentDescription = "Categoria $category" }
-                )
-            }
-        }
-    }
-}
-
-/** Seleção de avaliação mínima com estrelas */
-@Composable
-private fun RatingSelector(rating: Int, onRatingChange: (Int) -> Unit) {
-    Column {
-        Text("Avaliação mínima", fontWeight = FontWeight.SemiBold)
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.padding(top = 6.dp)
-        ) {
-            (1..5).forEach { star ->
-                IconToggleButton(
-                    checked = rating >= star,
-                    onCheckedChange = { onRatingChange(star) },
-                    modifier = Modifier.semantics {
-                        contentDescription = "Selecionar mínimo $star estrelas"
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (rating >= star) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription = null
-                    )
-                }
             }
         }
     }

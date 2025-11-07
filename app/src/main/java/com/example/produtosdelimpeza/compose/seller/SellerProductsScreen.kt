@@ -1,8 +1,6 @@
 package com.example.produtosdelimpeza.compose.seller
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -43,7 +41,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.FilterList
@@ -88,7 +85,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -541,44 +537,6 @@ fun SellerProductsScreen(
 }
 
 
-@Composable
-fun ProductCarousel(
-    title: String,
-    items: List<CartProduct>,
-    favorites: Map<String, Boolean>,
-    onToggleFavorite: (String) -> Unit,
-    onItemClick: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        )
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(items) { product ->
-                ProductCard(
-                    product = product,
-                    //isFavorite = favorites[product.id] == true,
-                    onToggleFavorite = onToggleFavorite,
-                    onClick = onItemClick,
-                    modifier = Modifier
-                        .width(180.dp)
-                        .height(250.dp)
-                )
-            }
-        }
-    }
-}
-
 // ---------- Card do produto ----------
 @Composable
 fun ProductCard(
@@ -862,88 +820,6 @@ fun InformationCard(
                 onClick = {}
             ) {
                 Text("favoritos deste vendedor")
-            }
-        }
-    }
-}
-
-
-
-@Composable
-fun ExpandableCardProducts(
-    modifier: Modifier = Modifier,
-    title: Int,
-    expanded: Boolean,
-) {
-    var expandedState by remember { mutableStateOf(expanded) }
-    val rotationState by animateFloatAsState(
-        targetValue = if (expandedState) 180f else 0f
-    )
-
-    Card(
-        onClick = {
-            expandedState = !expandedState
-        },
-        modifier = modifier
-            .animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 400,
-                    easing = LinearOutSlowInEasing
-                )
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (!expandedState) MaterialTheme.colorScheme.primary else Color.Gray,
-            contentColor = Color.Black
-        ),
-        shape = RoundedCornerShape(10.dp),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(title),
-                modifier = Modifier
-                    .padding(start = 20.dp)
-                    .padding(vertical = 20.dp),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            IconButton(
-                modifier = Modifier.rotate(rotationState),
-                onClick = { expandedState = !expandedState },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = stringResource(R.string.icon_navigate_back),
-                )
-            }
-
-        }
-        if (expandedState) {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(6) { fav ->
-                    Column(
-                        modifier = Modifier.width(120.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.sabao_lava_roupa),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-
-                        TextButton(
-                            onClick = {}
-                        ) {
-                            Text("Comprar novamente")
-                        }
-                    }
-                }
             }
         }
     }

@@ -7,12 +7,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,8 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.produtosdelimpeza.FiltersBottomSheet_DoubleSliders
+import com.example.produtosdelimpeza.PedidoStatus
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.GradientBackCardsComponents
+import com.example.produtosdelimpeza.ui.theme.StarColor
+import com.example.produtosdelimpeza.utils.toBrazilianCurrency
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
@@ -48,13 +59,19 @@ enum class OrderStatusList(val label: String) {
 @Composable
 fun OrderListScreen(navController: NavHostController, onNavigateToOrderDetails: () -> Unit) {
     val listState = rememberLazyListState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val scope = rememberCoroutineScope()
+    var sheetVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Pedidos") },
                 actions = {
-                    IconButton(onClick = { /* opcional: filtrar */ }) {
+                    IconButton(onClick = {
+                        sheetVisible = true
+                        scope.launch { sheetState.show() }
+                    }) {
                         Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filtrar")
                     }
                 },
@@ -80,6 +97,7 @@ fun OrderListScreen(navController: NavHostController, onNavigateToOrderDetails: 
             return@Scaffold
         }
 
+
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -97,6 +115,32 @@ fun OrderListScreen(navController: NavHostController, onNavigateToOrderDetails: 
             // optional: spacer at bottom to avoid overlaps with navigation bar / FABs
             item {
                 Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+
+        if (sheetVisible) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    sheetVisible = false
+                    scope.launch { sheetState.hide() }
+                },
+                sheetState = sheetState,
+            ) {
+                // drag handle custom
+
+                FiltersBottomSheet_DoubleSliders(
+                    availableStatuses = PedidoStatus.entries,
+                    minPossibleValue = 0f,
+                    maxPossibleValue = 200f,
+                    onApply = { filters ->
+                        sheetVisible = false
+                        scope.launch { sheetState.hide() }
+                    },
+                    onDismissRequest = {
+                        sheetVisible = false
+                        scope.launch { sheetState.hide() }
+                    }
+                )
             }
         }
     }
@@ -144,7 +188,7 @@ fun OrderCard(
     ) {
         Column(modifier = Modifier
             .background(GradientBackCardsComponents)
-            .padding(16.dp)
+            .padding(start = 16.dp, top = 16.dp, bottom = 12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
@@ -168,48 +212,80 @@ fun OrderCard(
                 }
 
                 // Status chip at the right
-                StatusChip(order.status)
+                StatusChip(
+                    modifier = Modifier.padding(end = 16.dp),
+                    order.status
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = order.restaurantName,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = order.restaurantName,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        VerticalDivider(
+                            modifier = Modifier.height(16.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Avaliação",
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(10.dp),
+                            tint = StarColor
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${order.rating}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .background(
+                                    brush = GradientBackCardsComponents,
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Text(
+                                text = "R$ ${40.0.toBrazilianCurrency()}",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(6.dp),
+                                color = MaterialTheme.colorScheme.background
+                            )
+                        }
 
-                // subtle chevron
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Ver detalhes",
-                    modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.background
-                )
+                        Spacer(Modifier.weight(1f))
+                        // subtle chevron
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Ver detalhes",
+                            modifier = Modifier.size(30.dp).padding(end = 6.dp),
+                            tint = MaterialTheme.colorScheme.background
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun StatusChip(status: OrderStatusList) {
+fun StatusChip(modifier: Modifier = Modifier, status: OrderStatusList) {
     val (icon, color, tonal) = when (status) {
         OrderStatusList.PREPARING -> Triple(Icons.Default.HourglassTop, MaterialTheme.colorScheme.primary, true)
         OrderStatusList.ON_THE_WAY -> Triple(Icons.Default.LocalShipping, MaterialTheme.colorScheme.secondary, true)
@@ -221,7 +297,7 @@ fun StatusChip(status: OrderStatusList) {
         shape = RoundedCornerShape(12.dp),
         tonalElevation = if (tonal) 2.dp else 0.dp,
         color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier
+        modifier = modifier
             .wrapContentWidth()
             .height(34.dp)
     ) {

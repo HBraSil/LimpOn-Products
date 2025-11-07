@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
@@ -34,8 +35,6 @@ import java.util.*
 // Nota: para carregar imagens reais no app, recomendo adicionar Coil (io.coil-kt:coil-compose) e substituir
 // o placeholder por AsyncImage. Aqui usamos boxes como placeholders para manter o exemplo livre de dependências.
 
-private val Primary = Color(0xFF1565C0)    // azul principal
-private val PrimaryContainer = Color(0xFFDCEEFB)
 private val Success = Color(0xFF2E7D32)
 private val Muted = Color(0xFF6B7280)
 
@@ -523,7 +522,7 @@ private fun ActionsSection(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Icon(Icons.Default.Help, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.Help, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Ajuda / Suporte")
             }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -101,6 +102,7 @@ fun CartScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .navigationBarsPadding()
                     .padding(vertical = 20.dp, horizontal = 20.dp)
                     .background(
                         color = Color.White,
@@ -140,14 +142,11 @@ fun CartScreen(
                     }
             }
         }
-    ) { contentPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                    bottom = contentPadding.calculateBottomPadding()
-                )
+                .padding(innerPadding)
                 .padding(horizontal = 10.dp)
                 .verticalScroll(verticalScroll),
             horizontalAlignment = Alignment.Start,
