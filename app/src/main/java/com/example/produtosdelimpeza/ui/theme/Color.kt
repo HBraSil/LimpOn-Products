@@ -18,15 +18,14 @@ val LightBrown = Color(0xFF683904)
 
 
 // General colors
-val RedCircle = Color(0xFFB00020)
+    val RedCircle = Color(0xFFFFE926)
 val BluishGreen = Color(0xFF00693C)
 
-val GradientSignupMainText = Brush.radialGradient(
+val GradientBackCardsComponents = Brush.radialGradient(
     colors = listOf(
-        Color(0x6F109F93),
-        Color(0xFF7DBBB9),
-        Color(0xFF2481B4),
+        Color(0xFF063352),
+        Color(0x5417649A),
     ),
-    center = Offset.Zero, // Pode ajustar depois
-    radius = 1000f
+    center = Offset.Infinite, // Pode ajustar depois
+    radius = 250f
 )

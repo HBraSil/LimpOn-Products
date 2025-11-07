@@ -75,52 +75,50 @@ import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 fun ProfileScreen(navController: NavHostController? = null) {
     val verticalScrollState = rememberScrollState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            bottomBar = {
-                MainBottomNavigation(navController!!)
-            }
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(verticalScrollState)
-                    .padding(
-                        top = contentPadding.calculateTopPadding(),
-                        bottom = contentPadding.calculateBottomPadding()
-                    ),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(15.dp)
-            ) {
-                Card(
-                    onClick = {},
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .size(100.dp)
-                        .align(Alignment.CenterHorizontally),
-                    shape = CircleShape,
-                    elevation = CardDefaults.elevatedCardElevation(3.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = stringResource(R.string.image_profile),
-                            modifier = Modifier.size(60.dp)
-                        )
-                    }
-                }
-
-                PersonalData()
-                Configurations(navController)
-                GeneralInformation(navController)
-            }
+    Scaffold(
+        bottomBar = {
+            MainBottomNavigation(navController!!)
         }
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(verticalScrollState)
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                    bottom = contentPadding.calculateBottomPadding()
+                ),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            Card(
+                onClick = {},
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .size(100.dp)
+                    .align(Alignment.CenterHorizontally),
+                shape = CircleShape,
+                elevation = CardDefaults.elevatedCardElevation(3.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = stringResource(R.string.image_profile),
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+            }
 
-
+            PersonalData()
+            Configurations(navController)
+            GeneralInformation(navController)
+        }
     }
+
+
 }
 
 

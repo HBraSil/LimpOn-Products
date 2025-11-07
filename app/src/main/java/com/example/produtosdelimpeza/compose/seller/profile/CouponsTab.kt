@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.produtosdelimpeza.ui.theme.GradientSignupMainText
+import com.example.produtosdelimpeza.ui.theme.GradientBackCardsComponents
 
 
 @Composable
@@ -104,7 +104,7 @@ fun DiscountTicketCardEvenOdd(
                 fillType = PathFillType.EvenOdd
             }
 
-            val gradient = GradientSignupMainText
+            val gradient = GradientBackCardsComponents
 
             drawPath(path = path, brush = gradient)
 

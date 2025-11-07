@@ -12,6 +12,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import com.example.produtosdelimpeza.compose.ProdutosLimpezaApp
 import com.example.produtosdelimpeza.ui.theme.LightBluishGray
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
@@ -21,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContent {
             ProdutosDeLimpezaTheme {
                 // Obtenha a Activity e a cor desejada (Branco para o fundo)

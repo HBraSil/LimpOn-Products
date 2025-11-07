@@ -93,7 +93,7 @@ fun LoginScreen(onSignupClick: () -> Unit = {}) {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Image(
-                        painter = if (isSystemInDarkTheme()) painterResource(R.drawable.limp_on_dark_logo) else painterResource(R.drawable.limp_on_light_logo),
+                        painter = painterResource(R.drawable.limp_on_light_logo),
                         contentDescription = stringResource(R.string.login_image),
                         modifier = Modifier.padding(top = 20.dp)
                     )

@@ -1,10 +1,14 @@
 package com.example.produtosdelimpeza.compose.main
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -28,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
+import com.example.produtosdelimpeza.compose.order.OrderListScreen
+import com.example.produtosdelimpeza.compose.order.OrderDetailsScreen
 import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.compose.about.AboutScreen
 import com.example.produtosdelimpeza.compose.cart.CartScreen
@@ -65,6 +71,20 @@ fun MainScreenNavigation() {
         composable(route = Screen.SEARCH.route) {
             SearchScreen(navController)
         }
+
+        composable(route = Screen.ORDER_LIST.route) {
+            OrderListScreen(
+                navController,
+                onNavigateToOrderDetails = { navController.navigate(Screen.ORDER_DETAIL.route) }
+            )
+        }
+
+        composable(route = Screen.ORDER_DETAIL.route) {
+            OrderDetailsScreen(
+                onBack = { navController.navigateUp() },
+            )
+        }
+
         composable(route = Screen.PROFILE.route) {
             ProfileScreen(navController)
         }
@@ -151,11 +171,17 @@ fun MainBottomNavigation(
             router = Screen.SEARCH
         ),
         NavigationItem(
+            title = R.string.order_detail,
+            iconSelected = Icons.AutoMirrored.Filled.ReceiptLong,
+            iconUnselected = Icons.AutoMirrored.Outlined.ReceiptLong,
+            router = Screen.ORDER_LIST
+        ),
+        NavigationItem(
             title = R.string.profile,
             iconSelected = Icons.Filled.Person,
             iconUnselected = Icons.Outlined.Person,
             router = Screen.PROFILE
-        ),
+        )
     )
 
 
