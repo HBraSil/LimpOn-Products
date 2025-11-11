@@ -1,471 +1,441 @@
 package com.example.produtosdelimpeza.compose.profile
 
-import androidx.compose.foundation.Image
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.NavigateNext
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.BrightnessMedium
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Feedback
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.LocalOffer
-import androidx.compose.material.icons.outlined.LocationCity
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.Screen
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 
+// Definição de cores personalizadas para o tema (minimalista)
+val LightGrayBackground = Color(0xFFF5F5F5)
+val DarkText = Color(0xFF1E1E1E)
+val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProfileScreen(navController: NavHostController? = null) {
-    val verticalScrollState = rememberScrollState()
-
+fun ProfileScreen(
+    navController: NavHostController?,
+    onClickNotificationsScreen: () -> Unit = {},
+    onClickEditUserProfile: () -> Unit = {},
+    onClickPaymentMethods: () -> Unit = {}
+) {
+    // Usando Scaffold para a estrutura básica da tela, incluindo a barra de navegação inferior
     Scaffold(
         bottomBar = {
             MainBottomNavigation(navController!!)
-        }
-    ) { contentPadding ->
+        },
+        containerColor = LightGrayBackground // Fundo levemente cinza para a tela
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(verticalScrollState)
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                    bottom = contentPadding.calculateBottomPadding()
-                ),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()) // Torna o conteúdo scrollável
         ) {
-            Card(
-                onClick = {},
+            // Adiciona um espaçamento superior para telas sem TopAppBar
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 1. Cabeçalho
+            HeaderSection(
+                userName = "Hilquias Brasil",
+                userInitials = "HB",
+                onClickEditUserProfile = onClickEditUserProfile
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 2. Ações Rápidas (Cards)
+            QuickActionsSection(
+                onClickNotificationsScreen = onClickNotificationsScreen,
+                onClickPaymentMethods = onClickPaymentMethods
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // 3. Seções Informativas (Listas)
+            // Seção 1: Benefícios/Créditos
+            InfoSection(title = "Benefícios") {
+                InfoItem(
+                    icon = Icons.Default.Star,
+                    text = "Créditos e Fidelidade",
+                    endText = "R$ 0,00",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Discount,
+                    text = "Cupons",
+                    onClick = { /* Ação */ }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Seção 2: Minha Conta
+            InfoSection(title = "Minha Conta") {
+                InfoItem(
+                    icon = Icons.Default.LocationOn,
+                    text = "Meus Endereços",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.CreditCard,
+                    text = "Formas de Pagamento",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.History,
+                    text = "Histórico de Pedidos",
+                    onClick = { /* Ação */ }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Seção 3: Suporte e Informações
+            InfoSection(title = "Suporte e Informações") {
+                InfoItem(
+                    icon = Icons.AutoMirrored.Filled.Help,
+                    text = "Ajuda e FAQ",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Policy,
+                    text = "Termos de Uso e Privacidade",
+                    onClick = { /* Ação */ }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+
+// --- 1. Cabeçalho ---
+@Composable
+fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile: () -> Unit = {}) {
+
+    // Ações no topo (simulando TopAppBar)
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+    ){
+        Column(
+            modifier = Modifier
+                .height(70.dp)
+                .align(Alignment.TopCenter)
+                .background(
+                    color = Color.Gray.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                ),
+        ) {
+            Row(
+                modifier = Modifier.padding(top = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "Encerrar Sessão",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = DarkText,
+                    modifier = Modifier.padding(start = 10.dp),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.weight(1f))
+                ElevatedButton(
+                    onClick = {},
+                    modifier = Modifier.padding(end = 10.dp),
+                ) {
+                    Text("Sair")
+                }
+            }
+        }
+
+
+        // Bloco de Destaque do Usuário (Avatar + Nome)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 58.dp)
+                .clickable(onClick = onClickEditUserProfile),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // Destaque com sombra
+        ) {
+            Row(
                 modifier = Modifier
-                    .padding(top = 20.dp)
-                    .size(100.dp)
-                    .align(Alignment.CenterHorizontally),
-                shape = CircleShape,
-                elevation = CardDefaults.elevatedCardElevation(3.dp)
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Avatar (Círculo com Iniciais)
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(PrimaryColor.copy(alpha = 0.1f)), // Cor suave de fundo
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = stringResource(R.string.image_profile),
-                        modifier = Modifier.size(60.dp)
+                    Text(
+                        text = userInitials,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryColor
+                        )
                     )
                 }
-            }
 
-            PersonalData()
-            Configurations(navController)
-            GeneralInformation(navController)
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = userName,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = DarkText,
+                        fontFamily = FontFamily(
+                            Font(R.font.montserrat_medium_italic)
+                        ),
+                    )
+                    Text(
+                        text = "Você ainda não é um assinante",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Blue.copy(alpha = 0.7f)
+                    )
+                }
+
+                // Ícone de navegação para indicar que o card é clicável
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Editar Perfil",
+                    tint = Color.LightGray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
-
-
 }
 
 
+// --- 2. Ações Rápidas (Cards) ---
 @Composable
-fun PersonalData() {
-    val fieldsList = listOf("Nome", "Email", "Celular", "Cidade")
-    var fieldInformationalList by remember {
-        mutableStateOf(
-            mutableListOf(
-                "Hilquias Brasil",
-                "hilquias.brasil@gmail.com",
-                "(99) 99225-9452",
-                "Tuntum-Ma",
-            )
+fun QuickActionsSection(
+    onClickNotificationsScreen: () -> Unit,
+    onClickPaymentMethods: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        QuickActionCard(
+            icon = Icons.Default.Notifications,
+            text = "Notificações",
+            modifier = Modifier.weight(1f),
+            onClickCardSection = onClickNotificationsScreen
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        QuickActionCard(
+            icon = Icons.Default.HeadsetMic,
+            text = "Ajuda",
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        QuickActionCard(
+            icon = Icons.Default.Payment,
+            text = "Pagamento",
+            modifier = Modifier.weight(1f),
+            onClickCardSection = onClickPaymentMethods
         )
     }
-    var iconsList by remember {
-        mutableStateOf(
-            mutableListOf(
-                Icons.Outlined.PersonOutline,
-                Icons.Outlined.Email,
-                Icons.Outlined.Phone,
-                Icons.Outlined.LocationCity,
+}
+
+@Composable
+fun QuickActionCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector, text: String,
+    onClickCardSection: () -> Unit = {},
+) {
+    Card(
+        modifier = modifier
+            .height(100.dp)
+            .clickable(onClick = onClickCardSection),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // Sombra leve
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = PrimaryColor,
+                modifier = Modifier.size(28.dp)
             )
-        )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = DarkText
+            )
+        }
     }
-    var isFocused by remember { mutableStateOf(Pair<Int, Boolean>(0, false)) }
-    var actualName by remember { mutableStateOf("Hilquias Brasil") }
-    var newName by remember { mutableStateOf(actualName) }
-    var isNamechanged by remember { mutableStateOf(false) }
+}
 
+// --- 3. Seções Informativas (Listas) ---
+@Composable
+fun InfoSection(title: String, content: @Composable () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            color = DarkText,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
 
+        // Container para agrupar os itens e aplicar um fundo/elevação se necessário
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = Color.White,
+            shadowElevation = 2.dp // Sombra sutil para destacar a seção
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoItem(
+    icon: ImageVector,
+    text: String,
+    endText: String? = null,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 40.dp),
-        horizontalArrangement = Arrangement.Start,
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "Dados pessoais",
-            fontSize = 20.sp,
-            modifier = Modifier.padding(start = 15.dp),
-            fontWeight = ExtraBold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(Modifier.weight(1f))
-        IconButton(
-            onClick = {
-                actualName = newName
-                isNamechanged = false
-            },
-            enabled = isNamechanged,
-            modifier = Modifier.padding(end = 16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Check,
-                contentDescription = stringResource(R.string.edit_personal_data),
-            )
-        }
-    }
-
-
-    fieldsList.forEachIndexed { index, field ->
-        Row(
-            modifier = Modifier.padding(start = 35.dp)
-        ) {
-
-            Icon(
-                imageVector = iconsList[index],
-                contentDescription = stringResource(R.string.icon_personal_data),
-            )
-
-            Spacer(Modifier.width(20.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Text(
-                    text = field,
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                BasicTextField(
-                    value = fieldInformationalList[index],
-                    onValueChange = { newValue ->
-                        fieldInformationalList[index] = newValue
-                        isNamechanged = fieldInformationalList[index] != actualName
-                    },
-                    modifier = Modifier
-                        .padding(end = 20.dp)
-                        .onFocusChanged { focusState ->
-                            isFocused = Pair(1, focusState.isFocused)
-                            /*if (focusState.isFocused) {
-                            isFocused = false
-                        }*/
-                        },
-                    textStyle = if (isFocused.first == 1 && isFocused.second) TextStyle(
-                        fontSize = 16.sp,
-                        color = Black,
-                        fontWeight = Bold
-                    ) else TextStyle(
-                        fontSize = 14.sp,
-                        color = Gray,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
-
-        Spacer(Modifier.height(2.dp))
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Configurations(navController: NavHostController?) {
-    var checkedDefaultMode by remember { mutableStateOf(false) }
-    var isSheetOpen by remember { mutableStateOf(false) }
-
-
-    val configurationsItemList = listOf(
-        stringResource(R.string.enable_cupons),
-        stringResource(R.string.dark_mode),
-        stringResource(R.string.manage_notifications),
-    )
-
-    var iconsList by remember {
-        mutableStateOf(
-            mutableListOf(
-                Icons.Outlined.LocalOffer,
-                Icons.Outlined.BrightnessMedium,
-                Icons.Outlined.Notifications
-            )
-        )
-    }
-
-    Text(
-        text = "Configurações",
-        fontSize = 20.sp,
-        modifier = Modifier.padding(top = 20.dp, start = 15.dp, bottom = 10.dp),
-        fontWeight = ExtraBold,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-
-    configurationsItemList.forEachIndexed { index, item ->
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 35.dp)
-                .fillMaxWidth()
-                .clickable {
-                    when (index) {
-                        //0 -> TODO: Habilitar tela de cupons
-                        1 -> isSheetOpen = !isSheetOpen
-                        2 -> navController!!.navigate(Screen.NOTIFICATION.route)
-                    }
-                },
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                imageVector = iconsList[index],
-                contentDescription = stringResource(R.string.icon_configurations),
-            )
-
-            Spacer(Modifier.width(20.dp))
-
-            Text(
-                text = item,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            when (item) {
-                stringResource(R.string.enable_cupons) -> {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                    )
-                }
-
-                stringResource(R.string.dark_mode) -> {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                    )
-                }
-
-                stringResource(R.string.manage_notifications) -> {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                        contentDescription = stringResource(R.string.navigate_screen_enable_coupons),
-                    )
-                }
-            }
-
-        }
-        Spacer(Modifier.height(2.dp))
-    }
-
-
-    val optionsLightModeList = listOf("Usar configuração do sistema", "Ativar modo escuro")
-    if (isSheetOpen) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                isSheetOpen = false
-            },
-
-        ) {
-            Column(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(vertical = 20.dp),
-            ) {
-                optionsLightModeList.forEach {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = it)
-                        Spacer(modifier = Modifier.padding(bottom = 10.dp))
-                        Switch(
-                            checked = checkedDefaultMode,
-                            onCheckedChange = { checkedDefaultMode = it },
-                            thumbContent = if (checkedDefaultMode) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            } else {
-                                null
-                            }
-                        )
-                    }
-
-                }
-            }
-        }
-    }}
-
-
-
-@Composable
-fun GeneralInformation(navController: NavHostController?) {
-
-    val generalInformationList = listOf(
-        stringResource(R.string.feedback),
-        stringResource(R.string.about),
-    )
-
-
-    var iconsList by remember {
-        mutableStateOf(
-            mutableListOf(
-                Icons.Outlined.Feedback,
-                Icons.Outlined.Info,
-            )
-        )
-    }
-
-    Text(
-        text = "Informações Gerais",
-        fontSize = 20.sp,
-        modifier = Modifier.padding(top = 20.dp, start = 15.dp, bottom = 10.dp),
-        fontWeight = ExtraBold,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-
-    generalInformationList.forEachIndexed {index, item ->
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 35.dp)
-                .clickable {
-                    when (index) {
-                        //stringResource(R.string.feedback) -> navController!!.navigate(Screen.FEEDBACK.route)
-                        1 -> navController!!.navigate(Screen.ABOUT.route)
-                    }
-                }
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = iconsList[generalInformationList.indexOf(item)],
-                contentDescription = stringResource(R.string.icon_configurations),
-            )
-
-            Spacer(Modifier.width(20.dp))
-
-            Text(
-                text = item,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(Modifier.weight(1f))
-
-
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.NavigateNext,
-                contentDescription = stringResource(R.string.icon_navigate_next_to_feedback),
-            )
-        }
-
-        Spacer(Modifier.height(2.dp))
-
-    }
-
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 35.dp),
-        horizontalArrangement = Arrangement.Start,
-    ) {
         Icon(
-            imageVector = Icons.AutoMirrored.Outlined.Logout,
-            contentDescription = stringResource(R.string.icon_navigate_back),
+            imageVector = icon,
+            contentDescription = null,
+            tint = DarkText.copy(alpha = 0.7f),
+            modifier = Modifier.size(24.dp)
         )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
         Text(
-            text = "Sair",
-            modifier = Modifier.padding(start = 20.dp),
-            color = MaterialTheme.colorScheme.onBackground
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = DarkText,
+            modifier = Modifier.weight(1f)
+        )
+
+        if (endText != null) {
+            Text(
+                text = endText,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = PrimaryColor
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = "Avançar",
+            tint = Color.LightGray,
+            modifier = Modifier.size(24.dp)
         )
     }
-
-    Spacer(modifier = Modifier.padding(bottom = 20.dp))
 }
 
 
+/*
+Scaffold(
 
-@Preview
-@Composable
-private fun ProfileScreenPreview() {
-    ProfileScreen()
-}
+) { contentPadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(verticalScrollState)
+            .padding(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding()
+            ),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(15.dp)
+    ) {
+        Card(
+            onClick = {},
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .size(100.dp)
+                .align(Alignment.CenterHorizontally),
+            shape = CircleShape,
+            elevation = CardDefaults.elevatedCardElevation(3.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = stringResource(R.string.image_profile),
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+        }
+
+        PersonalData()
+        Configurations(navController)
+        GeneralInformation(navController)
+    }
+}*/
+

@@ -39,6 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -73,7 +74,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -90,7 +90,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
-import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
@@ -110,7 +110,6 @@ import com.example.produtosdelimpeza.viewmodels.CartViewModel
         val color: Color,
     )
 
-data class Product(val id: Int, val name: String, val price: String, val icon: ImageVector)
 
 // --- Sample data ---
 private val sampleCategories = listOf(
@@ -157,11 +156,11 @@ private val itemsLista = listOf(
 )
 
 private val sampleProducts = listOf(
-    CartProduct(1, "Detergente Líquido", 62.71),
-    CartProduct(2, "Sabao Líquido", 6.49),
-    CartProduct(2, "Kiboa", 2.39),
-    CartProduct(2, "Brilho", 1.69),
-    CartProduct(2, "Amaciante Líquidp", 10.00),
+    Product(1, "Detergente Líquido", 62.71),
+    Product(2, "Sabao Líquido", 6.49),
+    Product(2, "Kiboa", 2.39),
+    Product(2, "Brilho", 1.69),
+    Product(2, "Amaciante Líquidp", 10.00),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,12 +169,14 @@ fun HomeScreen(
     cartViewModel: CartViewModel = viewModel(),
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
+    onSeeAllClick: () -> Unit = {}
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
 
     var expandedCard by remember { mutableStateOf(false) } // Assumindo que expanded é uma variável de estado
+    var shortcutSelected by remember { mutableStateOf("1") }
 
 
     //SystemBarController(false)
@@ -223,12 +224,13 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
+
                         CardDeLocalizacao(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(Alignment.TopCenter),
                             address = AddressItem(
-                                id = "1",
+                                id = shortcutSelected,
                                 name = "Casa",
                                 fullAddress = "Rua Arsenio Da Silva 1",
                                 eta = "25-35 min",
@@ -246,7 +248,8 @@ fun HomeScreen(
                                     fullAddress = "Rua Arsenio Da Silva 2"
                                 )
                             ),
-                            isExpanded = expandedCard
+                            isExpanded = expandedCard,
+                            onSelectShortcut = { shortcutSelected = it }
                         ) { expandedCard = !expandedCard } // Fixa no topo
 
                     }
@@ -259,7 +262,12 @@ fun HomeScreen(
 
                 item { Spacer(modifier = Modifier.height(30.dp)) }
 
-                item { SectionHeader(title = "Destaques para você", actionLabel = "Ver todos") { } }
+                item { SectionHeader(
+                    title = "Destaques para você",
+                    actionLabel = "Ver todos",
+                    onAction = onSeeAllClick,
+                    textColor = MaterialTheme.colorScheme.secondary.copy(blue = 1.5f)
+                ) }
                 item { FeaturedProductsRow(products = sampleProducts, onAdd = {}) }
 
                 item { Spacer(modifier = Modifier.height(30.dp)) }
@@ -280,7 +288,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun FeaturedProductsRow(products: List<CartProduct>, onAdd: (CartProduct) -> Unit) {
+fun FeaturedProductsRow(products: List<Product>, onAdd: (Product) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         contentPadding = PaddingValues(start = 12.dp)
@@ -298,8 +306,8 @@ fun FeaturedProductsRow(products: List<CartProduct>, onAdd: (CartProduct) -> Uni
 @Composable
 fun SampleFeaturedProducts(
     modifier: Modifier = Modifier,
-    productCart: CartProduct,
-    onAdd: (CartProduct) -> Unit
+    productCart: Product,
+    onAdd: (Product) -> Unit
 ) {
     Card(
         modifier = modifier.width(160.dp),
@@ -360,7 +368,7 @@ fun SampleFeaturedProducts(
 
 // --- Section header (title + action) ---
 @Composable
-fun SectionHeader(title: String, actionLabel: String = "", onAction: () -> Unit) {
+fun SectionHeader(title: String, actionLabel: String = "", textColor: Color = MaterialTheme.colorScheme.onSurface, onAction: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -376,7 +384,7 @@ fun SectionHeader(title: String, actionLabel: String = "", onAction: () -> Unit)
             Text(
                 text = actionLabel,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 fontWeight = FontWeight.ExtraBold
             )
         }
@@ -404,7 +412,7 @@ fun CardDeLocalizacao(
     )
     val titleSaved = "Endereço salvo"
     val addAddressCTA = "Adicionar endereço"
-    val etaPrefix = "Entrega ~"
+    val etaPrefix = "Entrega ~ "
 
 
     Surface(
@@ -484,7 +492,7 @@ fun CardDeLocalizacao(
                 )
                 Spacer(Modifier.width(20.dp))
                 Icon(
-                    imageVector = if (isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
+                    imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
                     tint = MaterialTheme.colorScheme.onBackground
@@ -514,7 +522,8 @@ fun CardDeLocalizacao(
                         modifier = Modifier
                             .padding(12.dp)
                             .fillMaxWidth(),
-                        verticalAlignment = Alignment.Top
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Left: content column
                         Column(
@@ -599,17 +608,28 @@ fun CardDeLocalizacao(
 
                                 // Shortcuts chips (optional)
                                 if (savedAddresses.isNotEmpty()) {
-                                    FlowRow(
+                                    Column(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        savedAddresses.forEach { item ->
-                                            AddressShortcutChip(
-                                                name = item.name ?: "Endereço",
-                                                isSelected = item.id == address.id,
-                                                onClick = { onSelectShortcut(item.name ?: item.id) }
-                                            )
+                                        Text(
+                                            text = "Local de entrega",
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
 
-                                            Spacer(Modifier.width(18.dp))
+                                        Row {
+                                            savedAddresses.forEach { item ->
+                                                AddressShortcutChip(
+                                                    name = item.name ?: "Endereço",
+                                                    isSelected = item.id == address.id,
+                                                    onClick = {
+                                                        onSelectShortcut(
+                                                            item.id
+                                                        )
+                                                    }
+                                                )
+
+                                                Spacer(Modifier.width(18.dp))
+                                            }
                                         }
                                     }
                                 }
@@ -640,7 +660,7 @@ fun CardDeLocalizacao(
                         // Right: mini-map thumbnail or placeholder
                         MapThumbnail(
                             modifier = Modifier
-                                .size(width = 110.dp, height = 90.dp)
+                                .size(width = 170.dp, height = 120.dp)
                                 .clip(RoundedCornerShape(8.dp)),
                             contentDescription = address?.fullAddress ?: "Mini mapa do endereço",
                             hasAddress = address != null
@@ -679,7 +699,7 @@ private fun MapThumbnail(
     Box(
         modifier = modifier
             .then(Modifier)
-            .background(MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(0.6f), shape = RoundedCornerShape(8.dp))
             .semantics { this.contentDescription = contentDescription }
     ) {
         if (hasAddress) {
@@ -738,15 +758,16 @@ private fun AddressShortcutChip(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val tonalColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    val tonalColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     AssistChip(
         onClick = onClick,
-        label = { Text(text = name) },
+        label = { Text(text = name, style = MaterialTheme.typography.bodyMedium, color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Atalho $name",
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp),
+                tint = if (isSelected) MaterialTheme.colorScheme.background.copy(0.7f) else MaterialTheme.colorScheme.background
             )
         },
         colors = AssistChipDefaults.assistChipColors(containerColor = tonalColor)
@@ -762,26 +783,20 @@ private fun AddressActions(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
     ) {
         // Edit button (primary)
         ElevatedButton(
             onClick = onEdit,
-            modifier = Modifier.height(40.dp)
+            modifier = Modifier.height(40.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(0.2f)
+            )
         ) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar endereço", modifier = Modifier.size(18.dp))
+            Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar endereço", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.width(8.dp))
-            Text(text = "Editar")
-        }
-
-        Spacer(Modifier.width(10.dp))
-
-        // Change/Select other address (secondary)
-        TextButton(
-            onClick = onChange,
-            modifier = Modifier.height(40.dp)
-        ) {
-            Text(text = "Alterar / Selecionar outro")
+            Text(text = "Editar", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

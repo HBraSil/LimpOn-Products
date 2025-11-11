@@ -15,6 +15,9 @@ enum class Screen(val route: String) {
     PRODUCTS("products"),
     ORDER_DETAIL("order_detail"),
     ORDER_LIST("order_list"),
+    HIGHLIGHTS("highlights"),
+    EDIT_USER_PROFILE("edit_user_profile"),
+    PAYMENT_METHODS("payment_methods"),
 
 
 

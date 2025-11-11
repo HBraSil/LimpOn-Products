@@ -49,7 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -268,7 +268,7 @@ fun FeaturedProducts(
                             IconButton(
                                 onClick = {
                                  cartViewModel.deleteOrRemoveProduct(
-                                         CartProduct(
+                                         Product(
                                              id = id,
                                              name = name,
                                              price = price,
@@ -299,7 +299,7 @@ fun FeaturedProducts(
                             IconButton(
                                 onClick = {
                                     cartViewModel.addOrUpdateProduct(
-                                        CartProduct(
+                                        Product(
                                             id = id,
                                             name = name,
                                             price = price,

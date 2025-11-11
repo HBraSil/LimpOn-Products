@@ -59,4 +59,5 @@
     <string name="icon_configurations">Icones da aba de configurações</string>
     <string name="back_button">botão de voltar</string>
     <string name="order_detail">Pedidos</string>
+    <string name="rating_star">avaliação por nível de estrela</string>
 </resources>

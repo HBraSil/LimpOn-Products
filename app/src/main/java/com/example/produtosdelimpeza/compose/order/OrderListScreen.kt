@@ -26,8 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.produtosdelimpeza.FiltersBottomSheet_DoubleSliders
-import com.example.produtosdelimpeza.PedidoStatus
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.GradientBackCardsComponents
 import com.example.produtosdelimpeza.ui.theme.StarColor

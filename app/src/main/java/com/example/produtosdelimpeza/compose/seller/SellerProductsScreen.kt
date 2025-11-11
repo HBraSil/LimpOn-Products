@@ -96,7 +96,7 @@ import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
-import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
@@ -133,20 +133,20 @@ fun SellerProductsScreen(
         containerColor = Color.Transparent
     ) {contentPadding ->
         val sampleProducts = listOf(
-            CartProduct(id = 1, name = "Sabão líquido 5 litros", price = 25.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[0]),
-            CartProduct(id = 2, name = "Desinfetante Floral 2L", price = 15.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[1]),
-            CartProduct(id = 3, name = "Detergente Neutro 500ml", price = 5.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[2]),
-            CartProduct(id = 4, name = "Álcool 70% 1L", price = 10.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[3]),
-            CartProduct(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
-            CartProduct(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
-            CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
-            CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
-            CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
-            CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
+            Product(id = 1, name = "Sabão líquido 5 litros", price = 25.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[0]),
+            Product(id = 2, name = "Desinfetante Floral 2L", price = 15.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[1]),
+            Product(id = 3, name = "Detergente Neutro 500ml", price = 5.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[2]),
+            Product(id = 4, name = "Álcool 70% 1L", price = 10.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[3]),
+            Product(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
+            Product(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
+            Product(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
+            Product(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
+            Product(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
+            Product(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
         )
 
         val sampleHighlights = List(6) {
-            CartProduct(
+            Product(
                 name = listOf("Esponja multiuso (pacote com 3)", "Pizza Artesanal", "Amaciante Concentrado 1L", "Limpa vidros 500ml", "Suco Natural", "Café Torrado")[it],
                 price = listOf(12.0, 29.0, 10.22, 12.00, 40.00, 11.11)[it]
             )
@@ -243,7 +243,7 @@ fun SellerProductsScreen(
                                 },
                                 subOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.deleteOrRemoveProduct(
-                                        CartProduct(
+                                        Product(
                                             id = index,
                                             name = name,
                                             price = curPrice,
@@ -253,7 +253,7 @@ fun SellerProductsScreen(
                                 },
                                 sumOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.addOrUpdateProduct(
-                                        CartProduct(
+                                        Product(
                                             id = index,
                                             name = name,
                                             price = curPrice,
@@ -360,11 +360,11 @@ fun SellerProductsScreen(
                 }
             ) { contentPadding ->
                 val sampleProductsOfSpecificSeller = listOf(
-                    CartProduct(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
-                    CartProduct(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
-                    CartProduct(id = 8, name = "Lustra móveis 500ml", price = 14.0),
-                    CartProduct(id = 9, name = "Desengordurante 500ml", price = 9.0),
-                    CartProduct(id = 10, name = "Limpa vidros 500ml", price = 7.0)
+                    Product(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
+                    Product(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
+                    Product(id = 8, name = "Lustra móveis 500ml", price = 14.0),
+                    Product(id = 9, name = "Desengordurante 500ml", price = 9.0),
+                    Product(id = 10, name = "Limpa vidros 500ml", price = 7.0)
                 )
 
                 var expanded by remember { mutableStateOf(false) }
@@ -540,7 +540,7 @@ fun SellerProductsScreen(
 // ---------- Card do produto ----------
 @Composable
 fun ProductCard(
-    product: CartProduct,
+    product: Product,
     //isFavorite: Boolean,
     onToggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
@@ -819,7 +819,11 @@ fun InformationCard(
             TextButton(
                 onClick = {}
             ) {
-                Text("favoritos deste vendedor")
+                Text(
+                    text = "favoritos deste vendedor",
+                    color = MaterialTheme.colorScheme.secondary.copy(blue = 1f),
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

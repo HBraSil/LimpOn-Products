@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +37,8 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.roundToInt
+import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.ui.theme.StarColor
 
 // --- Dados fictícios para preview/demo
 private val sampleCategories = listOf("Limpeza", "Mercado", "Bebidas", "Lanches", "Higiene")
@@ -544,7 +547,8 @@ private fun RatingSelector(rating: Int, onRatingChange: (Int) -> Unit) {
                 ) {
                     Icon(
                         imageVector = if (rating >= star) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.rating_star, star),
+                        tint = if (rating >= star) StarColor else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

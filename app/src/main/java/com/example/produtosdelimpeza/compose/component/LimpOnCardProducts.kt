@@ -39,14 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
-import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
-    product: CartProduct = CartProduct(),
+    product: Product = Product(),
     txtQuantity: Int = 0,
     isProductScreen: Boolean = true,
     onClickProduct: () -> Unit = {},
@@ -199,7 +199,7 @@ fun LimpOnCardProducts(
 @Composable
 private fun LimpCardProductsPreview(modifier: Modifier = Modifier) {
     LimpOnCardProducts(
-        product = CartProduct(
+        product = Product(
             name = "Sabão líquido 5 litros",
             price = 25.0,
             quantity = 1

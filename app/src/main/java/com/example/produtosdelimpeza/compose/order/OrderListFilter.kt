@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza
+package com.example.produtosdelimpeza.compose.order
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas

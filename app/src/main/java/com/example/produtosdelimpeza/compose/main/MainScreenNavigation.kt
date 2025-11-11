@@ -1,7 +1,5 @@
 package com.example.produtosdelimpeza.compose.main
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
@@ -37,13 +35,17 @@ import com.example.produtosdelimpeza.compose.order.OrderDetailsScreen
 import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.compose.about.AboutScreen
 import com.example.produtosdelimpeza.compose.cart.CartScreen
+import com.example.produtosdelimpeza.compose.highlights.HighlightsScreen
 import com.example.produtosdelimpeza.compose.home.HomeScreen
 import com.example.produtosdelimpeza.compose.notifications.NotificationScreen
 import com.example.produtosdelimpeza.compose.profile.ProfileScreen
+import com.example.produtosdelimpeza.compose.profile.header_profile_screen.EditUserProfileScreen
+import com.example.produtosdelimpeza.compose.profile.payment_methods.PaymentMethodsScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
+import com.example.produtosdelimpeza.compose.seller.profile.PaymentMethods
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
@@ -64,8 +66,15 @@ fun MainScreenNavigation() {
                 cartViewModel = cartViewModel,
                 onCardSellerClick = { nameSeller ->
                     navController.navigate("${Screen.SELLER.route}/$nameSeller")
+                },
+                onSeeAllClick = {
+                    navController.navigate(Screen.HIGHLIGHTS.route)
                 }
             )
+        }
+
+        composable(route = Screen.HIGHLIGHTS.route) {
+            HighlightsScreen()
         }
 
         composable(route = Screen.SEARCH.route) {
@@ -86,10 +95,28 @@ fun MainScreenNavigation() {
         }
 
         composable(route = Screen.PROFILE.route) {
-            ProfileScreen(navController)
+            ProfileScreen(
+                navController,
+                onClickNotificationsScreen = {
+                    navController.navigate(Screen.NOTIFICATION.route)
+                },
+                onClickEditUserProfile = {
+                    navController.navigate(Screen.EDIT_USER_PROFILE.route)
+                },
+                onClickPaymentMethods = {
+                    navController.navigate(Screen.PAYMENT_METHODS.route)
+                }
+            )
+        }
+        composable(route = Screen.EDIT_USER_PROFILE.route) {
+            EditUserProfileScreen()
         }
         composable(route = Screen.PRODUCT.route) {
             //Área do vendedor(navController)
+        }
+
+        composable(route = Screen.PAYMENT_METHODS.route) {
+            PaymentMethodsScreen()
         }
 
         composable(route = "${Screen.SELLER.route}/{nameSeller}") { navBackStackEntry ->
@@ -221,11 +248,4 @@ fun MainBottomNavigation(
             )
         }
     }
-}
-
-
-@Preview
-@Composable
-private fun HomeScreenPreview() {
-    MainScreenNavigation()
 }

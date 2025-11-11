@@ -1,10 +1,9 @@
 package com.example.produtosdelimpeza.viewmodels
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.data.CartProductRepository
-import com.example.produtosdelimpeza.model.CartProduct
+import com.example.produtosdelimpeza.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +15,8 @@ class CartViewModel @Inject constructor(
     private val repository: CartProductRepository
 ) : ViewModel() {
 
-    private val _cartItems = MutableStateFlow<List<CartProduct>>(emptyList())
-    val cartItems: StateFlow<List<CartProduct>> = _cartItems
+    private val _cartItems = MutableStateFlow<List<Product>>(emptyList())
+    val cartItems: StateFlow<List<Product>> = _cartItems
 
     private val _totalQuantity = MutableStateFlow(0)
     val totalQuantity: StateFlow<Int> = _totalQuantity
@@ -42,7 +41,7 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun addOrUpdateProduct(product: CartProduct) {
+    fun addOrUpdateProduct(product: Product) {
         viewModelScope.launch {
             val currentList = _cartItems.value.toMutableList()
             val existingIndex = currentList.indexOfFirst { it.id == product.id }
@@ -59,7 +58,7 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun deleteOrRemoveProduct(product: CartProduct) {
+    fun deleteOrRemoveProduct(product: Product) {
         viewModelScope.launch {
             if (product.quantity > 1) {
                 val updatedProduct = product.copy(quantity = product.quantity - 1)
@@ -80,11 +79,11 @@ class CartViewModel @Inject constructor(
         return totalPriceForThisProduct
     }
 
-    fun getProductForId(productId: Int): CartProduct? {
+    fun getProductForId(productId: Int): Product? {
         return _cartItems.value.find { it.id == productId }
     }
 
-    private fun updateTotals(products: List<CartProduct>) {
+    private fun updateTotals(products: List<Product>) {
         _totalQuantity.value = products.sumOf { it.quantity }
         _totalPrice.value = products.sumOf { it.price * it.quantity }
     }
