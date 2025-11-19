@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -37,15 +38,20 @@ val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 fun ProfileScreen(
     navController: NavHostController?,
     onClickNotificationsScreen: () -> Unit = {},
-    onClickEditUserProfile: () -> Unit = {},
-    onClickPaymentMethods: () -> Unit = {}
+    onClickEditUserProfileScreen: () -> Unit = {},
+    onClickPaymentMethodsScreen: () -> Unit = {},
+    onClickCouponsScreen: () -> Unit = {},
+    onClickMyAddressesScreen: () -> Unit = {},
+    onClickAboutScreen: () -> Unit = {},
+    onClickHelpScreen: () -> Unit = {},
+    onCLickOrderScreen: () -> Unit = {}
 ) {
     // Usando Scaffold para a estrutura básica da tela, incluindo a barra de navegação inferior
     Scaffold(
         bottomBar = {
             MainBottomNavigation(navController!!)
         },
-        containerColor = LightGrayBackground // Fundo levemente cinza para a tela
+        containerColor = Color.White // Fundo levemente cinza para a tela
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -61,7 +67,7 @@ fun ProfileScreen(
             HeaderSection(
                 userName = "Hilquias Brasil",
                 userInitials = "HB",
-                onClickEditUserProfile = onClickEditUserProfile
+                onClickEditUserProfile = onClickEditUserProfileScreen
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -69,7 +75,8 @@ fun ProfileScreen(
             // 2. Ações Rápidas (Cards)
             QuickActionsSection(
                 onClickNotificationsScreen = onClickNotificationsScreen,
-                onClickPaymentMethods = onClickPaymentMethods
+                onClickHelpScreen = onClickHelpScreen,
+                onClickPaymentMethods = onClickPaymentMethodsScreen,
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -91,7 +98,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.Discount,
                     text = "Cupons",
-                    onClick = { /* Ação */ }
+                    onClick = onClickCouponsScreen
                 )
             }
 
@@ -102,7 +109,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.LocationOn,
                     text = "Meus Endereços",
-                    onClick = { /* Ação */ }
+                    onClick = onClickMyAddressesScreen
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -112,7 +119,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.CreditCard,
                     text = "Formas de Pagamento",
-                    onClick = { /* Ação */ }
+                    onClick = onClickPaymentMethodsScreen
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -122,7 +129,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.History,
                     text = "Histórico de Pedidos",
-                    onClick = { /* Ação */ }
+                    onClick = onCLickOrderScreen
                 )
             }
 
@@ -133,7 +140,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.AutoMirrored.Filled.Help,
                     text = "Ajuda e FAQ",
-                    onClick = { /* Ação */ }
+                    onClick = onClickHelpScreen
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -144,6 +151,16 @@ fun ProfileScreen(
                     icon = Icons.Default.Policy,
                     text = "Termos de Uso e Privacidade",
                     onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Policy,
+                    text = stringResource(R.string.about),
+                    onClick = onClickAboutScreen
                 )
             }
 
@@ -260,7 +277,8 @@ fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile
 @Composable
 fun QuickActionsSection(
     onClickNotificationsScreen: () -> Unit,
-    onClickPaymentMethods: () -> Unit = {}
+    onClickHelpScreen: () -> Unit,
+    onClickPaymentMethods: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -276,7 +294,8 @@ fun QuickActionsSection(
         QuickActionCard(
             icon = Icons.Default.HeadsetMic,
             text = "Ajuda",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onClickCardSection = onClickHelpScreen
         )
         Spacer(modifier = Modifier.width(12.dp))
         QuickActionCard(

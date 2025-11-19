@@ -142,9 +142,9 @@ fun OrderDetailsScreen(
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-
         val buttonHeight = 42.dp
         val bottomMargin = 18.dp
+
         Box(
             modifier = Modifier
                 .fillMaxSize()

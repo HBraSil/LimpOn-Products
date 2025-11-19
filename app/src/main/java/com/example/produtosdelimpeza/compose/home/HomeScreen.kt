@@ -192,7 +192,6 @@ fun HomeScreen(
                 MainBottomNavigation(navController)
             }
         },
-        modifier = Modifier.navigationBarsPadding()
     ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -672,22 +671,6 @@ fun CardDeLocalizacao(
     }
 }
 
-@Composable
-internal fun FlowRow(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    // For simplicity in a single-file example, use Column with Row children.
-    // For production prefer Accompanist FlowRow or Layout.
-    Column(modifier = modifier) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            content()
-        }
-    }
-}
 
 
 @Composable
@@ -835,11 +818,7 @@ fun CartBottomBarScaffoldStyle(
         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250)) + fadeOut(),
     ) {
         Surface(
-            modifier = modifier
-                .fillMaxWidth()
-                .navigationBarsPadding(), // evita área da nav bar
-            tonalElevation = 6.dp,
-            shadowElevation = 8.dp,
+            modifier = modifier.fillMaxWidth(), // evita área da nav bar
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Row(

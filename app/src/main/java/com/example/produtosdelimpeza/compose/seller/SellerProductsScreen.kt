@@ -160,7 +160,7 @@ fun SellerProductsScreen(
         ) {
             // Header principal
             item {
-                InformationCard(nameSeller, onClickCardSellerProfile = onClickCardSellerProfile)
+                InformationCard(nameSeller, onClickCardSellerProfile, onBackNavigation)
             }
 
             // FAVORITOS
@@ -626,8 +626,6 @@ fun CartBottomBarScaffoldStyle(
             modifier = modifier
                 .fillMaxWidth()
                 .navigationBarsPadding(), // evita área da nav bar
-            tonalElevation = 6.dp,
-            shadowElevation = 8.dp,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Row(
@@ -675,6 +673,7 @@ fun CartBottomBarScaffoldStyle(
 fun InformationCard(
     nameSeller: String,
     onClickCardSellerProfile: () -> Unit,
+    onBackNavigation: () -> Unit = {},
 ) {
     val bannerHeight = 160
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -713,7 +712,7 @@ fun InformationCard(
 
             // Botão Voltar
             IconButton(
-                onClick = { },
+                onClick = onBackNavigation,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondary.copy(0.6f)
                 )

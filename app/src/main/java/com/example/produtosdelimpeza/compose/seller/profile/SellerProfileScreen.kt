@@ -54,9 +54,9 @@ import androidx.compose.ui.unit.sp
 fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
 
     val tabItems = listOf(
-        "Avaliações",
-        "Cupons",
         "Informações",
+        "Cupons",
+        "Avaliações",
     )
 
 
@@ -74,7 +74,7 @@ fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
             selectedTabIndex = pagerState.targetPage
         }
 
-        CustomHeader(onBackClick = onNavigateUpClick, {}) { }
+        CustomHeader(onBackClick = onNavigateUpClick, onShareClick = {}, onFavoriteClick = {})
 
         Text(
             text = "RA Produtos de Limpeza",

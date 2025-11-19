@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
@@ -39,13 +38,15 @@ import com.example.produtosdelimpeza.compose.highlights.HighlightsScreen
 import com.example.produtosdelimpeza.compose.home.HomeScreen
 import com.example.produtosdelimpeza.compose.notifications.NotificationScreen
 import com.example.produtosdelimpeza.compose.profile.ProfileScreen
+import com.example.produtosdelimpeza.compose.profile.address.AddressesScreen
+import com.example.produtosdelimpeza.compose.profile.coupons.CouponsScreen
 import com.example.produtosdelimpeza.compose.profile.header_profile_screen.EditUserProfileScreen
+import com.example.produtosdelimpeza.compose.profile.help.HelpScreen
 import com.example.produtosdelimpeza.compose.profile.payment_methods.PaymentMethodsScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
-import com.example.produtosdelimpeza.compose.seller.profile.PaymentMethods
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
@@ -100,23 +101,48 @@ fun MainScreenNavigation() {
                 onClickNotificationsScreen = {
                     navController.navigate(Screen.NOTIFICATION.route)
                 },
-                onClickEditUserProfile = {
+                onClickEditUserProfileScreen = {
                     navController.navigate(Screen.EDIT_USER_PROFILE.route)
                 },
-                onClickPaymentMethods = {
+                onClickPaymentMethodsScreen = {
                     navController.navigate(Screen.PAYMENT_METHODS.route)
+                },
+                onClickCouponsScreen = {
+                    navController.navigate(Screen.COUPON.route)
+                },
+                onClickMyAddressesScreen = {
+                    navController.navigate(Screen.ADDRESS.route)
+                },
+                onClickAboutScreen = {
+                    navController.navigate(Screen.ABOUT.route)
+                },
+                onClickHelpScreen = {
+                    navController.navigate(Screen.HELP.route)
+                },
+                onCLickOrderScreen = {
+                    navController.navigate(Screen.ORDER_LIST.route)
                 }
             )
         }
+
         composable(route = Screen.EDIT_USER_PROFILE.route) {
             EditUserProfileScreen()
         }
+
         composable(route = Screen.PRODUCT.route) {
             //Área do vendedor(navController)
         }
 
         composable(route = Screen.PAYMENT_METHODS.route) {
             PaymentMethodsScreen()
+        }
+
+        composable(route = Screen.COUPON.route) {
+            CouponsScreen()
+        }
+
+        composable(route = Screen.ADDRESS.route) {
+            AddressesScreen()
         }
 
         composable(route = "${Screen.SELLER.route}/{nameSeller}") { navBackStackEntry ->
@@ -133,7 +159,8 @@ fun MainScreenNavigation() {
                 },
                 onClickCartScreen = {
                     navController.navigate(Screen.CART.route)
-                }
+                },
+
             )
         }
 
@@ -150,6 +177,12 @@ fun MainScreenNavigation() {
         composable(route = Screen.NOTIFICATION.route) {
             NotificationScreen(
                 onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(route = Screen.HELP.route) {
+            HelpScreen(
+                onBack = { navController.navigateUp() }
             )
         }
 
@@ -172,8 +205,8 @@ fun MainScreenNavigation() {
 
         composable(route = Screen.CART.route) {
             CartScreen(
-                onBackNavigation = { navController.navigateUp() },
-                cartViewModel = cartViewModel
+                /*onBackNavigation = { navController.navigateUp() },
+                cartViewModel = cartViewModel*/
             )
         }
     }
