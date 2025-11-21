@@ -1,5 +1,7 @@
 package com.example.produtosdelimpeza.data
 
+import com.google.firebase.auth.FirebaseUser
+
 
 interface AuthRepository {
     /**
@@ -8,4 +10,6 @@ interface AuthRepository {
      * Lança Exception em caso de erro.
      */
     suspend fun registerUser(name: String, lastName: String, email: String, password: String): String
+
+    suspend fun signIn(email: String, password: String): LoginResponse
 }

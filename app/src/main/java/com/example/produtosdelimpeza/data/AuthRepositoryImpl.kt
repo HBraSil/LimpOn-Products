@@ -1,9 +1,13 @@
 package com.example.produtosdelimpeza.data
 
+import android.util.Log
 import com.example.produtosdelimpeza.model.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -57,4 +61,19 @@ class AuthRepositoryImpl @Inject constructor(
             // cancel handler
             cont.invokeOnCancellation { /* nada especial */ }
         }
+
+    override suspend fun signIn(email: String, password: String): LoginResponse {
+        return try {
+            val signInResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+
+            if (signInResult != null) {
+                LoginResponse.Success
+            } else {
+                LoginResponse.Error("Login não foi bem sucedido")
+            }
+
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
+        }
+    }
 }

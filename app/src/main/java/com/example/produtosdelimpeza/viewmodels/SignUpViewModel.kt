@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.data.AuthRepositoryImpl
 import com.example.produtosdelimpeza.model.FieldState
-import com.example.produtosdelimpeza.model.SignUpUiState
+import com.example.produtosdelimpeza.compose.signup.SignUpUiState
 import com.example.produtosdelimpeza.model.UserFormState
 import com.example.produtosdelimpeza.validation.SignUpValidators
 import dagger.hilt.android.lifecycle.HiltViewModel

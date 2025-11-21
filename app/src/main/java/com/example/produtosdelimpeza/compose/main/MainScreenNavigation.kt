@@ -67,10 +67,10 @@ fun MainScreenNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = when(activeProfile) {
+        startDestination = Screen.HOME.route/*when(activeProfile) {
             is UserProfile.Client -> "client_home"
             is UserProfile.Seller -> "seller_home/${(activeProfile as UserProfile.Seller).storeId}"
-        },
+        }*/,
         modifier = Modifier.background(White)
     ) {
         composable(route = Screen.HOME.route) {

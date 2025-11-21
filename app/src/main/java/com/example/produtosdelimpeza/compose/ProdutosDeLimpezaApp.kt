@@ -30,7 +30,20 @@ fun ProdutosLimpezaNavHost(navController: NavHostController) {
 
         composable(route = Screen.LOGIN.route) {
             LoginScreen(
-                onSignupClick = { navController.navigate(Screen.SIGNUP.route) }
+                onSignupClick = { navController.navigate(Screen.SIGNUP.route) },
+                onLoginClick = {
+                    navController.navigate(Screen.MAIN.route) {
+                        popUpTo(navController.graph.id) {
+
+                            // 2. Remove o destino "login" da pilha de navegação.
+                            // Isso garante que ele não estará lá para ser retornado ao pressionar o botão Voltar.
+                            inclusive = true
+                        }
+
+                        // Opcional: Evita múltiplas cópias do destino 'home' na pilha
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 

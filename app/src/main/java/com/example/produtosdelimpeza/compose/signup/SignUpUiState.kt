@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.model
+package com.example.produtosdelimpeza.compose.signup
 
 data class SignUpUiState(
     val isLoading: Boolean = false,

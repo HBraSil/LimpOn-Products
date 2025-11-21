@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.compose.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,11 +37,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -49,22 +53,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnButton
 import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.viewmodels.LoginViewModel
+import kotlin.coroutines.coroutineContext
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onSignupClick: () -> Unit = {}
+    onSignupClick: () -> Unit = {},
+    onLoginClick: () -> Unit = {}
 ) {
     val verticalScrollState = rememberScrollState()
+    val passwordHidden = loginViewModel.passwordHidden.collectAsState().value
 
-        Scaffold(
+
+    Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
@@ -109,7 +118,7 @@ fun LoginScreen(
                         fontSize = 20.sp,
                         fontWeight = Bold,
                     )
-                    ContentLoginScreen(loginViewModel = loginViewModel)
+                    ContentLoginScreen(loginViewModel = loginViewModel, onLoginClick = onLoginClick, passwordHidden = passwordHidden)
 
                 }
             }
@@ -117,8 +126,39 @@ fun LoginScreen(
 
 @Composable
 fun ContentLoginScreen(
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    onLoginClick: () -> Unit,
+    passwordHidden: Boolean
 ) {
+
+    val context = LocalContext.current
+    val state = loginViewModel.loginUiState.collectAsState().value
+
+    LaunchedEffect(state) {
+        if(state.goToHome) {
+            onLoginClick()
+            //loginViewModel.reset()
+        }
+    }
+
+    // 🚨 1. REAGE AO ERRO USANDO LaunchedEffect
+    // O bloco será executado SOMENTE quando o valor de 'state.error' mudar.
+    LaunchedEffect(state.error) {
+        state.error?.let { errorMessage ->
+
+            // 🚨 Use o 'errorMessage' real do estado
+            Toast.makeText(
+                context,
+                errorMessage, // Use a mensagem real, não o texto literal "state.error"
+                Toast.LENGTH_LONG
+            ).show()
+
+            // 🚨 2. LIMPA O ERRO no ViewModel
+            // Isso garante que o Toast só apareça uma vez por erro,
+            // e não dispare novamente em futuras recomposições.
+            loginViewModel.cleanErrorMessage()
+        }
+    }
 
     LimpOnTxtField(
         modifier = Modifier.padding(top = 10.dp),
@@ -141,7 +181,7 @@ fun ContentLoginScreen(
         onValueChange = { loginViewModel.updatePassword(it) },
         label = R.string.password,
         placeholder = R.string.hint_password,
-        obfuscate = loginViewModel.passwordHidden,
+        obfuscate = passwordHidden,
         errorMessage = loginViewModel.loginFormState.password.error,
         leadingIcon = {
             Icon(
@@ -152,12 +192,12 @@ fun ContentLoginScreen(
         },
         trailingIcon = {
             IconButton(onClick = { loginViewModel.changePasswordVisibility() }) {
-                val image = if (loginViewModel.passwordHidden) {
+                val image = if (passwordHidden) {
                     Icons.Filled.VisibilityOff
                 } else {
                     Icons.Filled.Visibility
                 }
-                val description = if (loginViewModel.passwordHidden) {
+                val description = if (passwordHidden) {
                     stringResource(id = R.string.show_password)
                 } else {
                     stringResource(id = R.string.hide_password)
@@ -207,9 +247,23 @@ fun ContentLoginScreen(
 
     LimpOnButton(
         text = R.string.start,
+        loading = state.isLoading,
         modifier = Modifier.padding(top = 30.dp, bottom = 30.dp),
     ){
-        loginViewModel.login()
+        if (
+            loginViewModel.loginFormState.email.field.isNotEmpty() &&
+            loginViewModel.loginFormState.password.field.isNotEmpty()
+        ){
+            loginViewModel.login()
+        }
+
+        if (state.error != null) {
+            Toast.makeText(
+                context,
+                "state.error",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     Row(

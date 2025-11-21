@@ -61,4 +61,5 @@
     <string name="order_detail">Pedidos</string>
     <string name="rating_star">avaliação por nível de estrela</string>
     <string name="remember_me">Lembrar-me</string>
+    <string name="alert_icon">Ícone de alerta</string>
 </resources>
