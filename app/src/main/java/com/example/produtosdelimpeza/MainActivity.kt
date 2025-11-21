@@ -6,15 +6,11 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import com.example.produtosdelimpeza.compose.ProdutosLimpezaApp
-import com.example.produtosdelimpeza.ui.theme.LightBluishGray
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,9 +21,10 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContent {
             ProdutosDeLimpezaTheme {
+                enableEdgeToEdge()
                 // Obtenha a Activity e a cor desejada (Branco para o fundo)
                 val activity = LocalActivity.current as ComponentActivity
-                val statusBarColor = Color.White.toArgb() // Fundo da Status Bar BRANCO
+                val statusBarColor = Color.Transparent.toArgb() // Fundo da Status Bar BRANCO
 
                 // Configuração para forçar os itens (ícones e texto) a serem pretos
                 DisposableEffect(Unit) {

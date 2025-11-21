@@ -2,15 +2,17 @@ package com.example.produtosdelimpeza.compose.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +22,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -32,10 +36,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,15 +48,20 @@ import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnButton
 import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
+import com.example.produtosdelimpeza.viewmodels.LoginViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onSignupClick: () -> Unit = {}) {
+fun LoginScreen(
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    onSignupClick: () -> Unit = {}
+) {
     val verticalScrollState = rememberScrollState()
 
         Scaffold(
@@ -89,39 +94,39 @@ fun LoginScreen(onSignupClick: () -> Unit = {}) {
                         .padding(top = contentPadding.calculateTopPadding())
                         .verticalScroll(verticalScrollState)
                         .navigationBarsPadding()
-                        .padding(bottom = 50.dp),
+                        .padding(start = 16.dp, end = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
+
+                    Spacer(Modifier.height(20.dp))
                     Image(
                         painter = painterResource(R.drawable.limp_on_light_logo),
                         contentDescription = stringResource(R.string.login_image),
-                        modifier = Modifier.padding(top = 20.dp)
                     )
 
                     Text(
                         text = "Faça seu login",
-                        modifier = Modifier.padding(start = 30.dp, top = 30.dp),
                         fontSize = 20.sp,
                         fontWeight = Bold,
                     )
-                    ContentLoginScreen()
+                    ContentLoginScreen(loginViewModel = loginViewModel)
 
                 }
             }
 }
 
 @Composable
-fun ContentLoginScreen() {
-    var txtEmail by remember { mutableStateOf("") }
-    var txtPassword by remember { mutableStateOf("") }
-    var passwordHidden by remember { mutableStateOf(true) }
+fun ContentLoginScreen(
+    loginViewModel: LoginViewModel
+) {
 
     LimpOnTxtField(
         modifier = Modifier.padding(top = 10.dp),
-        value = txtEmail,
-        onValueChange = { txtEmail = it },
+        value = loginViewModel.loginFormState.email.field,
+        onValueChange = { loginViewModel.updateEmail(it) },
         label = R.string.email,
         placeholder = R.string.hint_email,
+        errorMessage = loginViewModel.loginFormState.email.error,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Email,
@@ -132,11 +137,12 @@ fun ContentLoginScreen() {
     )
 
     LimpOnTxtField(
-        value = txtPassword,
-        onValueChange = { txtPassword = it },
+        value = loginViewModel.loginFormState.password.field,
+        onValueChange = { loginViewModel.updatePassword(it) },
         label = R.string.password,
         placeholder = R.string.hint_password,
-        obfuscate = passwordHidden,
+        obfuscate = loginViewModel.passwordHidden,
+        errorMessage = loginViewModel.loginFormState.password.error,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Lock,
@@ -145,13 +151,13 @@ fun ContentLoginScreen() {
             )
         },
         trailingIcon = {
-            IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                val image = if (passwordHidden) {
+            IconButton(onClick = { loginViewModel.changePasswordVisibility() }) {
+                val image = if (loginViewModel.passwordHidden) {
                     Icons.Filled.VisibilityOff
                 } else {
                     Icons.Filled.Visibility
                 }
-                val description = if (passwordHidden) {
+                val description = if (loginViewModel.passwordHidden) {
                     stringResource(id = R.string.show_password)
                 } else {
                     stringResource(id = R.string.hide_password)
@@ -167,27 +173,48 @@ fun ContentLoginScreen() {
     )
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
-        horizontalArrangement = Arrangement.End,
+        modifier = Modifier
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Checkbox(
+            checked = loginViewModel.loginFormState.rememberMe,
+            onCheckedChange = {
+                loginViewModel.updateRememberMe(it)
+            },
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.primary,
+                checkmarkColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedColor = MaterialTheme.colorScheme.primary,
+            )
+        )
+        Text(
+            text = stringResource(id = R.string.remember_me),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(Modifier.weight(1f))
+
         Text(
             text = "Esqueceu a senha?",
-            modifier = Modifier.padding(end = 30.dp)
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodySmall
         )
+
+        Spacer(Modifier.width(10.dp))
     }
 
     LimpOnButton(
         text = R.string.start,
         modifier = Modifier.padding(top = 30.dp, bottom = 30.dp),
-    ){}
+    ){
+        loginViewModel.login()
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(
-            10.dp,
-            Alignment.CenterHorizontally
-        ),
+        horizontalArrangement = Arrangement.spacedBy(space = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FloatingActionButton(
@@ -206,14 +233,18 @@ fun ContentLoginScreen() {
             )
         }
 
-        HorizontalDivider(modifier = Modifier.padding(start = 10.dp, end = 10.dp).weight(1f), 0.dp, Black)
+        HorizontalDivider(modifier = Modifier
+            .padding(start = 10.dp, end = 10.dp)
+            .weight(1f), 0.dp, Black)
 
         Text(
             text = stringResource(R.string.options_to_access),
             color = Gray,
         )
 
-        HorizontalDivider(modifier = Modifier.padding(start = 10.dp, end = 10.dp).weight(1f), 0.dp, Black)
+        HorizontalDivider(modifier = Modifier
+            .padding(start = 10.dp, end = 10.dp)
+            .weight(1f), 0.dp, Black)
 
         FloatingActionButton(
             onClick = {},

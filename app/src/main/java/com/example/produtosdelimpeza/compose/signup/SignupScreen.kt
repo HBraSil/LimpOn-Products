@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,19 +43,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnButton
 import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
+import com.example.produtosdelimpeza.viewmodels.SignUpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit = {}) {
+fun SignupScreen(
+    signUpViewModel: SignUpViewModel = hiltViewModel(),
+    onBackNavigation: () -> Unit = {},
+    onToSignupClick: () -> Unit = {}
+) {
     var passwordHidden by remember { mutableStateOf(true) }
+    var confirmPasswordHidden by remember { mutableStateOf(true) }
     var txtEmail by remember { mutableStateOf("") }
     var txtPassword by remember { mutableStateOf("") }
     var txtConfirmPassword by remember { mutableStateOf("") }
     val verticalScrollState = rememberScrollState()
-
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -89,7 +96,9 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
 
                 Text(
                     text = "Cadastre-se",
-                    modifier = Modifier.fillMaxWidth().padding(start = 30.dp, top = 30.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp, top = 30.dp),
                     fontSize = 30.sp,
                     textAlign = TextAlign.Start,
                     fontWeight = Bold,
@@ -102,11 +111,13 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                     horizontalArrangement = Arrangement.spacedBy(8.dp) // Adiciona espaçamento entre os elementos
                 ) {
                     TextField(
-                        value = nome,
-                        onValueChange = { nome = it },
+                        value = signUpViewModel.formState.name.field,
+                        onValueChange = { signUpViewModel.updateName(it) },
                         label = { Text("Nome") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
+                        isError = signUpViewModel.formState.name.error != null,
+                        supportingText = { Text(signUpViewModel.formState.name.error ?: "") },
                         maxLines = 1,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
@@ -117,11 +128,13 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                         )
                     )
                     TextField(
-                        value = sobrenome,
-                        onValueChange = { sobrenome = it },
+                        value = signUpViewModel.formState.lastName.field,
+                        onValueChange = { signUpViewModel.updateLastName(it) },
                         label = { Text("Sobrenome") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
+                        isError = signUpViewModel.formState.lastName.error != null,
+                        supportingText = { Text(signUpViewModel.formState.lastName.error ?: "") },
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
                         ),
@@ -135,10 +148,11 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                 }
 
                 LimpOnTxtField(
-                    value = txtEmail,
-                    onValueChange = { txtEmail = it },
+                    value = signUpViewModel.formState.email.field,
+                    onValueChange = { signUpViewModel.updateEmail(it)},
                     label = R.string.email,
                     placeholder = R.string.hint_email,
+                    errorMessage = signUpViewModel.formState.email.error,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
@@ -152,10 +166,16 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                 )
 
                 LimpOnTxtField(
-                    value = txtPassword,
-                    onValueChange = { txtPassword = it },
+                    value = signUpViewModel.formState.password.field,
+                    onValueChange = {
+                        signUpViewModel.updatePassword(it)
+                        if (signUpViewModel.formState.confirmPassword.field.isNotEmpty()) {
+                            signUpViewModel.updatePasswordConfirm(it,signUpViewModel.formState.confirmPassword.field)
+                        }
+                    },
                     label = R.string.password,
                     placeholder = R.string.hint_password,
+                    errorMessage = signUpViewModel.formState.password.error,
                     obfuscate = passwordHidden,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -189,11 +209,12 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                 )
 
                 LimpOnTxtField(
-                    value = txtConfirmPassword,
-                    onValueChange = { txtConfirmPassword = it },
+                    value = signUpViewModel.formState.confirmPassword.field,
+                    onValueChange = { signUpViewModel.updatePasswordConfirm(signUpViewModel.formState.password.field, it) },
                     label = R.string.confirm_password,
                     placeholder = R.string.hint_confirm_password,
-                    obfuscate = passwordHidden,
+                    errorMessage = signUpViewModel.formState.confirmPassword.error,
+                    obfuscate = confirmPasswordHidden,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
@@ -205,13 +226,13 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                            val image = if (passwordHidden) {
+                        IconButton(onClick = { confirmPasswordHidden = !confirmPasswordHidden }) {
+                            val image = if (confirmPasswordHidden) {
                                 Icons.Filled.VisibilityOff
                             } else {
                                 Icons.Filled.Visibility
                             }
-                            val description = if (passwordHidden) {
+                            val description = if (confirmPasswordHidden) {
                                 stringResource(id = R.string.show_password)
                             } else {
                                 stringResource(id = R.string.hide_password)
@@ -227,11 +248,12 @@ fun SignupScreen(onBackNavigation: () -> Unit = {}, onToSignupClick: () -> Unit 
 
 
                 LimpOnButton(
-                    R.string.to_signup,
+                    text = R.string.to_signup,
+                    enabled = signUpViewModel.formState.formIsValid,
                     modifier = Modifier
                         .padding(top = 100.dp, bottom = 20.dp),
                 ) {
-                    onToSignupClick()
+                    signUpViewModel.registerUser()
                 }
             }
 

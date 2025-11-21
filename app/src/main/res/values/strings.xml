@@ -60,4 +60,5 @@
     <string name="back_button">botão de voltar</string>
     <string name="order_detail">Pedidos</string>
     <string name="rating_star">avaliação por nível de estrela</string>
+    <string name="remember_me">Lembrar-me</string>
 </resources>

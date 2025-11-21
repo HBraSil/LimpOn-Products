@@ -18,7 +18,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
@@ -41,24 +43,34 @@ import com.example.produtosdelimpeza.compose.profile.ProfileScreen
 import com.example.produtosdelimpeza.compose.profile.address.AddressesScreen
 import com.example.produtosdelimpeza.compose.profile.coupons.CouponsScreen
 import com.example.produtosdelimpeza.compose.profile.header_profile_screen.EditUserProfileScreen
+import com.example.produtosdelimpeza.compose.profile.header_profile_screen.UserProfileSample
 import com.example.produtosdelimpeza.compose.profile.help.HelpScreen
 import com.example.produtosdelimpeza.compose.profile.payment_methods.PaymentMethodsScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
+import com.example.produtosdelimpeza.domain.model.UserProfile
+import com.example.produtosdelimpeza.viewmodels.AppModeViewModel
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreenNavigation() {
+fun MainScreenNavigation(
+    cartViewModel: CartViewModel = hiltViewModel(),
+    appModeViewModel: AppModeViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
-    val cartViewModel: CartViewModel = hiltViewModel()
+    val activeProfile by remember { derivedStateOf { appModeViewModel.activeProfile } }
+
 
     NavHost(
         navController = navController,
-        startDestination = Screen.HOME.route,
+        startDestination = when(activeProfile) {
+            is UserProfile.Client -> "client_home"
+            is UserProfile.Seller -> "seller_home/${(activeProfile as UserProfile.Seller).storeId}"
+        },
         modifier = Modifier.background(White)
     ) {
         composable(route = Screen.HOME.route) {

@@ -40,12 +40,13 @@ import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 fun InitialScreen(onChoiceClick: () -> Unit = {}) {
     val verticalScrollState = rememberScrollState()
 
+
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter,
+            contentAlignment = Alignment.BottomCenter
         ) {
             Image(
                 painter = painterResource(R.drawable.background_initial_screen_hd),
@@ -59,7 +60,7 @@ fun InitialScreen(onChoiceClick: () -> Unit = {}) {
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .background(
-                        color = MaterialTheme.colorScheme.onSecondary,
+                        color = MaterialTheme.colorScheme.background,
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
                     .verticalScroll(verticalScrollState)
@@ -108,16 +109,17 @@ fun InitialScreen(onChoiceClick: () -> Unit = {}) {
                         bottomStart = 0.dp
                     ),
                     elevation = CardDefaults.cardElevation(2.dp),
+
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.secondary),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Começar",
                             fontSize = 24.sp,
                             textAlign = TextAlign.Center,
-                           // color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.background
                         )
                     }
                 }

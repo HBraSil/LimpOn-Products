@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.hilt.plugin)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -19,6 +20,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -79,20 +84,27 @@ dependencies {
     //Local Storage
     implementation(libs.datastore.preferences)
 
-    //Room
+    //ROOM
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     annotationProcessor(libs.room.compiler)
 
-    // Ksp
+    // KSP
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)
 
-    implementation("com.google.code.gson:gson:2.11.0")
+    //FIREBASE
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.google.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.appcheck.playintegrity)
+    debugImplementation(libs.firebase.appcheck.debug)
 
+    //GSON
+    implementation(libs.gson)
 
-    //Hilt
+    //HILT
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)
-
 }

@@ -24,6 +24,7 @@ fun LimpOnTxtField(
     value: String,
     onValueChange: (String) -> Unit,
     obfuscate: Boolean = false,
+    errorMessage: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     @StringRes label: Int,
     @StringRes placeholder: Int,
@@ -46,6 +47,12 @@ fun LimpOnTxtField(
         ),
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
+        isError = errorMessage != null,
+        supportingText = {
+            errorMessage?.let { msg ->
+                Text(msg)
+            }
+        },
         singleLine = true,
         keyboardOptions = keyboardOptions,
         colors = OutlinedTextFieldDefaults.colors(

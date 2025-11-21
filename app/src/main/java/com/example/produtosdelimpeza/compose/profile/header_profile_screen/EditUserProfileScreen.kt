@@ -1,17 +1,14 @@
 package com.example.produtosdelimpeza.compose.profile.header_profile_screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -34,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 // --- Dados de Exemplo (Mock Data) ---
-data class UserProfile(
+data class UserProfileSample(
     val name: String = "Ana Carolina Silva",
     val email: String = "ana.carolina@exemplo.com",
     val phone: String = "(11) 98765-4321",
@@ -46,7 +43,7 @@ data class UserProfile(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserProfileScreen(
-    initialUser: UserProfile = UserProfile()
+    initialUser: UserProfileSample = UserProfileSample()
 ) {
     var user by remember { mutableStateOf(initialUser) }
     val hasChanges = user != initialUser
@@ -203,7 +200,7 @@ fun EditUserProfileScreen(
 // --- Componentes Reutilizáveis ---
 
 @Composable
-fun ProfileHeader(user: UserProfile) {
+fun ProfileHeader(user: UserProfileSample) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

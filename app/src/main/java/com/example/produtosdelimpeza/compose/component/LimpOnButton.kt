@@ -9,6 +9,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,15 +17,23 @@ import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.R
 
 @Composable
-fun LimpOnButton(text: Int, modifier: Modifier = Modifier, onClickNewBtn: () -> Unit) {
+fun LimpOnButton(
+    modifier: Modifier = Modifier,
+    text: Int,
+    enabled: Boolean = true,
+    containerColor: Color = MaterialTheme.colorScheme.secondary,
+    contentColor: Color = White,
+    onClickNewBtn: () -> Unit
+) {
     OutlinedButton(
         onClick = onClickNewBtn,
         modifier = modifier
             .fillMaxWidth()
             .padding(start = 100.dp, end = 100.dp),
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = White
+            containerColor = containerColor,
+            contentColor = contentColor
         ),
         shape = RoundedCornerShape(topStart = 15.dp, bottomEnd = 15.dp)
     ) {

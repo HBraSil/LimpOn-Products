@@ -21,7 +21,7 @@ fun ProdutosLimpezaApp() {
 
 @Composable
 fun ProdutosLimpezaNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.MAIN.route) {
+    NavHost(navController = navController, startDestination = Screen.INITIAL.route) {
         composable(route = Screen.INITIAL.route) {
             InitialScreen(
                 onChoiceClick = { navController.navigate(Screen.LOGIN.route) },
