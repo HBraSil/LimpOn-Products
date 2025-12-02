@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.compose.initial
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
@@ -31,15 +33,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.compose.Screen
 import com.example.produtosdelimpeza.ui.theme.LightDarkBlue
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 
 
 @Composable
-fun InitialScreen(onChoiceClick: () -> Unit = {}) {
+fun InitialScreen(onChoiceClick: () -> Unit = {}, emailVerified: () -> Unit) {
     val verticalScrollState = rememberScrollState()
-
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -125,14 +129,5 @@ fun InitialScreen(onChoiceClick: () -> Unit = {}) {
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun InitialScreenPreview() {
-    ProdutosDeLimpezaTheme {
-        InitialScreen()
     }
 }

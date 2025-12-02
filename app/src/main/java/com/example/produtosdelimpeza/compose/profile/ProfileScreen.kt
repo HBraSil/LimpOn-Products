@@ -10,13 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.SwitchAccount
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -28,21 +23,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import com.example.produtosdelimpeza.R
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.compose.main.MainBottomNavigation
 import com.example.produtosdelimpeza.domain.model.UserProfile
-import com.example.produtosdelimpeza.viewmodels.AppModeViewModel
+import com.example.produtosdelimpeza.viewmodels.ProfileScreenViewModel
 
 // Definição de cores personalizadas para o tema (minimalista)
 val LightGrayBackground = Color(0xFFF5F5F5)
@@ -60,7 +53,7 @@ fun ProfileScreen(
     onClickAboutScreen: () -> Unit = {},
     onClickHelpScreen: () -> Unit = {},
     onCLickOrderScreen: () -> Unit = {},
-    userMode: AppModeViewModel = viewModel()
+    profileViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
     // Usando Scaffold para a estrutura básica da tela, incluindo a barra de navegação inferior
     Scaffold(
@@ -182,7 +175,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            AccountFooterSection(userMode)
+            AccountFooterSection(profileViewModel)
 
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -192,7 +185,7 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFooterSection(
-    userMode: AppModeViewModel,
+    profileViewModel: ProfileScreenViewModel,
     onLogout: () -> Unit = {}
 ) {
 
@@ -231,7 +224,7 @@ fun AccountFooterSection(
                     },
                     modifier = Modifier
                         .clickable {
-                            userMode.switchToSellerProfile(
+                            profileViewModel.switchToSellerProfile(
                                 UserProfile.Seller("1", profile)
                             )
                             isSheetOpen = false
@@ -300,7 +293,7 @@ fun AccountFooterSection(
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onLogout() }
+                    .clickable { profileViewModel.signOut() }
             )
         }
     }

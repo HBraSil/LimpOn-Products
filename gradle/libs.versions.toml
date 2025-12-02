@@ -15,6 +15,7 @@ composeBom = "2024.09.00"
 material = "1.7.5"
 composeNavigation = "2.7.5"
 dataStore = "1.1.4"
+playServicesAuth = "21.4.0"
 room = "2.8.1"
 ksp  = "2.0.0-1.0.21"
 hiltVersion = "2.57.1"
@@ -49,6 +50,7 @@ androidx-material = { group = "androidx.compose.material", name = "material", ve
 androidx-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

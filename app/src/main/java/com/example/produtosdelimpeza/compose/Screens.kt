@@ -21,6 +21,7 @@ enum class Screen(val route: String) {
     COUPON("coupon"),
     ADDRESS("address"),
     HELP("help"),
+    EMAIL_VERIFIED("email_verified"),
 
 
 

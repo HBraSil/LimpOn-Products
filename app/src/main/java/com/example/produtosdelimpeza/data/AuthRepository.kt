@@ -9,7 +9,7 @@ interface AuthRepository {
      * Retorna o uid do usuário registrado.
      * Lança Exception em caso de erro.
      */
-    suspend fun registerUser(name: String, lastName: String, email: String, password: String): String
+    suspend fun registerUser(name: String, lastName: String, email: String, password: String)
 
     suspend fun signIn(email: String, password: String): LoginResponse
 }

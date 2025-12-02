@@ -12,7 +12,20 @@
           "package_name": "com.example.produtosdelimpeza"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "401816894466-0pvfqrd62rp45iikcbb2rfrl038kj6vf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.produtosdelimpeza",
+            "certificate_hash": "488e745c0ac498a4b253c70d0077c9afdc839547"
+          }
+        },
+        {
+          "client_id": "401816894466-b142p7vdsg4v1c0chkbfec89j28g0spg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBVZ0Tz7vp6LqhxqKbB9Km-dB3ZJUjMbyU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401816894466-b142p7vdsg4v1c0chkbfec89j28g0spg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

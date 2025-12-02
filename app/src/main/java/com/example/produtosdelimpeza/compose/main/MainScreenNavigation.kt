@@ -43,15 +43,13 @@ import com.example.produtosdelimpeza.compose.profile.ProfileScreen
 import com.example.produtosdelimpeza.compose.profile.address.AddressesScreen
 import com.example.produtosdelimpeza.compose.profile.coupons.CouponsScreen
 import com.example.produtosdelimpeza.compose.profile.header_profile_screen.EditUserProfileScreen
-import com.example.produtosdelimpeza.compose.profile.header_profile_screen.UserProfileSample
 import com.example.produtosdelimpeza.compose.profile.help.HelpScreen
 import com.example.produtosdelimpeza.compose.profile.payment_methods.PaymentMethodsScreen
 import com.example.produtosdelimpeza.compose.search.SearchScreen
 import com.example.produtosdelimpeza.compose.seller.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.seller.SellerRegister
-import com.example.produtosdelimpeza.domain.model.UserProfile
-import com.example.produtosdelimpeza.viewmodels.AppModeViewModel
+import com.example.produtosdelimpeza.viewmodels.ProfileScreenViewModel
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 
 
@@ -59,7 +57,7 @@ import com.example.produtosdelimpeza.viewmodels.CartViewModel
 @Composable
 fun MainScreenNavigation(
     cartViewModel: CartViewModel = hiltViewModel(),
-    appModeViewModel: AppModeViewModel = hiltViewModel()
+    appModeViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
     val activeProfile by remember { derivedStateOf { appModeViewModel.activeProfile } }

@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.appcheck.playintegrity)
     debugImplementation(libs.firebase.appcheck.debug)
+    implementation(libs.play.services.auth)
 
     //GSON
     implementation(libs.gson)

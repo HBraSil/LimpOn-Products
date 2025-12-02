@@ -18,16 +18,9 @@ class App: Application() {
         FirebaseApp.initializeApp(this)
 
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
-        firebaseAppCheck.setTokenAutoRefreshEnabled(true)
-        if (BuildConfig.DEBUG) {
-            firebaseAppCheck.installAppCheckProviderFactory(
-                DebugAppCheckProviderFactory.getInstance()
-            )
-        } else { // Senão, usa o Play Integrity para produção
-            firebaseAppCheck.installAppCheckProviderFactory(
-                PlayIntegrityAppCheckProviderFactory.getInstance()
-            )
-        }
+        firebaseAppCheck.installAppCheckProviderFactory(
+            DebugAppCheckProviderFactory.getInstance()
+        )
 
         db = AppDatabase.getInstance(this)
     }
