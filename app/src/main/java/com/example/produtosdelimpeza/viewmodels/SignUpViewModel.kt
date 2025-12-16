@@ -8,8 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.data.AuthRepositoryImpl
 import com.example.produtosdelimpeza.model.FieldState
-import com.example.produtosdelimpeza.compose.signup.SignUpUiState
-import com.example.produtosdelimpeza.model.EmailVerificationUiState
+import com.example.produtosdelimpeza.compose.auth.signup.SignUpUiState
 import com.example.produtosdelimpeza.model.UserFormState
 import com.example.produtosdelimpeza.validation.SignUpValidators
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,9 +25,6 @@ class SignUpViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
-
-    private val _emailVerificationUiState = MutableStateFlow<EmailVerificationUiState>(EmailVerificationUiState.Idle)
-    val emailVerificationUiState: StateFlow<EmailVerificationUiState> = _emailVerificationUiState.asStateFlow()
 
 
     var formState by mutableStateOf(UserFormState())

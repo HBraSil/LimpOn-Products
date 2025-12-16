@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.data
 
+import android.net.Uri
 import android.util.Log
 import com.example.produtosdelimpeza.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -11,13 +12,15 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.net.toUri
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
 ) {
     data class RegistrationException(override var message: String) : Exception(message)
+
     suspend fun registerUser(name: String, lastName: String, email: String, password: String) {
         try {
             // 1. Cria o usuário e aguarda o resultado. Erros vão para o catch.
@@ -32,7 +35,6 @@ class AuthRepositoryImpl @Inject constructor(
                 .document(uid)
                 .set(user)
                 .await()
-
 
             try {
                 firebaseUser.sendEmailVerification().await()
@@ -55,15 +57,39 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val signInResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val user = signInResult.user
+            val isEmailVerified = user?.isEmailVerified
 
-            if (signInResult != null && user != null && user.isEmailVerified) {
+
+            if (signInResult != null && isEmailVerified == true) {
                 LoginResponse.Success
             } else {
                 LoginResponse.Error("Login não foi bem sucedido")
             }
-            
+
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
+        }
+    }
+
+    suspend fun processEmailVerificationDeepLink(deepLinkUrl: String): Result<Boolean> {
+        val uri = deepLinkUrl.toUri()
+        val mode = uri.getQueryParameter("mode") // ex: verifyEmail
+        val oobCode = uri.getQueryParameter("oobCode")
+
+        if (mode != "verifyEmail" || oobCode.isNullOrEmpty()) {
+            return Result.failure(Exception("Link inválido"))
+        }
+
+        return try {
+            // Aplica o action code (marca o email como verificado no servidor)
+            firebaseAuth.applyActionCode(oobCode).await()
+
+            // Recarrega o usuário atual pra atualizar isEmailVerified
+            firebaseAuth.currentUser?.reload()?.await()
+
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

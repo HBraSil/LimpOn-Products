@@ -1,0 +1,33 @@
+package com.example.produtosdelimpeza.data
+
+import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.produtosdelimpeza.commons.ProfileMode
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class NavigationLastUserModeRepository @Inject constructor(@ApplicationContext private val context: Context) {
+
+    private val navigationDataStore = context.navigationDataStore
+
+    companion object {
+        val LAST_ACTIVE_PROFILE = stringPreferencesKey("last_active_profile")
+    }
+
+    val lastActiveProfile = navigationDataStore.data.map { preferences ->
+            preferences[LAST_ACTIVE_PROFILE] ?: ProfileMode.CUSTOMER.mode
+    }
+
+    suspend fun saveLastUserMode(profileMode: String) {
+        navigationDataStore.edit {
+            it[LAST_ACTIVE_PROFILE] = profileMode
+        }
+    }
+}
+
+// 50 + 2 * 3

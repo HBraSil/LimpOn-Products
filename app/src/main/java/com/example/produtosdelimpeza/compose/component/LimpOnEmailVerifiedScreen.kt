@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.compose.component
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,18 +14,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.produtosdelimpeza.compose.Screen
 import kotlinx.coroutines.delay
 
 @Composable
-fun EmailVerifiedScreen(navController: NavController) {
+fun EmailVerifiedScreen(onMainScreen: (Boolean) -> Unit) {
 
-    LaunchedEffect(Unit) {
+    Log.d("SCREEN_CHECK", "EmailVerifiedScreen COMPOSABLE MONTADO!")
+
+    LaunchedEffect(true) {
         delay(2500) // 2.5 segundos
-        navController.navigate(Screen.MAIN.route) {
-            popUpTo(0)
-        }
+        onMainScreen(false)
     }
 
     Box(

@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.compose.login.LoginUiState
+import com.example.produtosdelimpeza.compose.auth.login.LoginUiState
 import com.example.produtosdelimpeza.data.AuthRepositoryImpl
 import com.example.produtosdelimpeza.data.LoginResponse
 import com.example.produtosdelimpeza.model.LoginFormState
@@ -21,9 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-
-data class Navigate(val route: String)
 
 
 @HiltViewModel

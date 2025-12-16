@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common/handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.produtosdelimpeza", 
+    "sha256_cert_fingerprints": [
+      "ca:63:82:e2:ab:be:c5:dc:c1:13:3e:33:2a:77:79:40:c6:ef:06:4a:05:f4:a0:41:48:c3:86:55:8a:b6:fc:18" 
+    ]
+  }
+}]

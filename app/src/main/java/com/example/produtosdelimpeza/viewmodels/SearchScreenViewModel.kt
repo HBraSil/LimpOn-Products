@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.compose.search.SearchScreenDataStore
-import com.example.produtosdelimpeza.compose.search.searchScreenDataStore
+import com.example.produtosdelimpeza.compose.user.search.SearchScreenDataStore
+import com.example.produtosdelimpeza.compose.user.search.searchScreenDataStore
 import kotlinx.coroutines.launch
 
 class SearchHistoryViewModel(private val searchHistoryManager: SearchScreenDataStore) : ViewModel()  {

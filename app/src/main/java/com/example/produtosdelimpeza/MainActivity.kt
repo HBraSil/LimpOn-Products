@@ -13,9 +13,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
-import com.example.produtosdelimpeza.compose.ProdutosLimpezaApp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.produtosdelimpeza.navigation.LimpOnAppNavigation
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,17 +68,15 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
-                ProdutosLimpezaApp()
+                LimpOnAppNavigation()
             }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
         val link = intent.data.toString()
-        if (link.isNotEmpty()) {
-            deepLinkViewModel.onDeepLinkReceived(link)
-        }
+        if (link.isNotEmpty()) deepLinkViewModel.onDeepLinkReceived(link)
     }
 }

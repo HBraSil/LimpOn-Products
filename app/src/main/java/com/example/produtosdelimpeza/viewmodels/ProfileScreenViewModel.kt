@@ -15,30 +15,8 @@ class ProfileScreenViewModel @Inject constructor(
     private val profileRepository: ProfileScreenRepository
 ) : ViewModel() {
 
-    var activeProfile: UserProfile by mutableStateOf(UserProfile.Client("Hilquias"))
-        private set
-
-    private val sellerProfiles = mutableStateListOf<UserProfile.Seller>()
-
-
     fun signOut() {
         profileRepository.signOut()
     }
-
-    fun addSellerProfile(storeId: String, storeName: String) {
-        sellerProfiles += UserProfile.Seller(storeId, storeName)
-    }
-
-    fun getSellerProfiles(): List<UserProfile.Seller> = sellerProfiles
-
-    fun switchToClientMode() {
-        activeProfile = UserProfile.Client("Hilquias")
-    }
-
-    fun switchToSellerProfile(seller: UserProfile.Seller) {
-        activeProfile = seller
-    }
-
-    fun isSellerMode(): Boolean = activeProfile is UserProfile.Seller
 }
 

@@ -38,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.generic_components.AddAndSubButton
 import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 
