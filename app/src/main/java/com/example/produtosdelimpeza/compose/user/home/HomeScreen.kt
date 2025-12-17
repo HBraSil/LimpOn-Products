@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.user.home
 
 import SwipeableCardOne
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -76,23 +75,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.navigation.MainBottomNavigation
 import com.example.produtosdelimpeza.model.Product
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
@@ -171,7 +166,8 @@ private val sampleProducts = listOf(
 @Composable
 fun HomeScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
-    cartViewModel: CartViewModel = viewModel(),
+    cartViewModel: CartViewModel = hiltViewModel(),
+    appLayoutViewModel: NavigationLastUserModeViewModel,
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
     onSeeAllClick: () -> Unit = {}
@@ -185,6 +181,10 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(profileMode = ProfileMode.CUSTOMER.mode)
     }
+    LaunchedEffect(Unit) {
+        appLayoutViewModel.setLayout(ProfileMode.CUSTOMER)
+
+    }
 
 
     Scaffold(
@@ -195,7 +195,6 @@ fun HomeScreen(
                     total = totalPrice,
                     onOpenCart = { navController.navigate("cart") }
                 )
-               // MainBottomNavigation(navController)
             }
         },
     ) { paddingValues ->
@@ -1045,14 +1044,4 @@ private fun FavoriteButton() {
             tint = tint
         )
     }
-}
-
-
-@Preview
-@Composable
-private fun HomeScreenPreview() {
-    HomeScreen(
-        navController = NavHostController(LocalContext.current),
-        onCardSellerClick = {}
-    )
 }

@@ -62,4 +62,7 @@
     <string name="rating_star">avaliação por nível de estrela</string>
     <string name="remember_me">Lembrar-me</string>
     <string name="alert_icon">Ícone de alerta</string>
+    <string name="dashboard">dashboard</string>
+    <string name="customer_profile">Perfil da loja</string>
+    <string name="customer_order_detail">lista de pedidos</string>
 </resources>

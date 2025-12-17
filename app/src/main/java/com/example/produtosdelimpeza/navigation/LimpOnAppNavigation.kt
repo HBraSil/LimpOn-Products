@@ -6,11 +6,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
@@ -61,49 +65,73 @@ import com.example.produtosdelimpeza.compose.user.catalog.profile.SellerProfileS
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.auth.splash.SplashScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
+import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
+import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
-import com.example.produtosdelimpeza.navigation.route.SellerScreen
-import com.example.produtosdelimpeza.navigation.route.UserScreen
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.navigation.route.CustomerScreen
+import com.example.produtosdelimpeza.navigation.route.SplashRoute
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 
 
-private val bottomNavigationItems = listOf(
+private val bottomNavigationCustomerItems = listOf(
     NavigationItem(
         title = R.string.home,
         iconSelected = Icons.Filled.Home,
         iconUnselected = Icons.Outlined.Home,
-        router = UserScreen.HOME
+        router = CustomerScreen.CUSTOMER_HOME.route
     ),
     NavigationItem(
         title = R.string.search,
         iconSelected = Icons.Filled.Search,
         iconUnselected = Icons.Outlined.Search,
-        router = UserScreen.SEARCH
+        router = CustomerScreen.CUSTOMER_SEARCH.route
     ),
     NavigationItem(
         title = R.string.order_detail,
         iconSelected = Icons.AutoMirrored.Filled.ReceiptLong,
         iconUnselected = Icons.AutoMirrored.Outlined.ReceiptLong,
-        router = UserScreen.ORDER_LIST
+        router = CustomerScreen.CUSTOMER_ORDER_LIST.route
     ),
     NavigationItem(
         title = R.string.profile,
         iconSelected = Icons.Filled.Person,
         iconUnselected = Icons.Outlined.Person,
-        router = UserScreen.PROFILE
+        router = CustomerScreen.CUSTOMER_PROFILE.route
+    )
+)
+
+private val bottomNavigationStoreItems = listOf(
+    NavigationItem(
+        title = R.string.dashboard,
+        iconSelected = Icons.Filled.Dashboard,
+        iconUnselected = Icons.Outlined.Dashboard,
+        router = StoreScreen.DASHBOARD.route
+    ),
+    NavigationItem(
+        title = R.string.customer_order_detail,
+        iconSelected = Icons.AutoMirrored.Filled.List,
+        iconUnselected = Icons.AutoMirrored.Outlined.List,
+        router = StoreScreen.STORE_ORDER.route
+    ),
+    NavigationItem(
+        title = R.string.customer_profile,
+        iconSelected = Icons.Filled.Person,
+        iconUnselected = Icons.Outlined.Person,
+        router = StoreScreen.STORE_PROFILE.route
     )
 )
 
 @Composable
-fun LimpOnAppNavigation(cartViewModel: CartViewModel = hiltViewModel(), navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()) {
+fun LimpOnAppNavigation(
+    cartViewModel: CartViewModel = hiltViewModel(),
+    navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-
+    val layout by navigationLastUserModeViewModel.layout.collectAsState()
+    Log.d("Limp Layout", "LimpOnAppNavigation layout: $layout")
 
     DeepLinkObserver(
         onEmailVerified = {
@@ -113,9 +141,16 @@ fun LimpOnAppNavigation(cartViewModel: CartViewModel = hiltViewModel(), navigati
 
     Scaffold(
         bottomBar = {
-            val showBottomBar = bottomNavigationItems.any { it.router.route == currentRoute }
-            if (showBottomBar) {
-                MainBottomNavigation(
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            if (layout == ProfileMode.CUSTOMER) {
+                CustomerBottomNavigation(
+                    navController = navController,
+                    currentRoute = currentRoute
+                )
+            }
+            if (layout == ProfileMode.STORE) {
+                StoreBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
                 )
@@ -124,13 +159,13 @@ fun LimpOnAppNavigation(cartViewModel: CartViewModel = hiltViewModel(), navigati
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = NavGraph.SPLASH_GRAPH.route,
+            startDestination = SplashRoute.SPLASH_GRAPH.route,
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             splashGraph(navController)
             authGraph(navController)
-            userMainGraph(navController, cartViewModel)
-            sellerMainGraph(navController, cartViewModel)
+            userMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
+            storeMainGraph(navController, navigationLastUserModeViewModel)
         }
     }
 
@@ -139,10 +174,10 @@ fun LimpOnAppNavigation(cartViewModel: CartViewModel = hiltViewModel(), navigati
 
 fun NavGraphBuilder.splashGraph(navController: NavController) {
     navigation(
-        route = NavGraph.SPLASH_GRAPH.route,
-        startDestination = UserScreen.SPLASH.route
+        route = SplashRoute.SPLASH_GRAPH.route,
+        startDestination = SplashRoute.SPLASH.route
     ) {
-        composable(route = UserScreen.SPLASH.route) {
+        composable(route = SplashRoute.SPLASH.route) {
             SplashScreen(
                 onChoiceUserAuth = { route ->
                     navController.navigate( route )
@@ -153,17 +188,30 @@ fun NavGraphBuilder.splashGraph(navController: NavController) {
 }
 
 
-private fun NavGraphBuilder.sellerMainGraph(navController: NavHostController, model: CartViewModel) {
+private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, navigationLastUserModeViewModel: NavigationLastUserModeViewModel) {
     navigation(
         route = NavGraph.SELLER_MAIN.route,
-        startDestination = SellerScreen.DASHBOARD.route
+        startDestination = StoreScreen.DASHBOARD.route
     ) {
-        composable(route = SellerScreen.DASHBOARD.route) {
+        composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
+                navigationLastUserModeViewModel,
                 onNavigateToCustomer = {
                     navController.navigate(NavGraph.USER_MAIN.route)
                 }
             )
+        }
+        composable(route = StoreScreen.STORE_PROFILE.route) {
+            StoreProfileScreen(
+                onOpenProfile = {
+                    navController.navigate(NavGraph.USER_MAIN.route) {
+                        popUpTo(NavGraph.SELLER_MAIN.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(route = StoreScreen.STORE_ORDER.route) {
+            StoreOrderScreen()
         }
     }
 }
@@ -200,14 +248,18 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
 }
 
 
-fun NavGraphBuilder.userMainGraph(navController: NavHostController, cartViewModel: CartViewModel) {
+fun NavGraphBuilder.userMainGraph(
+    navController: NavHostController,
+    cartViewModel: CartViewModel,
+    appLayoutViewModel: NavigationLastUserModeViewModel
+) {
     navigation(
         route = NavGraph.USER_MAIN.route,
         startDestination = NavGraph.HOME.route
     ) {
         sharedGraph(navController)
 
-        homeGraph(navController, cartViewModel)
+        homeGraph(navController, cartViewModel, appLayoutViewModel)
         searchGraph(navController)
         ordersGraph(navController)
         profileGraph(navController)
@@ -217,9 +269,9 @@ fun NavGraphBuilder.userMainGraph(navController: NavHostController, cartViewMode
 private fun NavGraphBuilder.sharedGraph(controller: NavHostController) {
     navigation(
         route = NavGraph.SHRARED_GRAPH.route,
-        startDestination = UserScreen.CART.route
+        startDestination = CustomerScreen.CART.route
     ){
-        composable(route = UserScreen.CART.route) {
+        composable(route = CustomerScreen.CART.route) {
             CartScreen(
                 /*onBackNavigation = { navController.navigateUp() },
                 cartViewModel = cartViewModel*/
@@ -232,27 +284,28 @@ private fun NavGraphBuilder.sharedGraph(controller: NavHostController) {
 
 fun NavGraphBuilder.homeGraph(
     navController: NavHostController,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    appLayoutViewModel: NavigationLastUserModeViewModel
 ){
-
     navigation(
         route = NavGraph.HOME.route,
-        startDestination = UserScreen.HOME.route
+        startDestination = CustomerScreen.CUSTOMER_HOME.route
     ) {
-        composable(route = UserScreen.HOME.route) {
+        composable(route = CustomerScreen.CUSTOMER_HOME.route) {
             HomeScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
+                appLayoutViewModel = appLayoutViewModel,
                 onCardSellerClick = { nameSeller ->
-                    navController.navigate("${UserScreen.SELLER.route}/$nameSeller")
+                    navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$nameSeller")
                 },
                 onSeeAllClick = {
-                    navController.navigate(UserScreen.HIGHLIGHTS.route)
+                    navController.navigate(CustomerScreen.HIGHLIGHTS.route)
                 }
             )
         }
 
-        composable(route = "${UserScreen.SELLER.route}/{nameSeller}") { navBackStackEntry ->
+        composable(route = "${CustomerScreen.CUSTOMER_PRODUCTS.route}/{nameSeller}") { navBackStackEntry ->
             val nameSeller = navBackStackEntry.arguments?.getString("nameSeller") ?: ""
 
             SellerProductsScreen(
@@ -262,20 +315,20 @@ fun NavGraphBuilder.homeGraph(
                     navController.navigateUp()
                 },
                 onClickCardSellerProfile = {
-                    navController.navigate(UserScreen.SELLER_PROFILE.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_STORE_PROFILE.route)
                 },
                 onClickCartScreen = {
-                    navController.navigate(UserScreen.CART.route)
+                    navController.navigate(CustomerScreen.CART.route)
                 },
 
                 )
         }
 
-        composable(route = UserScreen.SELLER_PROFILE.route) {
+        composable(route = CustomerScreen.CUSTOMER_STORE_PROFILE.route) {
             SellerProfileScreen()
         }
 
-        composable(route = UserScreen.HIGHLIGHTS.route) {
+        composable(route = CustomerScreen.HIGHLIGHTS.route) {
             HighlightsScreen()
         }
     }
@@ -286,10 +339,10 @@ fun NavGraphBuilder.homeGraph(
 fun NavGraphBuilder.searchGraph(navController: NavHostController) {
     navigation(
         route = NavGraph.SEARCH.route,
-        startDestination = UserScreen.SEARCH.route
+        startDestination = CustomerScreen.CUSTOMER_SEARCH.route
     ){
-        composable(route = UserScreen.SEARCH.route) {
-            SearchScreen(navController)
+        composable(route = CustomerScreen.CUSTOMER_SEARCH.route) {
+            SearchScreen()
         }
     }
 }
@@ -298,15 +351,14 @@ fun NavGraphBuilder.searchGraph(navController: NavHostController) {
 private fun NavGraphBuilder.ordersGraph(navController: NavHostController) {
     navigation(
         route = NavGraph.ORDERS.route,
-        startDestination = UserScreen.ORDER_LIST.route
+        startDestination = CustomerScreen.CUSTOMER_ORDER_LIST.route
     ){
-        composable(route = UserScreen.ORDER_LIST.route) {
+        composable(route = CustomerScreen.CUSTOMER_ORDER_LIST.route) {
             OrderListScreen(
-                navController,
-                onNavigateToOrderDetails = { navController.navigate(UserScreen.ORDER_DETAIL.route) }
+                onNavigateToOrderDetails = { navController.navigate(CustomerScreen.CUSTOMER_ORDER_DETAIL.route) }
             )
         }
-        composable(route = UserScreen.ORDER_DETAIL.route) {
+        composable(route = CustomerScreen.CUSTOMER_ORDER_DETAIL.route) {
             OrderDetailsScreen(
                 onBack = { navController.navigateUp() },
             )
@@ -318,39 +370,45 @@ private fun NavGraphBuilder.ordersGraph(navController: NavHostController) {
 fun NavGraphBuilder.profileGraph(navController: NavHostController) {
     navigation(
         route = NavGraph.PROFILE.route,
-        startDestination = UserScreen.PROFILE.route
+        startDestination = CustomerScreen.CUSTOMER_PROFILE.route
     ){
-        composable(route = UserScreen.PROFILE.route) {
+        composable(route = CustomerScreen.CUSTOMER_PROFILE.route) {
             ProfileScreen(
                 onClickNotificationsScreen = {
-                    navController.navigate(UserScreen.NOTIFICATION.route)
+                    navController.navigate(CustomerScreen.NOTIFICATION.route)
                 },
                 onClickEditUserProfileScreen = {
-                    navController.navigate(UserScreen.EDIT_USER_PROFILE.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_EDIT_PROFILE.route)
                 },
                 onClickPaymentMethodsScreen = {
-                    navController.navigate(UserScreen.PAYMENT_METHODS.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_PAYMENT_METHODS.route)
                 },
                 onClickCouponsScreen = {
-                    navController.navigate(UserScreen.COUPON.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_COUPON.route)
                 },
                 onClickMyAddressesScreen = {
-                    navController.navigate(UserScreen.ADDRESS.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route)
                 },
                 onClickAboutScreen = {
-                    navController.navigate(UserScreen.ABOUT.route)
+                    navController.navigate(CustomerScreen.ABOUT.route)
                 },
                 onClickHelpScreen = {
-                    navController.navigate(UserScreen.HELP.route)
+                    navController.navigate(CustomerScreen.HELP.route)
                 },
                 onCLickOrderScreen = {
-                    navController.navigate(UserScreen.ORDER_LIST.route)
+                    navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = { profile ->
                     if (profile == ProfileMode.STORE) {
-                        navController.navigate(NavGraph.SELLER_MAIN.route)
+                        navController.navigate(NavGraph.SELLER_MAIN.route) {
+                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     } else {
-                        navController.navigate(NavGraph.USER_MAIN.route)
+                        navController.navigate(NavGraph.USER_MAIN.route) {
+                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 },
                 onSignOutClick = {
@@ -362,34 +420,34 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
             )
         }
 
-        composable(route = UserScreen.EDIT_USER_PROFILE.route) {
+        composable(route = CustomerScreen.CUSTOMER_EDIT_PROFILE.route) {
             EditUserProfileScreen()
         }
 
-        composable(route = UserScreen.PAYMENT_METHODS.route) {
+        composable(route = CustomerScreen.CUSTOMER_PAYMENT_METHODS.route) {
             PaymentMethodsScreen()
         }
 
-        composable(route = UserScreen.COUPON.route) {
+        composable(route = CustomerScreen.CUSTOMER_COUPON.route) {
             CouponsScreen()
         }
 
-        composable(route = UserScreen.ADDRESS.route) {
+        composable(route = CustomerScreen.CUSTOMER_ADDRESS.route) {
             AddressesScreen()
         }
-        composable(route = UserScreen.NOTIFICATION.route) {
+        composable(route = CustomerScreen.NOTIFICATION.route) {
             NotificationScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }
 
-        composable(route = UserScreen.HELP.route) {
+        composable(route = CustomerScreen.HELP.route) {
             HelpScreen(
                 onBack = { navController.navigateUp() }
             )
         }
 
-        composable(route = UserScreen.ABOUT.route) {
+        composable(route = CustomerScreen.ABOUT.route) {
             AboutScreen(
                 onNavigateUpClick = { navController.navigateUp() }
             )
@@ -401,18 +459,18 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
 
 
 @Composable
-fun MainBottomNavigation(
+fun CustomerBottomNavigation(
     navController: NavHostController,
     currentRoute: String?
 ) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-        bottomNavigationItems.forEach { item ->
+        bottomNavigationCustomerItems.forEach { item ->
             NavigationBarItem(
                 //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
-                selected = currentRoute == item.router.route,
+                selected = currentRoute == item.router,
                 onClick = {
-                    if (currentRoute != item.router.route) {
-                        navController.navigate(item.router.route) {
+                    if (currentRoute != item.router) {
+                        navController.navigate(item.router) {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
                             }
@@ -423,7 +481,7 @@ fun MainBottomNavigation(
                 },
                 icon = {
                     Icon(
-                        imageVector = if (currentRoute == item.router.route) item.iconSelected else item.iconUnselected,
+                        imageVector = if (currentRoute == item.router) item.iconSelected else item.iconUnselected,
                         contentDescription = item.title.toString(),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -438,7 +496,51 @@ fun MainBottomNavigation(
             )
         }
     }
+
 }
+
+
+@Composable
+fun StoreBottomNavigation(
+    navController: NavHostController,
+    currentRoute: String?
+) {
+    NavigationBar {
+        bottomNavigationStoreItems.forEach { item ->
+            NavigationBarItem(
+                //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
+                selected = currentRoute == item.router,
+                onClick = {
+                    if (currentRoute != item.router) {
+                        navController.navigate(item.router) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (currentRoute == item.router) item.iconSelected else item.iconUnselected,
+                        contentDescription = item.title.toString(),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                label = {
+                    Text(
+                        text = stringResource(id = item.title),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(indicatorColor = White)
+            )
+        }
+    }
+
+}
+
 
 
 @Composable

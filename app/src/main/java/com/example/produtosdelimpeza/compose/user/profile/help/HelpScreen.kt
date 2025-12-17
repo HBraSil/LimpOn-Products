@@ -671,7 +671,7 @@ fun AnnotatedTextHighlight(fullText: String, highlightTerm: String) = buildAnnot
 // 5. PREVIEWS
 // -----------------------------------------------------------
 
-@Preview(showBackground = true, name = "Help UserScreen - Light")
+@Preview(showBackground = true, name = "Help CustomerScreen - Light")
 @Composable
 fun PreviewHelpScreenLight() {
     MaterialTheme {

@@ -22,6 +22,8 @@ class NavigationLastUserModeViewModel @Inject constructor(
     private val _lastUserMode = MutableStateFlow(LastUserMode())
     val lastUserMode: StateFlow<LastUserMode> = _lastUserMode.asStateFlow()
 
+    private val _layout = MutableStateFlow(ProfileMode.NONE)
+    val layout: StateFlow<ProfileMode> = _layout.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -30,6 +32,12 @@ class NavigationLastUserModeViewModel @Inject constructor(
                 else _lastUserMode.update { it.copy(currentMode = ProfileMode.STORE.mode) }
             }
         }
+    }
+
+
+    fun setLayout(layout: ProfileMode) {
+        _layout.value = layout
+        Log.d("AppLayoutViewModel", "setLayout: $layout")
     }
 
 

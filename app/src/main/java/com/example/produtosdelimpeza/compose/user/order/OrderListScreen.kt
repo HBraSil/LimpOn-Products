@@ -26,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.produtosdelimpeza.navigation.MainBottomNavigation
 import com.example.produtosdelimpeza.ui.theme.GradientBackCardsComponents
 import com.example.produtosdelimpeza.ui.theme.StarColor
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
@@ -55,7 +54,7 @@ enum class OrderStatusList(val label: String) {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderListScreen(navController: NavHostController, onNavigateToOrderDetails: () -> Unit) {
+fun OrderListScreen(onNavigateToOrderDetails: () -> Unit) {
     val listState = rememberLazyListState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     val scope = rememberCoroutineScope()

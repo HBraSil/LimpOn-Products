@@ -78,15 +78,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.data.NavigationLastUserModeRepository
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -101,25 +97,23 @@ private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    modifier: Modifier = Modifier,
+    navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
     onCreateProduct: () -> Unit = {},
     onOpenOrders: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onNavigateToCustomer: () -> Unit = {},
-    navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()
 ) {
     // nav selection state for bottom bar
-    var selectedTab by remember { mutableStateOf(DashboardTab.Home) }
 
-    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(profileMode = ProfileMode.STORE.mode)
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.STORE.mode)
+        navigationLastUserModeViewModel.setLayout(ProfileMode.STORE)
     }
 
     // scaffold with top app bar (visual icon instead of text)
     val listState = rememberLazyListState()
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         topBar = { PremiumTopBar() },
         floatingActionButton = {
             // simple prominent FAB for primary action (create product)
@@ -131,18 +125,54 @@ fun DashboardScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         },
-        bottomBar = {
-            PremiumBottomNavigation(selected = selectedTab, onSelect = { newTab ->
-                selectedTab = newTab
-            }, onOpenOrders = onOpenOrders, onOpenProfile = onOpenProfile)
-        }
-    ) { innerPadding ->
-        // Main content - switch by selectedTab (Home/Orders/Profile). Keep Home rich.
-        Box(modifier = Modifier.padding(innerPadding)) {
-            when (selectedTab) {
-                DashboardTab.Home -> PremiumHomeContent(listState = listState)
-                DashboardTab.Orders -> OrdersPlaceholder(onOpenOrders)
-                DashboardTab.Profile -> ProfilePlaceholder(onNavigateToCustomer)
+    ) { paddingValues ->
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(Color.White),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 90.dp, top = 12.dp)
+        ) {
+            item {
+                StoreProfileCardAdvanced(
+                    storeName = "Pastelaria do Zé",
+                    avatarRes = null, // could be painterResource
+                    isOnline = true,
+                    itemsActive = 24,
+                    avgResponseTime = "8m",
+                    recentFeedbackCount = 7,
+                    conversionRate = 12.6f,
+                    onClick = {  }
+                )
+            }
+
+            item {
+                // Top KPI row - always visible
+                KPIHeroRow(
+                    revenue = todayRevenueMock,
+                    activeOrders = activeOrdersMock,
+                    spark = weeklySparkMock
+                )
+            }
+
+            item {
+                // Secondary actions / quick insights
+            }
+
+            item {
+                Spacer(Modifier.height(16.dp))
+                SectionHeader(title = "Pedidos Recentes", actionText = "Ver tudo") { /* go to orders */ }
+            }
+
+            // Mock list of recent orders (light)
+            items(5) { idx ->
+                OrderCompactCard(idx + 1)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -186,54 +216,7 @@ fun PremiumTopBar() {
 
 @Composable
 fun PremiumHomeContent(listState: LazyListState) {
-    LazyColumn(
-        state = listState,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 90.dp, top = 12.dp)
-    ) {
-        item {
-            StoreProfileCardAdvanced(
-                storeName = "Pastelaria do Zé",
-                avatarRes = null, // could be painterResource
-                isOnline = true,
-                itemsActive = 24,
-                avgResponseTime = "8m",
-                recentFeedbackCount = 7,
-                conversionRate = 12.6f,
-                onClick = {  }
-            )
-        }
 
-        item {
-            // Top KPI row - always visible
-            KPIHeroRow(
-                revenue = todayRevenueMock,
-                activeOrders = activeOrdersMock,
-                spark = weeklySparkMock
-            )
-        }
-
-        item {
-            // Secondary actions / quick insights
-        }
-
-        item {
-            Spacer(Modifier.height(16.dp))
-            SectionHeader(title = "Pedidos Recentes", actionText = "Ver tudo") { /* go to orders */ }
-        }
-
-        // Mock list of recent orders (light)
-        items(5) { idx ->
-            OrderCompactCard(idx + 1)
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -607,73 +590,6 @@ fun SectionHeader(title: String, actionText: String, onAction: () -> Unit) {
     }
 }
 
-// -----------------------------
-// Bottom navigation
-// -----------------------------
-enum class DashboardTab { Home, Orders, Profile }
-
-@Composable
-fun PremiumBottomNavigation(selected: DashboardTab, onSelect: (DashboardTab) -> Unit, onOpenOrders: () -> Unit, onOpenProfile: () -> Unit) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = selected == DashboardTab.Home,
-            onClick = { onSelect(DashboardTab.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Início") },
-            label = { Text("Início") }
-        )
-        NavigationBarItem(
-            selected = selected == DashboardTab.Orders,
-            onClick = {
-                onSelect(DashboardTab.Orders)
-                onOpenOrders()
-            },
-            icon = { BadgedBox(badge = { Badge { Text("7") } }) { Icon(Icons.Default.List, contentDescription = "Pedidos") } },
-            label = { Text("Pedidos") }
-        )
-        NavigationBarItem(
-            selected = selected == DashboardTab.Profile,
-            onClick = {
-                onSelect(DashboardTab.Profile)
-                onOpenProfile()
-            },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Perfil") },
-            label = { Text("Perfil") }
-        )
-    }
-}
-
-// -----------------------------
-// Simple placeholders for tabs
-// -----------------------------
-@Composable
-fun OrdersPlaceholder(onOpenOrders: () -> Unit) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, modifier = Modifier.size(56.dp))
-            Spacer(Modifier.height(8.dp))
-            Text("Tela de pedidos (placeholder)", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = onOpenOrders) { Text("Abrir pedidos completos") }
-        }
-    }
-}
-
-@Composable
-fun ProfilePlaceholder(onOpenProfile: () -> Unit) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(56.dp))
-            Spacer(Modifier.height(8.dp))
-            Text("Perfil da loja (placeholder)", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = onOpenProfile) { Text("Mudar para usuário", color = MaterialTheme.colorScheme.onSurface) }
-        }
-    }
-}
 
 data class DaySales(
     val dayLabel: String,   // ex: "SEG", "TER"
@@ -1064,11 +980,4 @@ fun BarChart7Days(
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun VendorDashboardModernScreenPreview() {
-    DashboardScreen()
 }

@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.produtosdelimpeza.navigation.MainBottomNavigation
 import com.example.produtosdelimpeza.viewmodels.SearchHistoryViewModel
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -90,7 +89,6 @@ import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun SearchScreen(
-    navControler: NavHostController,
     searchScreenViewModel: SearchHistoryViewModel = viewModel(
         factory = SearchHistoryViewModel.Factory(LocalContext.current).factory
     ),
@@ -716,5 +714,5 @@ fun sampleCategories() = listOf(
 @Preview
 @Composable
 private fun SearchScreenPreview() {
-    SearchScreen(navControler = NavHostController(LocalContext.current))
+    SearchScreen()
 }

@@ -181,7 +181,7 @@ object CouponDataSource {
 
 
 // =================================================================================================
-// 4. Main UserScreen (CouponsScreen.kt)
+// 4. Main CustomerScreen (CouponsScreen.kt)
 // =================================================================================================
 
 @RequiresApi(Build.VERSION_CODES.O)

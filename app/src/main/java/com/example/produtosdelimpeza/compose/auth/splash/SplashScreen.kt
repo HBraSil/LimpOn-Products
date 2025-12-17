@@ -16,7 +16,10 @@ import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun SplashScreen(sessionViewModel: NavigationLastUserModeViewModel = hiltViewModel(), onChoiceUserAuth: (String) -> Unit = {}) {
+fun SplashScreen(
+    sessionViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
+    onChoiceUserAuth: (String) -> Unit = {},
+) {
     val auth = FirebaseAuth.getInstance()
     val user = auth.currentUser
 
