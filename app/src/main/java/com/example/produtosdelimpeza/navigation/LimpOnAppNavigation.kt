@@ -163,7 +163,7 @@ fun LimpOnAppNavigation(
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             splashGraph(navController)
-            authGraph(navController)
+            authGraph(navController, navigationLastUserModeViewModel)
             userMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
             storeMainGraph(navController, navigationLastUserModeViewModel)
         }
@@ -217,7 +217,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 }
 
 
-fun NavGraphBuilder.authGraph(navController: NavController) {
+fun NavGraphBuilder.authGraph(navController: NavController, navigationLastUserModeViewModel: NavigationLastUserModeViewModel) {
     navigation(
         route = NavGraph.AUTH.route,
         startDestination = AuthScreen.INITIAL.route,
@@ -225,6 +225,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
         composable(route = AuthScreen.INITIAL.route) {
             InitialScreen(
                 onChoiceClick = { navController.navigate(AuthScreen.LOGIN.route) },
+                appLayoutViewModel = navigationLastUserModeViewModel
             )
         }
 

@@ -1,7 +1,15 @@
 package com.example.produtosdelimpeza.data
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.example.produtosdelimpeza.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -13,11 +21,13 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.net.toUri
+import com.example.produtosdelimpeza.connection.NetworkUtils
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
+    private val networkUtils: NetworkUtils
 ) {
     data class RegistrationException(override var message: String) : Exception(message)
 
@@ -55,17 +65,19 @@ class AuthRepositoryImpl @Inject constructor(
 
     suspend fun signIn(email: String, password: String): LoginResponse {
         return try {
-            val signInResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            val user = signInResult.user
-            val isEmailVerified = user?.isEmailVerified
+            val isInternetAvailable = networkUtils.isInternetAvailable()
+            Log.d("INTERNET", "status internet: $isInternetAvailable")
+            if (isInternetAvailable) {
+                val signInResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                val user = signInResult.user
+                val isEmailVerified = user?.isEmailVerified
 
+                if (signInResult != null && isEmailVerified == true) LoginResponse.Success
+                else LoginResponse.Error("Login não foi bem sucedido")
 
-            if (signInResult != null && isEmailVerified == true) {
-                LoginResponse.Success
             } else {
-                LoginResponse.Error("Login não foi bem sucedido")
+                LoginResponse.Error("Sem internet")
             }
-
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
         }

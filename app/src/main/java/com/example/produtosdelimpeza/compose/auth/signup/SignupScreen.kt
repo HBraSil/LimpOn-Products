@@ -73,7 +73,6 @@ fun SignupScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     var showEmailSentSnackbar by remember { mutableStateOf(false) }
-    val isConnected = isConnectedToInternet()
 
     LaunchedEffect(showEmailSentSnackbar) {
         if (showEmailSentSnackbar) {
@@ -91,9 +90,6 @@ fun SignupScreen(
         }
     }
 
-    LaunchedEffect(isConnected) {
-        if (!isConnected) snackbarHostState.showSnackbar("Sem conexão com a internet")
-    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -283,45 +279,17 @@ fun SignupScreen(
                     modifier = Modifier
                         .padding(top = 100.dp, bottom = 20.dp),
                 ) {
-                    if (isConnected) {
+                    //if (isConnected) {
                         signUpViewModel.registerUser()
                          showEmailSentSnackbar = true
                         return@LimpOnButton
-                    }
+
                 }
             }
         }
     }
 }
 
-@Composable
-fun isConnectedToInternet(): Boolean {
-    val context = LocalContext.current
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-    val isConnected = remember { mutableStateOf(false) }
-
-    DisposableEffect(Unit) {
-        val networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                isConnected.value = true
-            }
-            override fun onLost(network: Network) {
-                isConnected.value = false
-            }
-        }
-
-        val networkRequest = NetworkRequest.Builder().build()
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-
-        onDispose {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
-        }
-    }
-
-    return isConnected.value
-}
 
 
 @Preview

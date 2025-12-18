@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
@@ -32,16 +33,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.ui.theme.LightDarkBlue
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
+import com.example.produtosdelimpeza.viewmodels.CartViewModel
+import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 
 
 @Composable
-fun InitialScreen(onChoiceClick: () -> Unit = {}) {
+fun InitialScreen(
+    onChoiceClick: () -> Unit = {},
+    navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
+    appLayoutViewModel: NavigationLastUserModeViewModel,
+) {
     val verticalScrollState = rememberScrollState()
+
+
+    LaunchedEffect(Unit) {
+        navigationLastUserModeViewModel.saveLastUserMode(profileMode = ProfileMode.NONE.mode)
+    }
+    LaunchedEffect(Unit) {
+        appLayoutViewModel.setLayout(ProfileMode.NONE)
+
+    }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
