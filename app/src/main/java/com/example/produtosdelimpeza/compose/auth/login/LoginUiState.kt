@@ -5,3 +5,4 @@ data class LoginUiState(
     val goToHome: Boolean = false,
     val error: String? = null
 )
+

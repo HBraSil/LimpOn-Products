@@ -10,35 +10,61 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.produtosdelimpeza.commons.ProfileMode
+import com.example.produtosdelimpeza.compose.user.initial.InitialScreen
 import com.example.produtosdelimpeza.navigation.LimpOnAppNavigation
+import com.example.produtosdelimpeza.navigation.route.AuthScreen
+import com.example.produtosdelimpeza.navigation.route.CustomerScreen
+import com.example.produtosdelimpeza.navigation.route.NavGraph
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
+import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val deepLinkViewModel: DeepLinkViewModel by viewModels()
+    private val deepLinkViewModel: DeepLinkViewModel by viewModels()
+    private val sessionViewModel: NavigationLastUserModeViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
+        installSplashScreen().apply {
+             setKeepOnScreenCondition {
+                sessionViewModel.lastUserMode.value == null
+            }
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+            val startProfile by sessionViewModel.lastUserMode.collectAsState()
+            startProfile?.let { profileMode ->
+                val startDestination = when (profileMode) {
+                    ProfileMode.LoggedIn.Store -> NavGraph.SELLER_MAIN.route
+                    ProfileMode.LoggedIn.Customer -> NavGraph.USER_MAIN.route
+                    ProfileMode.LoggedOut -> NavGraph.AUTH.route
+                }
+
+                LimpOnAppNavigation(startDestination)
+            }
+
+
             ProdutosDeLimpezaTheme {
-                enableEdgeToEdge()
-                // Obtenha a Activity e a cor desejada (Branco para o fundo)
                 val activity = LocalActivity.current as ComponentActivity
                 val statusBarColor = Color.Transparent.toArgb() // Fundo da Status Bar BRANCO
 
-                // Configuração para forçar os itens (ícones e texto) a serem pretos
                 DisposableEffect(Unit) {
 
-                    // 1. Define o estilo da Status Bar
                     val statusBarStyle = SystemBarStyle.light(
                         scrim = statusBarColor, // Define o fundo da Status Bar como BRANCO
                         darkScrim = statusBarColor
@@ -68,7 +94,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-                LimpOnAppNavigation()
             }
         }
     }

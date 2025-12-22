@@ -63,14 +63,12 @@ import com.example.produtosdelimpeza.compose.user.search.SearchScreen
 import com.example.produtosdelimpeza.compose.user.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.user.catalog.profile.SellerProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
-import com.example.produtosdelimpeza.compose.auth.splash.SplashScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
-import com.example.produtosdelimpeza.navigation.route.SplashRoute
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
@@ -126,13 +124,11 @@ private val bottomNavigationStoreItems = listOf(
 
 @Composable
 fun LimpOnAppNavigation(
+    startDestination: String,
     cartViewModel: CartViewModel = hiltViewModel(),
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-    val layout by navigationLastUserModeViewModel.layout.collectAsState()
-    Log.d("Limp Layout", "LimpOnAppNavigation layout: $layout")
-
     DeepLinkObserver(
         onEmailVerified = {
             navController.navigate(NavGraph.USER_MAIN.route)
@@ -143,13 +139,13 @@ fun LimpOnAppNavigation(
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
-            if (layout == ProfileMode.CUSTOMER) {
+            if (startDestination == NavGraph.USER_MAIN.route) {
                 CustomerBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
                 )
             }
-            if (layout == ProfileMode.STORE) {
+            if (startDestination == NavGraph.SELLER_MAIN.route) {
                 StoreBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
@@ -159,32 +155,15 @@ fun LimpOnAppNavigation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = SplashRoute.SPLASH_GRAPH.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
-            splashGraph(navController)
             authGraph(navController, navigationLastUserModeViewModel)
             userMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
             storeMainGraph(navController, navigationLastUserModeViewModel)
         }
     }
 
-}
-
-
-fun NavGraphBuilder.splashGraph(navController: NavController) {
-    navigation(
-        route = SplashRoute.SPLASH_GRAPH.route,
-        startDestination = SplashRoute.SPLASH.route
-    ) {
-        composable(route = SplashRoute.SPLASH.route) {
-            SplashScreen(
-                onChoiceUserAuth = { route ->
-                    navController.navigate( route )
-                }
-            )
-        }
-    }
 }
 
 
@@ -196,9 +175,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
                 navigationLastUserModeViewModel,
-                onNavigateToCustomer = {
+                /*onNavigateToCustomer = {
                     navController.navigate(NavGraph.USER_MAIN.route)
-                }
+                }*/
             )
         }
         composable(route = StoreScreen.STORE_PROFILE.route) {
@@ -225,7 +204,7 @@ fun NavGraphBuilder.authGraph(navController: NavController, navigationLastUserMo
         composable(route = AuthScreen.INITIAL.route) {
             InitialScreen(
                 onChoiceClick = { navController.navigate(AuthScreen.LOGIN.route) },
-                appLayoutViewModel = navigationLastUserModeViewModel
+               //appLayoutViewModel = navigationLastUserModeViewModel
             )
         }
 
@@ -296,7 +275,6 @@ fun NavGraphBuilder.homeGraph(
             HomeScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
-                appLayoutViewModel = appLayoutViewModel,
                 onCardSellerClick = { nameSeller ->
                     navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$nameSeller")
                 },
@@ -400,7 +378,7 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = { profile ->
-                    if (profile == ProfileMode.STORE) {
+                    if (profile == StoreScreen.DASHBOARD.route) {
                         navController.navigate(NavGraph.SELLER_MAIN.route) {
                             popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                             launchSingleTop = true

@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.compose.user.initial
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,17 +29,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.ui.theme.LightDarkBlue
-import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
-import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 
 
@@ -48,17 +42,12 @@ import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 fun InitialScreen(
     onChoiceClick: () -> Unit = {},
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
-    appLayoutViewModel: NavigationLastUserModeViewModel,
 ) {
     val verticalScrollState = rememberScrollState()
 
 
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(profileMode = ProfileMode.NONE.mode)
-    }
-    LaunchedEffect(Unit) {
-        appLayoutViewModel.setLayout(ProfileMode.NONE)
-
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
     }
 
 

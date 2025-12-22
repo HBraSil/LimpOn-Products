@@ -1,12 +1,16 @@
 package com.example.produtosdelimpeza.commons
 
+sealed class ProfileMode {
+    object LoggedOut : ProfileMode()
 
-enum class ProfileMode(val mode: String) {
-    CUSTOMER("customer"),
-    STORE("store"),
-    NONE("none")
+    sealed class LoggedIn : ProfileMode() {
+        object Customer : LoggedIn()
+        object Store : LoggedIn()
+    }
 }
-// Sua data class refatorada
-data class LastUserMode(
-    val currentMode: String? = null
-)
+
+enum class ProfileModeKey {
+    LOGGED_OUT,
+    CUSTOMER,
+    STORE
+}

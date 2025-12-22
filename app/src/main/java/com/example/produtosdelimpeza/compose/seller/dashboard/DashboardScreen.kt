@@ -82,6 +82,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import com.example.produtosdelimpeza.commons.ProfileMode
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,16 +99,10 @@ private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 @Composable
 fun DashboardScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
-    onCreateProduct: () -> Unit = {},
-    onOpenOrders: () -> Unit = {},
-    onOpenProfile: () -> Unit = {},
-    onNavigateToCustomer: () -> Unit = {},
+    onCreateProduct: () -> Unit = {}
 ) {
-    // nav selection state for bottom bar
-
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.STORE.mode)
-        navigationLastUserModeViewModel.setLayout(ProfileMode.STORE)
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
     }
 
     // scaffold with top app bar (visual icon instead of text)

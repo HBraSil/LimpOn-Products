@@ -89,6 +89,9 @@ import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.model.Product
+import com.example.produtosdelimpeza.navigation.route.CustomerScreen
+import com.example.produtosdelimpeza.navigation.route.NavGraph
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
@@ -167,7 +170,6 @@ private val sampleProducts = listOf(
 fun HomeScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
-    appLayoutViewModel: NavigationLastUserModeViewModel,
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
     onSeeAllClick: () -> Unit = {}
@@ -179,11 +181,7 @@ fun HomeScreen(
     var shortcutSelected by remember { mutableStateOf("1") }
 
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(profileMode = ProfileMode.CUSTOMER.mode)
-    }
-    LaunchedEffect(Unit) {
-        appLayoutViewModel.setLayout(ProfileMode.CUSTOMER)
-
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Customer)
     }
 
 

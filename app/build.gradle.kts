@@ -78,13 +78,13 @@ dependencies {
     // ICON LIBRARY
     implementation(libs.androidx.material.icons)
 
-    //NAVIGATION
+    // NAVIGATION
     implementation(libs.androidx.navigation)
 
-    //Local Storage
+    // Local Storage
     implementation(libs.datastore.preferences)
 
-    //ROOM
+    // ROOM
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     annotationProcessor(libs.room.compiler)
@@ -93,7 +93,7 @@ dependencies {
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)
 
-    //FIREBASE
+    // FIREBASE
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.google.firebase.auth)
@@ -102,10 +102,13 @@ dependencies {
     debugImplementation(libs.firebase.appcheck.debug)
     implementation(libs.play.services.auth)
 
-    //GSON
+    // GSON
     implementation(libs.gson)
 
-    //HILT
+    // HILT
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation)
+
+    // SPLASH SCREEN
+    implementation(libs.androidx.core.splashscreen)
 }

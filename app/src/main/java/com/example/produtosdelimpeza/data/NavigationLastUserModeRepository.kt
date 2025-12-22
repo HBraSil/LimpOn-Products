@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.produtosdelimpeza.commons.ProfileMode
+import com.example.produtosdelimpeza.commons.ProfileModeKey
+import com.example.produtosdelimpeza.utils.toProfileModeKey
+import com.example.produtosdelimpeza.utils.toProfileMode
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,12 +22,18 @@ class NavigationLastUserModeRepository @Inject constructor(@ApplicationContext p
     }
 
     val lastActiveProfile = navigationDataStore.data.map { preferences ->
-            preferences[LAST_ACTIVE_PROFILE] ?: ProfileMode.CUSTOMER.mode
+        val storedValue = preferences[LAST_ACTIVE_PROFILE]
+
+        if (storedValue != null) {
+            ProfileModeKey.valueOf(storedValue).toProfileMode()
+        } else {
+            null
+        }
     }
 
-    suspend fun saveLastUserMode(profileMode: String) {
+    suspend fun saveLastUserMode(profileMode: ProfileMode) {
         navigationDataStore.edit {
-            it[LAST_ACTIVE_PROFILE] = profileMode
+            it[LAST_ACTIVE_PROFILE] = profileMode.toProfileModeKey().name
         }
     }
 }

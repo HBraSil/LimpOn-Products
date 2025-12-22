@@ -35,6 +35,8 @@ import com.example.produtosdelimpeza.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.commons.ProfileMode
+import com.example.produtosdelimpeza.navigation.route.CustomerScreen
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.viewmodels.ProfileScreenViewModel
 
@@ -55,9 +57,8 @@ fun ProfileScreen(
     onClickHelpScreen: () -> Unit = {},
     onCLickOrderScreen: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    onSwitchProfileClick: (ProfileMode) -> Unit = {},
+    onSwitchProfileClick: (String) -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
-    navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()
 ) {
     // Usando Scaffold para a estrutura básica da tela, incluindo a barra de navegação inferior
     Scaffold(
@@ -193,10 +194,10 @@ fun ProfileScreen(
 fun AccountFooterSection(
     profileViewModel: ProfileScreenViewModel,
     onSignOutClick: () -> Unit = {},
-    onSwitchProfileClick: (ProfileMode) -> Unit = {}
+    onSwitchProfileClick: (String) -> Unit = {}
 ) {
 
-    val profiles = mapOf(ProfileMode.CUSTOMER to "Hilquias", ProfileMode.STORE to "Doceria")
+    val profiles = mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.DASHBOARD.route to "Doceria")
     var isSheetOpen by remember { mutableStateOf(false) }
     var signOutClickAlertDialog by remember { mutableStateOf(false) }
 
