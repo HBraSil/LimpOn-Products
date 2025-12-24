@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-19T20:48:01.809957100Z">
+        <DropdownSelection timestamp="2025-12-24T11:34:29.377822500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=0077004562" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Windows\.android\avd\Pixel_4a.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -28,6 +28,12 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="OrdersListScreenPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="ShowPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="Pre">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

@@ -22,13 +22,9 @@ class NavigationLastUserModeRepository @Inject constructor(@ApplicationContext p
     }
 
     val lastActiveProfile = navigationDataStore.data.map { preferences ->
-        val storedValue = preferences[LAST_ACTIVE_PROFILE]
+        val storedValue = preferences[LAST_ACTIVE_PROFILE] ?: ProfileModeKey.LOGGED_OUT.name
 
-        if (storedValue != null) {
-            ProfileModeKey.valueOf(storedValue).toProfileMode()
-        } else {
-            null
-        }
+        ProfileModeKey.valueOf(storedValue).toProfileMode()
     }
 
     suspend fun saveLastUserMode(profileMode: ProfileMode) {

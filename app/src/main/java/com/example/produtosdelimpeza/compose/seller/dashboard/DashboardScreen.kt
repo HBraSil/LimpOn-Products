@@ -138,7 +138,6 @@ fun DashboardScreen(
                     itemsActive = 24,
                     avgResponseTime = "8m",
                     recentFeedbackCount = 7,
-                    conversionRate = 12.6f,
                     onClick = {  }
                 )
             }
@@ -152,9 +151,6 @@ fun DashboardScreen(
                 )
             }
 
-            item {
-                // Secondary actions / quick insights
-            }
 
             item {
                 Spacer(Modifier.height(16.dp))
@@ -223,133 +219,81 @@ fun StoreProfileCardAdvanced(
     itemsActive: Int,
     avgResponseTime: String,
     recentFeedbackCount: Int,
-    conversionRate: Float,
     onClick: () -> Unit
 ) {
-    // controls the expanded details area
-    var expanded by remember { mutableStateOf(false) }
-    val elevation by animateDpAsState(targetValue = if (expanded) 10.dp else 4.dp)
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+
+            .padding(10.dp)
+            .background(
+                color = MaterialTheme.colorScheme.background
+            )
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(elevation)
+
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // avatar or placeholder
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (avatarRes != null) {
-                        Image(painter = painterResource(id = avatarRes), contentDescription = null, contentScale = ContentScale.Crop)
-                    } else {
-                        Icon(
-                            Icons.Default.Store,
-                            contentDescription = "Loja",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(storeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        // status chip
-                        AssistChip(
-                            onClick = { /* toggle online? */ },
-                            label = { Text(if (isOnline) "Online" else "Offline", fontSize = 12.sp) },
-                            leadingIcon = {
-                                Icon(Icons.Default.Circle, contentDescription = null, modifier = Modifier.size(12.dp))
-                            },
-                            colors = AssistChipDefaults.assistChipColors(containerColor = if (isOnline) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // micro metrics inline
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        TinyMetric(label = "Itens", value = "$itemsActive")
-                        TinyMetric(label = "Resposta", value = avgResponseTime)
-                    }
-                }
-
-                // chevron to indicate expand/collapse (animated)
-                IconButton(onClick = { expanded = !expanded }) {
-                    AnimatedContent(targetState = expanded) { expandedState ->
-                        if (expandedState) {
-                            Icon(Icons.Default.ExpandLess, contentDescription = "Fechar")
-                        } else {
-                            Icon(Icons.Default.ExpandMore, contentDescription = "Abrir")
-                        }
-                    }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // avatar or placeholder
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (avatarRes != null) {
+                    Image(painter = painterResource(id = avatarRes), contentDescription = null, contentScale = ContentScale.Crop)
+                } else {
+                    Icon(
+                        Icons.Default.Store,
+                        contentDescription = "Loja",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            // sparkline mock + conversion pill
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                // mini sparkline placeholder (replace by chart lib later)
-                SparklineMock(modifier = Modifier.weight(1f))
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("${"%.1f".format(conversionRate)}% conversão", style = MaterialTheme.typography.labelSmall)
-                    Text("+${recentFeedbackCount} feedbacks", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(storeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    // status chip
+                    AssistChip(
+                        onClick = { /* toggle online? */ },
+                        label = { Text(if (isOnline) "Online" else "Offline", fontSize = 12.sp) },
+                        leadingIcon = {
+                            Icon(Icons.Default.Circle, contentDescription = null, modifier = Modifier.size(12.dp))
+                        },
+                        colors = AssistChipDefaults.assistChipColors(containerColor = if (isOnline) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
+                    )
                 }
-            }
 
-            // expanded details (AnimatedVisibility)
-            AnimatedVisibility(visible = expanded, enter = expandVertically(animationSpec = tween(220)) + fadeIn(), exit = shrinkVertically() + fadeOut()) {
-                Column(modifier = Modifier.padding(top = 12.dp)) {
-                    // Controls quick actions
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SmallActionButton(icon = Icons.Default.Edit, label = "Editar Loja", onClick = { /* edit */ })
-                        SmallActionButton(icon = Icons.Default.Place, label = "Raio Entrega", onClick = { /* edit radius */ })
-                        SmallActionButton(icon = Icons.Default.Schedule, label = "Horário", onClick = { /* edit hours */ })
-                    }
+                Spacer(modifier = Modifier.height(6.dp))
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // quick toggles
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = true, onClick = {}, label = { Text("Aceita Retirada") })
-                        FilterChip(selected = false, onClick = {}, label = { Text("Delivery 24h") })
-                    }
+                // micro metrics inline
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TinyMetric(label = "Itens", value = "$itemsActive")
+                    TinyMetric(label = "Resposta", value = avgResponseTime)
                 }
             }
         }
-    }
-}
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-@Composable
-fun SparklineMock(modifier: Modifier = Modifier) {
-    // Very simple visual placeholder for a sparkline (use chart library later)
-    Box(modifier = modifier.height(36.dp)) {
-        // just an abstract representation
-        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            listOf(6, 10, 8, 18, 12, 16, 9).forEach { h ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height((h).dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
-                )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+            Text("+${recentFeedbackCount} novos feedbacks", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = true, onClick = {}, label = { Text("Aceita Retirada") })
+                FilterChip(selected = false, onClick = {}, label = { Text("Delivery 24h") })
             }
         }
     }
+
 }
+
 
 @Composable
 fun SmallActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
@@ -381,9 +325,11 @@ fun TinyMetric(label: String, value: String) {
 @Composable
 fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>) {
     // responsive: side-by-side on wide screens, stacked on narrow
-    BoxWithConstraints(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp)) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
         val wide = this.maxWidth > 600.dp
         val spacing = 12.dp
 
@@ -420,7 +366,6 @@ fun OrderFilterChips() {
 
 @Composable
 fun RevenueCard(revenue: Double, spark: List<Int>, modifier: Modifier = Modifier) {
-
     Column {
         SalesSummaryCardInteractive(
             itemsSoldToday = 34,
@@ -629,31 +574,38 @@ fun SalesSummaryCardInteractive(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
-        Column(modifier = Modifier.weight(0.45f)) {
+        Column(
+            modifier = Modifier
+                .weight(0.45f)
+                .background(
+                    color =  MaterialTheme.colorScheme.background.copy(0.6f)
+            )
+        ) {
             Row(
                 Modifier.padding(10.dp)
             ) {
                 Text(
                     "Vendas hoje",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "$animatedItems itens",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSecondary.copy(blue = 1f)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     "Faturamento",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = currencyFormatter.format(animatedRevenue.toDouble()),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSecondary.copy(blue = 1f)
                 )
             }
             HorizontalDivider()
@@ -675,7 +627,8 @@ fun SalesSummaryCardInteractive(
                     // TÍTULO ISOLADO E FIXO NO TOPO
                     Text(
                         "Vendas - Últimos 7 dias",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.background
                     )
                     Text(
                         text = "Toque no gráfico para ver valores por dia",
@@ -704,8 +657,8 @@ fun BarChart7Days(
     days: List<DaySales>,
     barSpacingDp: Float = 4f,
     barCornerRadiusDp: Float = 4f,
-    barGradientTop: Color = MaterialTheme.colorScheme.primary,
-    barGradientBottom: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+    barGradientTop: Color = MaterialTheme.colorScheme.surfaceVariant,
+    barGradientBottom: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
     tooltipBackground: Color = MaterialTheme.colorScheme.surface,
     tooltipTextColor: Color = MaterialTheme.colorScheme.onSurface,
     onDaySelected: (DaySales) -> Unit = {}

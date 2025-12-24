@@ -182,9 +182,17 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
         composable(route = StoreScreen.STORE_PROFILE.route) {
             StoreProfileScreen(
-                onOpenProfile = {
-                    navController.navigate(NavGraph.USER_MAIN.route) {
-                        popUpTo(NavGraph.SELLER_MAIN.route) { inclusive = true }
+                onOpenProfile = {screen ->
+                    if (screen == StoreScreen.DASHBOARD.route) {
+                        navController.navigate(NavGraph.SELLER_MAIN.route) {
+                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.navigate(NavGraph.USER_MAIN.route) {
+                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
             )
@@ -442,7 +450,7 @@ fun CustomerBottomNavigation(
     navController: NavHostController,
     currentRoute: String?
 ) {
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(0.5f)) {
         bottomNavigationCustomerItems.forEach { item ->
             NavigationBarItem(
                 //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
@@ -484,7 +492,7 @@ fun StoreBottomNavigation(
     navController: NavHostController,
     currentRoute: String?
 ) {
-    NavigationBar {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(0.5f)) {
         bottomNavigationStoreItems.forEach { item ->
             NavigationBarItem(
                 //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),

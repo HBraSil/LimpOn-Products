@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+
+
+            ProdutosDeLimpezaTheme {
             val startProfile by sessionViewModel.lastUserMode.collectAsState()
             startProfile?.let { profileMode ->
                 val startDestination = when (profileMode) {
@@ -57,9 +60,6 @@ class MainActivity : ComponentActivity() {
 
                 LimpOnAppNavigation(startDestination)
             }
-
-
-            ProdutosDeLimpezaTheme {
                 val activity = LocalActivity.current as ComponentActivity
                 val statusBarColor = Color.Transparent.toArgb() // Fundo da Status Bar BRANCO
 
@@ -68,8 +68,6 @@ class MainActivity : ComponentActivity() {
                     val statusBarStyle = SystemBarStyle.light(
                         scrim = statusBarColor, // Define o fundo da Status Bar como BRANCO
                         darkScrim = statusBarColor
-                        // Não precisamos definir darkContent, pois SystemBarStyle.light()
-                        // já define que os ícones devem ser ESCUROS por padrão.
                     )
 
                     // 2. Aplica o novo estilo

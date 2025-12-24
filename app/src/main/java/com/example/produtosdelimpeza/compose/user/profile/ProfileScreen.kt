@@ -34,10 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.produtosdelimpeza.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.viewmodels.ProfileScreenViewModel
 
 // Definição de cores personalizadas para o tema (minimalista)
@@ -74,29 +72,19 @@ fun ProfileScreen(
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()) // Torna o conteúdo scrollável
         ) {
-            // Adiciona um espaçamento superior para telas sem TopAppBar
             Spacer(modifier = Modifier.height(16.dp))
-
-            // 1. Cabeçalho
             HeaderSection(
                 userName = "Hilquias Brasil",
                 userInitials = "HB",
                 onClickEditUserProfile = onClickEditUserProfileScreen
             )
-
             Spacer(modifier = Modifier.height(24.dp))
-
-            // 2. Ações Rápidas (Cards)
             QuickActionsSection(
                 onClickNotificationsScreen = onClickNotificationsScreen,
                 onClickHelpScreen = onClickHelpScreen,
                 onClickPaymentMethods = onClickPaymentMethodsScreen,
             )
-
             Spacer(modifier = Modifier.height(32.dp))
-
-            // 3. Seções Informativas (Listas)
-            // Seção 1: Benefícios/Créditos
             InfoSection(title = "Benefícios") {
                 InfoItem(
                     icon = Icons.Default.Star,
@@ -118,7 +106,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Seção 2: Minha Conta
             InfoSection(title = "Minha Conta") {
                 InfoItem(
                     icon = Icons.Default.LocationOn,
@@ -234,7 +221,7 @@ fun AccountFooterSection(
                     },
                     modifier = Modifier
                         .clickable {
-                            onSwitchProfileClick(profile.key)
+                            if (profile.key != CustomerScreen.CUSTOMER_HOME.route) onSwitchProfileClick(profile.key) // DEPOIS TEREI Q MUDAR ESSA LÓGICA
                             isSheetOpen = false
                         }
                         .padding(horizontal = 8.dp)
