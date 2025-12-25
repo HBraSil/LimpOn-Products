@@ -116,8 +116,8 @@ fun DashboardScreen(
                 onClick = onCreateProduct,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
                 text = { Text("Criar produto") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.background
             )
         },
     ) { paddingValues ->
@@ -134,7 +134,6 @@ fun DashboardScreen(
                 StoreProfileCardAdvanced(
                     storeName = "Pastelaria do Zé",
                     avatarRes = null, // could be painterResource
-                    isOnline = true,
                     itemsActive = 24,
                     avgResponseTime = "8m",
                     recentFeedbackCount = 7,
@@ -173,6 +172,7 @@ fun DashboardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumTopBar() {
+    val isOnline = true
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             Color.White
@@ -191,13 +191,26 @@ fun PremiumTopBar() {
                     Icon(Icons.Default.LocalCafe, contentDescription = "Brand", tint = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                // subtle contextual chip (today)
-                AssistChip(onClick = { /* calendar or date picker */ }, label = { Text("Hoje") })
+                AssistChip(
+                    onClick = { /* toggle online? */ },
+                    label = { Text(if (isOnline) "Online" else "Offline", fontSize = 12.sp) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Circle,
+                            contentDescription = null,
+                            tint = Color.Green,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = if (isOnline) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
+                )
             }
         },
         actions = {
-            IconButton(onClick = { /* search */ }) { Icon(Icons.Default.Search, contentDescription = "Buscar") }
-            BadgedBox(badge = { Badge { Text("3") } }) {
+            BadgedBox(
+                badge = { Badge { Text("3") } },
+                modifier = Modifier.padding(end = 10.dp)
+            ) {
                 IconButton(onClick = { /* notifications */ }) { Icon(Icons.Default.Notifications, contentDescription = "Notificações") }
             }
         }
@@ -205,17 +218,11 @@ fun PremiumTopBar() {
 }
 
 
-@Composable
-fun PremiumHomeContent(listState: LazyListState) {
-
-}
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun StoreProfileCardAdvanced(
     storeName: String,
     avatarRes: Int? = null,
-    isOnline: Boolean,
     itemsActive: Int,
     avgResponseTime: String,
     recentFeedbackCount: Int,
@@ -257,23 +264,8 @@ fun StoreProfileCardAdvanced(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(storeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // status chip
-                    AssistChip(
-                        onClick = { /* toggle online? */ },
-                        label = { Text(if (isOnline) "Online" else "Offline", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.Circle, contentDescription = null, modifier = Modifier.size(12.dp))
-                        },
-                        colors = AssistChipDefaults.assistChipColors(containerColor = if (isOnline) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
-                    )
-                }
-
+                Text(storeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-
-                // micro metrics inline
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     TinyMetric(label = "Itens", value = "$itemsActive")
                     TinyMetric(label = "Resposta", value = avgResponseTime)
@@ -578,7 +570,7 @@ fun SalesSummaryCardInteractive(
             modifier = Modifier
                 .weight(0.45f)
                 .background(
-                    color =  MaterialTheme.colorScheme.background.copy(0.6f)
+                    color =  MaterialTheme.colorScheme.background.copy(0.4f)
             )
         ) {
             Row(
@@ -593,7 +585,7 @@ fun SalesSummaryCardInteractive(
                 Text(
                     text = "$animatedItems itens",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSecondary.copy(blue = 1f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.3f)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -628,7 +620,7 @@ fun SalesSummaryCardInteractive(
                     Text(
                         "Vendas - Últimos 7 dias",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "Toque no gráfico para ver valores por dia",

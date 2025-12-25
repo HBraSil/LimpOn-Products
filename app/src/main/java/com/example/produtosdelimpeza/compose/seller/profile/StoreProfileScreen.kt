@@ -42,8 +42,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -55,46 +53,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.zIndex
-import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
-import androidx.compose.animation.*
 import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.automirrored.outlined.Help
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.animation.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
@@ -105,43 +68,12 @@ fun StoreProfileScreen(onOpenProfile: (String) -> Unit) {
     val scrollState = rememberScrollState()
 
     Scaffold(
-        topBar = {
-            // TopBar que reage ao scroll (opcionalmente pode mudar a cor do container)
-            CenterAlignedTopAppBar(
-                title = { Text("Perfil da Loja", style = MaterialTheme.typography.titleLarge) },
-                actions = {
-                    Row(
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colorScheme.background,
-                                RoundedCornerShape(12.dp)
-                            )
-                            .padding(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = "",
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.Green.copy(0.5f)
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = "Aberto agora",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = if (scrollState.value > 100) 1f else 0f)
-                )
-            )
-        }
+
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
                 .verticalScroll(scrollState)
                 .padding(padding)
         ) {
@@ -283,8 +215,9 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
                     },
                     modifier = Modifier
                         .clickable {
-                            if (profile.key != StoreScreen.DASHBOARD.route)
-                            onSwitchProfileClick(profile.key)
+                            if (profile.key != StoreScreen.DASHBOARD.route) {
+                                onSwitchProfileClick(profile.key)
+                            }
                             isSheetOpen = false
                         }
                         .padding(horizontal = 8.dp)
