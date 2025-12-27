@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
+fun StoreProfileScreen(onBackNavigation: () -> Unit = {}) {
 
     val tabItems = listOf(
         "Informações",
@@ -74,7 +74,7 @@ fun SellerProfileScreen(onNavigateUpClick: () -> Unit = {}) {
             selectedTabIndex = pagerState.targetPage
         }
 
-        CustomHeader(onBackClick = onNavigateUpClick, onShareClick = {}, onFavoriteClick = {})
+        CustomHeader(onBackClick = onBackNavigation, onShareClick = {}, onFavoriteClick = {})
 
         Text(
             text = "RA Produtos de Limpeza",
@@ -308,6 +308,6 @@ fun RatingBarStars(
 
 @Preview
 @Composable
-private fun SellerProfileScreenPreview() {
-    SellerProfileScreen()
+private fun StoreProfileScreenPreview() {
+    StoreProfileScreen()
 }

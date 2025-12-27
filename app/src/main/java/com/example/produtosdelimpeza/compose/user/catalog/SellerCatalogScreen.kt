@@ -105,10 +105,10 @@ import com.example.produtosdelimpeza.viewmodels.CartViewModel
 @Composable
 fun SellerProductsScreen(
     cartViewModel: CartViewModel,
-    nameSeller: String = "",
+    storeName: String = "",
     onBackNavigation: () -> Unit = {},
-    onClickCardSellerProfile: () -> Unit = {},
-    onClickCartScreen: () -> Unit = {},
+    onCardStoreProfileClick: () -> Unit = {},
+    onCartScreenClick: () -> Unit = {},
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
@@ -126,7 +126,7 @@ fun SellerProductsScreen(
                 items = totalQuantity,
                 total = totalPrice,
                 onOpenCart = {
-                    onClickCartScreen()
+                    onCartScreenClick()
                 }
             )
         },
@@ -160,7 +160,7 @@ fun SellerProductsScreen(
         ) {
             // Header principal
             item {
-                InformationCard(nameSeller, onClickCardSellerProfile, onBackNavigation)
+                InformationCard(storeName, onCardStoreProfileClick, onBackNavigation)
             }
 
             // FAVORITOS

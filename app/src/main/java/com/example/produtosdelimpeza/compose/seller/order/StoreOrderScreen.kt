@@ -43,10 +43,12 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -150,9 +152,7 @@ fun SearchBarAnimated(
     onCancel: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
@@ -166,8 +166,8 @@ fun SearchBarAnimated(
             shape = RoundedCornerShape(12.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                focusedContainerColor = MaterialTheme.colorScheme.surface
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                focusedContainerColor = MaterialTheme.colorScheme.background
             )
         )
 
@@ -190,12 +190,13 @@ fun SearchBarAnimated(
 
 @Composable
 fun FilterRow(selectedFilter: OrderStatus, onFilterSelected: (OrderStatus) -> Unit) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(bottom = 8.dp)
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 10.dp, vertical = 10.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        items(OrderStatus.entries.toTypedArray()) { status ->
+        OrderStatus.entries.forEach { status ->
             FilterChip(
                 selected = selectedFilter == status,
                 onClick = { onFilterSelected(status) },

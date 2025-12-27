@@ -280,7 +280,7 @@ fun AddressCard(
 ) {
     // 🎨 ANIMAÇÃO DE COR/ALPHA
     val targetContainerColor = if (isSelected) {
-        MaterialTheme.colorScheme.surfaceContainer // Cor mais clara/viva (selecionado)
+        MaterialTheme.colorScheme.background // Cor mais clara/viva (selecionado)
     } else {
         MaterialTheme.colorScheme.surface // Cor de fundo suave (não selecionado)
     }

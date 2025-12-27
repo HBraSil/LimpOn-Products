@@ -33,7 +33,7 @@ import com.example.produtosdelimpeza.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(modifier: Modifier = Modifier, onNavigateUpClick: () -> Unit) {
+fun AboutScreen(modifier: Modifier = Modifier, onBackNavigation: () -> Unit) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -44,7 +44,7 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigateUpClick: () -> Unit) {
                     ),
                     title = {
                         IconButton(
-                            onClick = onNavigateUpClick
+                            onClick = onBackNavigation
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.ArrowBackIosNew,
@@ -104,5 +104,5 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigateUpClick: () -> Unit) {
 @Preview
 @Composable
 private fun AboutScreenPreview() {
-    AboutScreen(onNavigateUpClick = {})
+    AboutScreen(onBackNavigation = {})
 }

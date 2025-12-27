@@ -24,7 +24,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -42,7 +41,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
-import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.navigation.route.NavGraph
 import com.example.produtosdelimpeza.compose.user.order.OrderListScreen
 import com.example.produtosdelimpeza.compose.user.order.OrderDetailsScreen
@@ -52,7 +50,7 @@ import com.example.produtosdelimpeza.compose.user.highlights.HighlightsScreen
 import com.example.produtosdelimpeza.compose.user.home.HomeScreen
 import com.example.produtosdelimpeza.compose.user.initial.InitialScreen
 import com.example.produtosdelimpeza.compose.auth.login.LoginScreen
-import com.example.produtosdelimpeza.compose.user.notifications.NotificationScreen
+import com.example.produtosdelimpeza.compose.user.notifications.ManagementNotificationScreen
 import com.example.produtosdelimpeza.compose.user.profile.ProfileScreen
 import com.example.produtosdelimpeza.compose.user.profile.address.AddressesScreen
 import com.example.produtosdelimpeza.compose.user.profile.coupons.CouponsScreen
@@ -61,11 +59,12 @@ import com.example.produtosdelimpeza.compose.user.profile.help.HelpScreen
 import com.example.produtosdelimpeza.compose.user.profile.payment_methods.PaymentMethodsScreen
 import com.example.produtosdelimpeza.compose.user.search.SearchScreen
 import com.example.produtosdelimpeza.compose.user.catalog.SellerProductsScreen
-import com.example.produtosdelimpeza.compose.user.catalog.profile.SellerProfileScreen
+import com.example.produtosdelimpeza.compose.user.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
+import com.example.produtosdelimpeza.compose.user.home.NotificationsScreen
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
@@ -182,7 +181,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
         composable(route = StoreScreen.STORE_PROFILE.route) {
             StoreProfileScreen(
-                onOpenProfile = {screen ->
+                onNavigateToOtherUser = { screen ->
                     if (screen == StoreScreen.DASHBOARD.route) {
                         navController.navigate(NavGraph.SELLER_MAIN.route) {
                             popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
@@ -211,7 +210,7 @@ fun NavGraphBuilder.authGraph(navController: NavController, navigationLastUserMo
     ) {
         composable(route = AuthScreen.INITIAL.route) {
             InitialScreen(
-                onChoiceClick = { navController.navigate(AuthScreen.LOGIN.route) },
+                onStartClick = { navController.navigate(AuthScreen.LOGIN.route) },
                //appLayoutViewModel = navigationLastUserModeViewModel
             )
         }
@@ -281,13 +280,16 @@ fun NavGraphBuilder.homeGraph(
     ) {
         composable(route = CustomerScreen.CUSTOMER_HOME.route) {
             HomeScreen(
-                navController = navController,
                 cartViewModel = cartViewModel,
+                navController = navController,
                 onCardSellerClick = { nameSeller ->
                     navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$nameSeller")
                 },
                 onSeeAllClick = {
                     navController.navigate(CustomerScreen.HIGHLIGHTS.route)
+                },
+                onNavigateToNotifications = {
+                    navController.navigate(CustomerScreen.NOTIFICATIONS.route)
                 }
             )
         }
@@ -297,26 +299,33 @@ fun NavGraphBuilder.homeGraph(
 
             SellerProductsScreen(
                 cartViewModel = cartViewModel,
-                nameSeller = nameSeller,
+                storeName = nameSeller,
                 onBackNavigation = {
                     navController.navigateUp()
                 },
-                onClickCardSellerProfile = {
+                onCardStoreProfileClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_STORE_PROFILE.route)
                 },
-                onClickCartScreen = {
+                onCartScreenClick = {
                     navController.navigate(CustomerScreen.CART.route)
-                },
-
-                )
+                }
+            )
         }
 
         composable(route = CustomerScreen.CUSTOMER_STORE_PROFILE.route) {
-            SellerProfileScreen()
+            StoreProfileScreen()
         }
 
         composable(route = CustomerScreen.HIGHLIGHTS.route) {
-            HighlightsScreen()
+            HighlightsScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(route = CustomerScreen.NOTIFICATIONS.route) {
+            NotificationsScreen()
         }
     }
 
@@ -347,7 +356,7 @@ private fun NavGraphBuilder.ordersGraph(navController: NavHostController) {
         }
         composable(route = CustomerScreen.CUSTOMER_ORDER_DETAIL.route) {
             OrderDetailsScreen(
-                onBack = { navController.navigateUp() },
+                onBackNavigation = { navController.navigateUp() },
             )
         }
     }
@@ -361,28 +370,28 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
     ){
         composable(route = CustomerScreen.CUSTOMER_PROFILE.route) {
             ProfileScreen(
-                onClickNotificationsScreen = {
-                    navController.navigate(CustomerScreen.NOTIFICATION.route)
+                onNotificationsScreenClick = {
+                    navController.navigate(CustomerScreen.MANAGEMENT_NOTIFICATION.route)
                 },
-                onClickEditUserProfileScreen = {
+                onEditUserProfileScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_EDIT_PROFILE.route)
                 },
-                onClickPaymentMethodsScreen = {
+                onPaymentMethodsScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_PAYMENT_METHODS.route)
                 },
-                onClickCouponsScreen = {
+                onCouponsScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_COUPON.route)
                 },
-                onClickMyAddressesScreen = {
+                onMyAddressesScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route)
                 },
-                onClickAboutScreen = {
+                onAboutScreenClick = {
                     navController.navigate(CustomerScreen.ABOUT.route)
                 },
-                onClickHelpScreen = {
+                onHelpScreenClick = {
                     navController.navigate(CustomerScreen.HELP.route)
                 },
-                onCLickOrderScreen = {
+                onOrderScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = { profile ->
@@ -422,21 +431,21 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
         composable(route = CustomerScreen.CUSTOMER_ADDRESS.route) {
             AddressesScreen()
         }
-        composable(route = CustomerScreen.NOTIFICATION.route) {
-            NotificationScreen(
-                onNavigateBack = { navController.navigateUp() }
+        composable(route = CustomerScreen.MANAGEMENT_NOTIFICATION.route) {
+            ManagementNotificationScreen(
+                onBackNavigation = { navController.navigateUp() }
             )
         }
 
         composable(route = CustomerScreen.HELP.route) {
             HelpScreen(
-                onBack = { navController.navigateUp() }
+                onBackNavigation = { navController.navigateUp() }
             )
         }
 
         composable(route = CustomerScreen.ABOUT.route) {
             AboutScreen(
-                onNavigateUpClick = { navController.navigateUp() }
+                onBackNavigation = { navController.navigateUp() }
             )
         }
     }

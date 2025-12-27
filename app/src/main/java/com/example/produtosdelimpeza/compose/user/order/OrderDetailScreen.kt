@@ -82,7 +82,7 @@ data class Order(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderDetailsScreen(
-    onBack: () -> Unit = {},
+    onBackNavigation: () -> Unit = {},
     onRepeat: (Order) -> Unit = {},
     onRate: (Order) -> Unit = {},
     onSupport: (Order) -> Unit = {},
@@ -125,7 +125,7 @@ fun OrderDetailsScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBack
+                        onClick = onBackNavigation
                     ) {
                         Icon(
                             Icons.AutoMirrored.Default.ArrowBack,

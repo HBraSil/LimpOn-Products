@@ -47,8 +47,6 @@ class MainActivity : ComponentActivity() {
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-
-
             ProdutosDeLimpezaTheme {
             val startProfile by sessionViewModel.lastUserMode.collectAsState()
             startProfile?.let { profileMode ->

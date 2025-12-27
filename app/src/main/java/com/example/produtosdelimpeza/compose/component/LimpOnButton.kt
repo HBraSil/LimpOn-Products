@@ -60,10 +60,3 @@ fun LimpOnButton(
         }
     }
 }
-
-
-@Preview
-@Composable
-fun NewButtonPreview() {
-    LimpOnButton(text = R.string.start, onClickNewBtn = {})
-}

@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.user.profile
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -46,14 +45,14 @@ val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 
 @Composable
 fun ProfileScreen(
-    onClickNotificationsScreen: () -> Unit = {},
-    onClickEditUserProfileScreen: () -> Unit = {},
-    onClickPaymentMethodsScreen: () -> Unit = {},
-    onClickCouponsScreen: () -> Unit = {},
-    onClickMyAddressesScreen: () -> Unit = {},
-    onClickAboutScreen: () -> Unit = {},
-    onClickHelpScreen: () -> Unit = {},
-    onCLickOrderScreen: () -> Unit = {},
+    onNotificationsScreenClick: () -> Unit = {},
+    onEditUserProfileScreenClick: () -> Unit = {},
+    onPaymentMethodsScreenClick: () -> Unit = {},
+    onCouponsScreenClick: () -> Unit = {},
+    onMyAddressesScreenClick: () -> Unit = {},
+    onAboutScreenClick: () -> Unit = {},
+    onHelpScreenClick: () -> Unit = {},
+    onOrderScreenClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
     onSwitchProfileClick: (String) -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
@@ -76,13 +75,13 @@ fun ProfileScreen(
             HeaderSection(
                 userName = "Hilquias Brasil",
                 userInitials = "HB",
-                onClickEditUserProfile = onClickEditUserProfileScreen
+                onClickEditUserProfile = onEditUserProfileScreenClick
             )
             Spacer(modifier = Modifier.height(24.dp))
             QuickActionsSection(
-                onClickNotificationsScreen = onClickNotificationsScreen,
-                onClickHelpScreen = onClickHelpScreen,
-                onClickPaymentMethods = onClickPaymentMethodsScreen,
+                onClickNotificationsScreen = onNotificationsScreenClick,
+                onClickHelpScreen = onHelpScreenClick,
+                onClickPaymentMethods = onPaymentMethodsScreenClick,
             )
             Spacer(modifier = Modifier.height(32.dp))
             InfoSection(title = "Benefícios") {
@@ -100,7 +99,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.Discount,
                     text = "Cupons",
-                    onClick = onClickCouponsScreen
+                    onClick = onCouponsScreenClick
                 )
             }
 
@@ -110,7 +109,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.LocationOn,
                     text = "Meus Endereços",
-                    onClick = onClickMyAddressesScreen
+                    onClick = onMyAddressesScreenClick
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -120,7 +119,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.CreditCard,
                     text = "Formas de Pagamento",
-                    onClick = onClickPaymentMethodsScreen
+                    onClick = onPaymentMethodsScreenClick
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -130,7 +129,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.History,
                     text = "Histórico de Pedidos",
-                    onClick = onCLickOrderScreen
+                    onClick = onOrderScreenClick
                 )
             }
 
@@ -141,7 +140,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.AutoMirrored.Filled.Help,
                     text = "Ajuda e FAQ",
-                    onClick = onClickHelpScreen
+                    onClick = onHelpScreenClick
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(start = 48.dp),
@@ -161,7 +160,7 @@ fun ProfileScreen(
                 InfoItem(
                     icon = Icons.Default.Policy,
                     text = stringResource(R.string.about),
-                    onClick = onClickAboutScreen
+                    onClick = onAboutScreenClick
                 )
             }
 

@@ -1,9 +1,9 @@
 package com.example.produtosdelimpeza.navigation.route
 
-
 enum class CustomerScreen(val route: String){
     ABOUT("about"),
-    NOTIFICATION("notification"),
+    MANAGEMENT_NOTIFICATION("management_notification"),
+    NOTIFICATIONS("notifications"),
     CUSTOMER_STORE_PROFILE("customer_store_profile"),
     CART("cart"),
     CUSTOMER_ORDER_DETAIL("customer_order_detail"),

@@ -65,4 +65,5 @@
     <string name="dashboard">dashboard</string>
     <string name="customer_profile">Perfil da loja</string>
     <string name="customer_order_detail">lista de pedidos</string>
+    <string name="save_changes">Salvar Alterações</string>
 </resources>

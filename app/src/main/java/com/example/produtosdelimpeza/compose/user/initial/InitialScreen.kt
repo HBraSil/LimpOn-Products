@@ -40,7 +40,7 @@ import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 
 @Composable
 fun InitialScreen(
-    onChoiceClick: () -> Unit = {},
+    onStartClick: () -> Unit = {},
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
 ) {
     val verticalScrollState = rememberScrollState()
@@ -106,7 +106,7 @@ fun InitialScreen(
                 )
 
                 Card(
-                    onClick = onChoiceClick,
+                    onClick = onStartClick,
                     modifier = Modifier
                         .navigationBarsPadding()
                         .height(70.dp)

@@ -89,9 +89,6 @@ import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
 import com.example.produtosdelimpeza.model.Product
-import com.example.produtosdelimpeza.navigation.route.CustomerScreen
-import com.example.produtosdelimpeza.navigation.route.NavGraph
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
 import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
@@ -172,7 +169,8 @@ fun HomeScreen(
     cartViewModel: CartViewModel = hiltViewModel(),
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
-    onSeeAllClick: () -> Unit = {}
+    onSeeAllClick: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
@@ -191,7 +189,7 @@ fun HomeScreen(
                 CartBottomBarScaffoldStyle(
                     items = totalQuantity,
                     total = totalPrice,
-                    onOpenCart = { navController.navigate("cart") }
+                    onNavigateToCart = { navController.navigate("cart") }
                 )
             }
         },
@@ -203,26 +201,12 @@ fun HomeScreen(
                     .padding(paddingValues),
             ) {
                 item {
-                    Box(
-                        modifier = Modifier
-                        //.padding(paddingValues) // Aplica o padding do Scaffold
-                    ) {
-
+                    Box {
                         Column(
                             modifier = Modifier
-                                // Aqui está a chave: Adicionamos um padding TOP DINÂMICO
-                                // Ele garante que o conteúdo da Column SEMPRE comece logo
-                                // abaixo da altura MINIMIZADA do CardDeLocalizacao.
                                 .padding(top = 100.dp)
                         ) {
-                            // Se o usuário puder rolar, use LazyColumn.
-
-                            // --- Banner de Ofertas ---
-                            BannerDeOfertas(
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            // Resto do conteúdo da tela abaixo do banner...
+                            BannerDeOfertas(modifier = Modifier.fillMaxWidth())
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
@@ -251,7 +235,8 @@ fun HomeScreen(
                                 )
                             ),
                             isExpanded = expandedCard,
-                            onSelectShortcut = { shortcutSelected = it }
+                            onSelectShortcut = { shortcutSelected = it },
+                            onNavigateToNotifications = onNavigateToNotifications
                         ) { expandedCard = !expandedCard } // Fixa no topo
 
                     }
@@ -403,6 +388,7 @@ fun CardDeLocalizacao(
     onEditAddress: (AddressItem?) -> Unit = {},
     onChangeAddress: () -> Unit = {},
     onSelectShortcut: (String) -> Unit = {},
+    onNavigateToNotifications: () -> Unit,
     onToggleExpand: () -> Unit,
 ) {
 
@@ -466,7 +452,7 @@ fun CardDeLocalizacao(
 
                 Spacer(Modifier.weight(1f))
 
-                IconButton(onClick = { /* perfil */ }) {
+                IconButton(onClick = onNavigateToNotifications) {
                     Box(
                         modifier = Modifier
                             .size(36.dp)
@@ -792,10 +778,7 @@ fun BannerDeOfertas(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            // Aqui você pode adicionar um pequeno paddingTop negativo
-            // se quiser uma leve sobreposição inicial
-            //.offset(y = (-16).dp)
-            .padding(top = 16.dp) // Exemplo: Adiciona um espaçamento para o banner
+            .padding(top = 16.dp)
     ) {
         SwipeableCardOne(
             modifier = Modifier.fillMaxWidth()
@@ -808,7 +791,7 @@ fun BannerDeOfertas(modifier: Modifier = Modifier) {
 fun CartBottomBarScaffoldStyle(
     items: Int,
     total: Double,
-    onOpenCart: () -> Unit,
+    onNavigateToCart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // anima entrada/saída vertical
@@ -851,7 +834,7 @@ fun CartBottomBarScaffoldStyle(
                 }
 
                 ElevatedButton(
-                    onClick = onOpenCart,
+                    onClick = onNavigateToCart,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.background

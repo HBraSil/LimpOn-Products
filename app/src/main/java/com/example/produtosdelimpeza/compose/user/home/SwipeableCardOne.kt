@@ -64,7 +64,7 @@ data class CardItem(val id: Long, val color: Color, val drawableResId: Int)
 @Preview
 @Composable
 fun SwipeableCardOne(modifier: Modifier = Modifier) {
-    var items = remember {
+    val items = remember {
         mutableStateListOf<CardItem>().apply {
             addAll(
                 listOf(

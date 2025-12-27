@@ -61,7 +61,7 @@ object FaqData {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpScreen(onBack: () -> Unit = {}) {
+fun HelpScreen(onBackNavigation: () -> Unit = {}) {
     // 1. Estados da Tela
     var searchTerm by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("Todos") }
@@ -85,7 +85,7 @@ fun HelpScreen(onBack: () -> Unit = {}) {
             TopAppBar(
                 title = { Text("Ajuda & Suporte", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBackNavigation) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Voltar")
                     }
                 },

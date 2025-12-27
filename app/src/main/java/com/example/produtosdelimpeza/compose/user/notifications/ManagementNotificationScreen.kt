@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.user.notifications
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +38,7 @@ import com.example.produtosdelimpeza.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationScreen(onNavigateBack: () -> Unit = {}) {
+fun ManagementNotificationScreen(onBackNavigation: () -> Unit = {}) {
     var checkedDefaultMode by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -52,7 +50,7 @@ fun NotificationScreen(onNavigateBack: () -> Unit = {}) {
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onNavigateBack
+                        onClick = onBackNavigation
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
@@ -178,6 +176,6 @@ fun NotificationScreen(onNavigateBack: () -> Unit = {}) {
 
 @Preview
 @Composable
-private fun NotificationScreenPreview() {
-    NotificationScreen()
+private fun ManagementNotificationScreenPreview() {
+    ManagementNotificationScreen()
 }

@@ -95,7 +95,7 @@ fun HighlightsScreen(
     //state: ScreenState<List<Product>>,
     onProductClick: (Int) -> Unit = {},
     onAddToCart: (Int) -> Unit = {},
-    onGoBack: () -> Unit = {},
+    onBackNavigation: () -> Unit = {},
     onRetry: () -> Unit = {}
 ) {
     val listProductMock: List<Product> = generateMockProducts(15)
@@ -106,7 +106,7 @@ fun HighlightsScreen(
             TopAppBar(
                 title = { Text("Destaques da Loja") },
                 navigationIcon = {
-                    IconButton(onClick = onGoBack) {
+                    IconButton(onClick = onBackNavigation) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar à tela anterior"

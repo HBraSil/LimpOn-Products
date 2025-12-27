@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.compose.seller.dashboard
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
@@ -54,9 +52,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -79,10 +75,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -172,48 +168,28 @@ fun DashboardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumTopBar() {
-    val isOnline = true
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            Color.White
-        ),
+        navigationIcon = {
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = "Dashboard",
+                style = MaterialTheme.typography.headlineMedium,
+            )
+        },
         title = {
-            // Visual title: brand icon + tiny sparkline
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // brand circular icon
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.LocalCafe, contentDescription = "Brand", tint = MaterialTheme.colorScheme.primary)
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                AssistChip(
-                    onClick = { /* toggle online? */ },
-                    label = { Text(if (isOnline) "Online" else "Offline", fontSize = 12.sp) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Circle,
-                            contentDescription = null,
-                            tint = Color.Green,
-                            modifier = Modifier.size(12.dp)
-                        )
-                    },
-                    colors = AssistChipDefaults.assistChipColors(containerColor = if (isOnline) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
-                )
-            }
+            ShopStatusComponent()
         },
         actions = {
             BadgedBox(
                 badge = { Badge { Text("3") } },
-                modifier = Modifier.padding(end = 10.dp)
+                modifier = Modifier.padding(end = 12.dp)
             ) {
                 IconButton(onClick = { /* notifications */ }) { Icon(Icons.Default.Notifications, contentDescription = "Notificações") }
             }
-        }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            Color.White
+        )
     )
 }
 
@@ -400,7 +376,12 @@ fun OrdersCard(activeOrders: Int, modifier: Modifier = Modifier) {
             }
 
             // action button inside card
-            ElevatedButton(onClick = { /* abrir pedidos */ }) {
+            ElevatedButton(
+                onClick = { /* abrir pedidos */ },
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
                 Icon(Icons.Default.List, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Gerenciar")
@@ -579,19 +560,19 @@ fun SalesSummaryCardInteractive(
                 Text(
                     "Vendas hoje",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "$animatedItems itens",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface.copy(0.3f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     "Faturamento",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
