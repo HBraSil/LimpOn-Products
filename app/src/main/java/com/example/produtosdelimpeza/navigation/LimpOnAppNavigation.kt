@@ -67,8 +67,7 @@ import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.customer.home.NotificationsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
-import com.example.produtosdelimpeza.compose.seller.profile.logistic.LogisticScreen
-import com.example.produtosdelimpeza.compose.seller.profile.logistic.LogisticsCard
+import com.example.produtosdelimpeza.compose.seller.profile.logistic.OperationScreen
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
@@ -219,7 +218,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
 
         composable(StoreScreen.LOGISTIC.route) {
-            LogisticScreen()
+            OperationScreen()
         }
     }
 }
