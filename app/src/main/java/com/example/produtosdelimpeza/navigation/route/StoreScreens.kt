@@ -1,10 +1,13 @@
 package com.example.produtosdelimpeza.navigation.route
 
-enum class StoreScreen(val route: String) {
-    DASHBOARD("dashboard"),
-    STORE_ORDER("store_order"),
+enum class StoreScreen(val route: String, val showBottomBar: Boolean = false) {
+    DASHBOARD("dashboard", true),
+    STORE_ORDER("store_order", true),
+    STORE_PROFILE("store_profile", true),
+
+
+
     STORE_ORDER_DETAIL("store_order_detail"),
-    STORE_PROFILE("store_profile"),
     STORE_EDIT_PROFILE("store_edit_profile"),
     LOGISTIC("logistic")
 }

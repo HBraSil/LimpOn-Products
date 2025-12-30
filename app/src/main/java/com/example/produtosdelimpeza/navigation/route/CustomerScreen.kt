@@ -1,6 +1,6 @@
 package com.example.produtosdelimpeza.navigation.route
 
-enum class CustomerScreen(val route: String){
+enum class CustomerScreen(val route: String, val showBottomBar: Boolean = false){
     ABOUT("about"),
     MANAGEMENT_NOTIFICATION("management_notification"),
     NOTIFICATIONS("notifications"),
@@ -18,8 +18,8 @@ enum class CustomerScreen(val route: String){
 
 
     // TELAS DAS ROTAS DA USER_MAIN ROUTE
-    CUSTOMER_HOME("customer_home"),
-    CUSTOMER_PROFILE("customer_profile"),
-    CUSTOMER_SEARCH("customer_search"),
-    CUSTOMER_PRODUCTS("customer_products")
+    CUSTOMER_HOME("customer_home",true),
+    CUSTOMER_PROFILE("customer_profile",true),
+    CUSTOMER_SEARCH("customer_search",true),
+    CUSTOMER_PRODUCTS("customer_products",true)
 }

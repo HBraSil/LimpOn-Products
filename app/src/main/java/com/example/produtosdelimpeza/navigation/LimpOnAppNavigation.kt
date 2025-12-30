@@ -5,19 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Dashboard
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -38,7 +25,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.produtosdelimpeza.navigation.route.NavGraph
@@ -68,6 +54,8 @@ import com.example.produtosdelimpeza.compose.customer.home.NotificationsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.compose.seller.profile.logistic.OperationScreen
+import com.example.produtosdelimpeza.navigation.bottom_nav.CustomerBottomNavConfig
+import com.example.produtosdelimpeza.navigation.bottom_nav.StoreBottomNavConfig
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
@@ -75,54 +63,6 @@ import com.example.produtosdelimpeza.viewmodels.CartViewModel
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
 import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
 
-
-private val bottomNavigationCustomerItems = listOf(
-    NavigationItem(
-        title = R.string.home,
-        iconSelected = Icons.Filled.Home,
-        iconUnselected = Icons.Outlined.Home,
-        router = CustomerScreen.CUSTOMER_HOME.route
-    ),
-    NavigationItem(
-        title = R.string.search,
-        iconSelected = Icons.Filled.Search,
-        iconUnselected = Icons.Outlined.Search,
-        router = CustomerScreen.CUSTOMER_SEARCH.route
-    ),
-    NavigationItem(
-        title = R.string.order_detail,
-        iconSelected = Icons.AutoMirrored.Filled.ReceiptLong,
-        iconUnselected = Icons.AutoMirrored.Outlined.ReceiptLong,
-        router = CustomerScreen.CUSTOMER_ORDER_LIST.route
-    ),
-    NavigationItem(
-        title = R.string.profile,
-        iconSelected = Icons.Filled.Person,
-        iconUnselected = Icons.Outlined.Person,
-        router = CustomerScreen.CUSTOMER_PROFILE.route
-    )
-)
-
-private val bottomNavigationStoreItems = listOf(
-    NavigationItem(
-        title = R.string.dashboard,
-        iconSelected = Icons.Filled.Dashboard,
-        iconUnselected = Icons.Outlined.Dashboard,
-        router = StoreScreen.DASHBOARD.route
-    ),
-    NavigationItem(
-        title = R.string.customer_order_detail,
-        iconSelected = Icons.AutoMirrored.Filled.List,
-        iconUnselected = Icons.AutoMirrored.Outlined.List,
-        router = StoreScreen.STORE_ORDER.route
-    ),
-    NavigationItem(
-        title = R.string.customer_profile,
-        iconSelected = Icons.Filled.Person,
-        iconUnselected = Icons.Outlined.Person,
-        router = StoreScreen.STORE_PROFILE.route
-    )
-)
 
 @Composable
 fun LimpOnAppNavigation(
@@ -141,14 +81,22 @@ fun LimpOnAppNavigation(
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
-            if (startDestination == NavGraph.USER_MAIN.route) {
-                CustomerBottomNavigation(
+
+
+            val shouldShowStoreBottomBar =
+                StoreScreen.entries.firstOrNull { it.route == currentRoute }?.showBottomBar == true
+            if (shouldShowStoreBottomBar) {
+                StoreBottomNavConfig.StoreBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
                 )
             }
-            if (startDestination == NavGraph.SELLER_MAIN.route) {
-                StoreBottomNavigation(
+
+
+            val shouldShowCustomerBottomBar =
+                CustomerScreen.entries.firstOrNull { it.route == currentRoute }?.showBottomBar == true
+            if (shouldShowCustomerBottomBar) {
+                CustomerBottomNavConfig.CustomerBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
                 )
@@ -160,12 +108,11 @@ fun LimpOnAppNavigation(
             startDestination = startDestination,
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
-            authGraph(navController, navigationLastUserModeViewModel)
+            authGraph(navController)
             userMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
             storeMainGraph(navController, navigationLastUserModeViewModel)
         }
     }
-
 }
 
 
@@ -224,7 +171,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 }
 
 
-fun NavGraphBuilder.authGraph(navController: NavController, navigationLastUserModeViewModel: NavigationLastUserModeViewModel) {
+fun NavGraphBuilder.authGraph(navController: NavController) {
     navigation(
         route = NavGraph.AUTH.route,
         startDestination = AuthScreen.INITIAL.route,
@@ -471,93 +418,6 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
         }
     }
 }
-
-
-
-
-@Composable
-fun CustomerBottomNavigation(
-    navController: NavHostController,
-    currentRoute: String?
-) {
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(0.5f)) {
-        bottomNavigationCustomerItems.forEach { item ->
-            NavigationBarItem(
-                //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
-                selected = currentRoute == item.router,
-                onClick = {
-                    if (currentRoute != item.router) {
-                        navController.navigate(item.router) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
-                icon = {
-                    Icon(
-                        imageVector = if (currentRoute == item.router) item.iconSelected else item.iconUnselected,
-                        contentDescription = item.title.toString(),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(id = item.title),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(indicatorColor = White)
-            )
-        }
-    }
-
-}
-
-
-@Composable
-fun StoreBottomNavigation(
-    navController: NavHostController,
-    currentRoute: String?
-) {
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(0.5f)) {
-        bottomNavigationStoreItems.forEach { item ->
-            NavigationBarItem(
-                //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
-                selected = currentRoute == item.router,
-                onClick = {
-                    if (currentRoute != item.router) {
-                        navController.navigate(item.router) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
-                icon = {
-                    Icon(
-                        imageVector = if (currentRoute == item.router) item.iconSelected else item.iconUnselected,
-                        contentDescription = item.title.toString(),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(id = item.title),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(indicatorColor = White)
-            )
-        }
-    }
-
-}
-
 
 
 @Composable
