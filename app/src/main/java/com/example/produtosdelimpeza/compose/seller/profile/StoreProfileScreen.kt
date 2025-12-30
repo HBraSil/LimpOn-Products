@@ -45,7 +45,7 @@ import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreProfileScreen(onNavigateToOtherUser: (String) -> Unit) {
+fun StoreProfileScreen(onNavigateToOtherUser: (String) -> Unit, onItemProfileClick: (String) -> Unit) {
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -83,7 +83,11 @@ fun StoreProfileScreen(onNavigateToOtherUser: (String) -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Lista de Opções
-            MenuSection()
+            MenuSection(
+                onItemProfileClick = { route ->
+                    onItemProfileClick(route)
+                }
+            )
         }
     }
 }
@@ -250,16 +254,16 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
 }
 
 @Composable
-fun MenuSection() {
+fun MenuSection(onItemProfileClick: (String) -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text("Gerenciamento", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(12.dp))
 
-        MenuItem(icon = Icons.Default.Edit, title = "Editar Perfil")
-        MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas")
-        MenuItem(icon = Icons.Default.Inventory, title = "Gerenciar Cardápio")
-        MenuItem(icon = Icons.Default.Schedule, title = "Horários de Funcionamento")
-        MenuItem(icon = Icons.Default.SupportAgent, title = "Suporte e Ajuda")
+        MenuItem(icon = Icons.Default.Edit, title = "Editar Perfil e Endereço") {onItemProfileClick(StoreScreen.STORE_EDIT_PROFILE.route)}
+        MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas") {onItemProfileClick("")}
+        MenuItem(icon = Icons.Default.Inventory, title = "Gerenciar Cardápio") {onItemProfileClick("")}
+        MenuItem(icon = Icons.Default.Schedule, title = "Logística") {onItemProfileClick(StoreScreen.LOGISTIC.route)}
+        MenuItem(icon = Icons.Default.SupportAgent, title = "Suporte e Ajuda") {onItemProfileClick("")}
 
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(
@@ -273,9 +277,9 @@ fun MenuSection() {
 }
 
 @Composable
-fun MenuItem(icon: ImageVector, title: String) {
+fun MenuItem(icon: ImageVector, title: String, onItemProfileClick: () -> Unit) {
     Surface(
-        onClick = { /* Navegação */ },
+        onClick = onItemProfileClick,
         modifier = Modifier.fillMaxWidth(),
         color = Color.Transparent
     ) {

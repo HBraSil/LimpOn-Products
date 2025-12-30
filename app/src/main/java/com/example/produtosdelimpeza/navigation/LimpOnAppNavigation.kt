@@ -42,29 +42,33 @@ import com.example.produtosdelimpeza.R
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.produtosdelimpeza.navigation.route.NavGraph
-import com.example.produtosdelimpeza.compose.user.order.OrderListScreen
-import com.example.produtosdelimpeza.compose.user.order.OrderDetailsScreen
-import com.example.produtosdelimpeza.compose.user.about.AboutScreen
-import com.example.produtosdelimpeza.compose.user.cart.CartScreen
-import com.example.produtosdelimpeza.compose.user.highlights.HighlightsScreen
-import com.example.produtosdelimpeza.compose.user.home.HomeScreen
-import com.example.produtosdelimpeza.compose.user.initial.InitialScreen
+import com.example.produtosdelimpeza.compose.customer.order.OrderListScreen
+import com.example.produtosdelimpeza.compose.customer.order.OrderDetailsScreen
+import com.example.produtosdelimpeza.compose.customer.about.AboutScreen
+import com.example.produtosdelimpeza.compose.customer.cart.CartScreen
+import com.example.produtosdelimpeza.compose.customer.highlights.HighlightsScreen
+import com.example.produtosdelimpeza.compose.customer.home.HomeScreen
+import com.example.produtosdelimpeza.compose.customer.initial.InitialScreen
 import com.example.produtosdelimpeza.compose.auth.login.LoginScreen
-import com.example.produtosdelimpeza.compose.user.notifications.ManagementNotificationScreen
-import com.example.produtosdelimpeza.compose.user.profile.ProfileScreen
-import com.example.produtosdelimpeza.compose.user.profile.address.AddressesScreen
-import com.example.produtosdelimpeza.compose.user.profile.coupons.CouponsScreen
-import com.example.produtosdelimpeza.compose.user.profile.header_profile_screen.EditUserProfileScreen
-import com.example.produtosdelimpeza.compose.user.profile.help.HelpScreen
-import com.example.produtosdelimpeza.compose.user.profile.payment_methods.PaymentMethodsScreen
-import com.example.produtosdelimpeza.compose.user.search.SearchScreen
-import com.example.produtosdelimpeza.compose.user.catalog.SellerProductsScreen
-import com.example.produtosdelimpeza.compose.user.catalog.profile.StoreProfileScreen
+import com.example.produtosdelimpeza.compose.customer.notifications.ManagementNotificationScreen
+import com.example.produtosdelimpeza.compose.customer.profile.ProfileScreen
+import com.example.produtosdelimpeza.compose.customer.profile.address.AddressesScreen
+import com.example.produtosdelimpeza.compose.customer.profile.coupons.CouponsScreen
+import com.example.produtosdelimpeza.compose.customer.profile.header_profile_screen.EditUserProfileScreen
+import com.example.produtosdelimpeza.compose.customer.profile.help.HelpScreen
+import com.example.produtosdelimpeza.compose.customer.profile.payment_methods.PaymentMethodsScreen
+import com.example.produtosdelimpeza.compose.customer.search.SearchScreen
+import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
+import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
-import com.example.produtosdelimpeza.compose.user.home.NotificationsScreen
+import com.example.produtosdelimpeza.compose.customer.home.NotificationsScreen
+import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
+import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
+import com.example.produtosdelimpeza.compose.seller.profile.logistic.LogisticScreen
+import com.example.produtosdelimpeza.compose.seller.profile.logistic.LogisticsCard
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.navigation.route.CustomerScreen
@@ -173,12 +177,22 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
-                navigationLastUserModeViewModel,
-                /*onNavigateToCustomer = {
-                    navController.navigate(NavGraph.USER_MAIN.route)
-                }*/
+                navigationLastUserModeViewModel
             )
         }
+
+        composable(route = StoreScreen.STORE_ORDER.route) {
+            StoreOrderScreen(
+                onNavigateToStoreOrderDetailScreen = {
+                    navController.navigate(StoreScreen.STORE_ORDER_DETAIL.route)
+                }
+            )
+        }
+
+        composable(route = StoreScreen.STORE_ORDER_DETAIL.route) {
+            StoreOrderDetailsScreen()
+        }
+
         composable(route = StoreScreen.STORE_PROFILE.route) {
             StoreProfileScreen(
                 onNavigateToOtherUser = { screen ->
@@ -193,11 +207,19 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                             launchSingleTop = true
                         }
                     }
+                },
+                onItemProfileClick = {route ->
+                    navController.navigate(route)
                 }
             )
         }
-        composable(route = StoreScreen.STORE_ORDER.route) {
-            StoreOrderScreen()
+
+        composable(StoreScreen.STORE_EDIT_PROFILE.route) {
+            EditProfileScreen()
+        }
+
+        composable(StoreScreen.LOGISTIC.route) {
+            LogisticScreen()
         }
     }
 }

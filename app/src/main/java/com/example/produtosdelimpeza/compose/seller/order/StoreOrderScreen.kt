@@ -60,15 +60,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.produtosdelimpeza.compose.customer.order.OrderStatus
 
-// --- Modelos de Dados ---
-
-enum class OrderStatus(val label: String, val color: Color) {
-    PENDING("Pendente", Color(0xFFFFB300)),
-    PREPARING("Em Preparo", Color(0xFF0288D1)),
-    DELIVERED("Entregue", Color(0xFF2E7D32)),
-    ALL("Todos", Color.Gray)
-}
 
 data class Order(
     val id: String,
@@ -84,16 +77,18 @@ data class Order(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreOrderScreen() {
+fun StoreOrderScreen(
+    onNavigateToStoreOrderDetailScreen: () -> Unit = {}
+) {
     var searchText by remember { mutableStateOf("") }
     var isSearchFocused by remember { mutableStateOf(false) }
-    var selectedFilter by remember { mutableStateOf(OrderStatus.ALL) }
+    var selectedFilter by remember { mutableStateOf(OrderStatus.RECEIVED) }
     val focusManager = LocalFocusManager.current
 
     // Mock de dados
     val orders = remember {
         listOf(
-            Order("#1234", "João Silva", "R$ 85,90", OrderStatus.PENDING, "19:00", "15 min", "2x Pizza Calabresa, 1x Coca-Cola"),
+            Order("#1234", "João Silva", "R$ 85,90", OrderStatus.RECEIVED, "19:00", "15 min", "2x Pizza Calabresa, 1x Coca-Cola"),
             Order("#1235", "Maria Oliveira", "R$ 42,00", OrderStatus.PREPARING, "18:45", "30 min", "1x Hamburguer Gourmet"),
             Order("#1236", "Carlos Souza", "R$ 120,50", OrderStatus.DELIVERED, "18:20", "Ontem", "3x Sushi Combo"),
         )
@@ -137,7 +132,7 @@ fun StoreOrderScreen() {
                 }
             }
             items(orders) { order ->
-                OrderCard(order = order, onClick = { /* Navegar para detalhes */ })
+                OrderCard(order = order, onNavigateToStoreOrderDetailScreen = onNavigateToStoreOrderDetailScreen)
             }
         }
     }
@@ -211,11 +206,11 @@ fun FilterRow(selectedFilter: OrderStatus, onFilterSelected: (OrderStatus) -> Un
 
 
 @Composable
-fun OrderCard(order: Order, onClick: () -> Unit) {
+fun OrderCard(order: Order, onNavigateToStoreOrderDetailScreen: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onNavigateToStoreOrderDetailScreen() },
         elevation = CardDefaults.elevatedCardElevation(2.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -267,7 +262,7 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
                     text = "Aguardando há ${order.waitTime}",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = if (order.status == OrderStatus.PENDING) Color.Red else Color.Gray
+                    color = if (order.status == OrderStatus.RECEIVED) Color.Red else Color.Gray
                 )
             }
         }
