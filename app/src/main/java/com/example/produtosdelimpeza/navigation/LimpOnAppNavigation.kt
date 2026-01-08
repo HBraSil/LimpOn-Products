@@ -48,7 +48,9 @@ import com.example.produtosdelimpeza.compose.customer.search.SearchScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
+import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
+import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
@@ -126,6 +128,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 navigationLastUserModeViewModel,
                 onNotificationsScreenClick = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
+                },
+                onNavigateToAnalyticsScreenClick = {
+                    navController.navigate(StoreScreen.ANALYTICS.route)
                 }
             )
         }
@@ -169,6 +174,25 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 
         composable(StoreScreen.LOGISTIC.route) {
             OperationScreen()
+        }
+
+        composable(StoreScreen.ANALYTICS.route) {
+            StoreAnalyticsScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                },
+                onPromotionActionItemClick = { route ->
+                    navController.navigate(route)
+                }
+            )
+        }
+
+        composable(StoreScreen.CREATE_COUPUN.route) {
+            CreateCouponScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
         }
     }
 }

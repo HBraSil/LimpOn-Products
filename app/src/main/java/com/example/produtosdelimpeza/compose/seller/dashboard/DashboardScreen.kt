@@ -96,7 +96,8 @@ private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 fun DashboardScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
     onCreateProduct: () -> Unit = {},
-    onNotificationsScreenClick: () -> Unit = {}
+    onNotificationsScreenClick: () -> Unit = {},
+    onNavigateToAnalyticsScreenClick: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
@@ -147,7 +148,8 @@ fun DashboardScreen(
                 KPIHeroRow(
                     revenue = todayRevenueMock,
                     activeOrders = activeOrdersMock,
-                    spark = weeklySparkMock
+                    spark = weeklySparkMock,
+                    onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
                 )
             }
 
@@ -296,7 +298,7 @@ fun TinyMetric(label: String, value: String) {
 // KPI Hero Row: Revenue + Active orders emphasized
 // -----------------------------
 @Composable
-fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>) {
+fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>, onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
     // responsive: side-by-side on wide screens, stacked on narrow
     BoxWithConstraints(
         modifier = Modifier
@@ -308,12 +310,12 @@ fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>) {
 
         if (wide) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(spacing)) {
-                RevenueCard(revenue = revenue, spark = spark, modifier = Modifier.weight(1f))
+                RevenueCard(onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick)
                 OrdersCard(activeOrders = activeOrders, modifier = Modifier.weight(1f))
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(spacing)) {
-                RevenueCard(revenue = revenue, spark = spark, modifier = Modifier.fillMaxWidth())
+                RevenueCard(onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick)
                 OrdersCard(activeOrders = activeOrders, modifier = Modifier.fillMaxWidth())
             }
         }
@@ -338,12 +340,14 @@ fun OrderFilterChips() {
 
 
 @Composable
-fun RevenueCard(revenue: Double, spark: List<Int>, modifier: Modifier = Modifier) {
+fun RevenueCard(onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
     Column {
         SalesSummaryCardInteractive(
             itemsSoldToday = 34,
             revenueToday = 1250.75f,
-            onClick = { /* navigate to detail */ }
+            onClick = {
+                onNavigateToAnalyticsScreenClick()
+            }
         )
     }
 }

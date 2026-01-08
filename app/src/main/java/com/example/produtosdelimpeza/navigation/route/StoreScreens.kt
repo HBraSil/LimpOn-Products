@@ -7,6 +7,8 @@ enum class StoreScreen(val route: String, val showBottomBar: Boolean = false) {
 
 
 
+    ANALYTICS("analytics"),
+    CREATE_COUPUN("create_coupon"),
     STORE_ORDER_DETAIL("store_order_detail"),
     STORE_EDIT_PROFILE("store_edit_profile"),
     LOGISTIC("logistic")
