@@ -414,14 +414,17 @@ fun CreatePromotionBottomSheet(
             PromotionActionItem(
                 icon = Icons.Outlined.Schedule,
                 title = "Promoção por tempo limitado",
-                description = "Aumente vendas em horários estratégicos"
-            )
+                description = "Aumente vendas em horários estratégicos",
+            ) {
+                onPromotionActionItemClick(StoreScreen.LIMITED_PROMOTION.route)
+                onDismiss()
+            }
 
-            PromotionActionItem(
+            /*PromotionActionItem(
                 icon = Icons.AutoMirrored.Outlined.TrendingDown,
                 title = "Promoção para dias fracos",
                 description = "Incentive pedidos em dias com menor faturamento"
-            )
+            )*/
 
             Spacer(modifier = Modifier.height(24.dp))
         }

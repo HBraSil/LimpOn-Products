@@ -56,6 +56,7 @@ import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.compose.seller.profile.logistic.OperationScreen
+import com.example.produtosdelimpeza.compose.seller.promotion.TimeLimitedPromotionScreen
 import com.example.produtosdelimpeza.navigation.bottom_nav.CustomerBottomNavConfig
 import com.example.produtosdelimpeza.navigation.bottom_nav.StoreBottomNavConfig
 import com.example.produtosdelimpeza.navigation.route.AuthScreen
@@ -189,6 +190,14 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 
         composable(StoreScreen.CREATE_COUPUN.route) {
             CreateCouponScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(StoreScreen.LIMITED_PROMOTION.route) {
+            TimeLimitedPromotionScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }
