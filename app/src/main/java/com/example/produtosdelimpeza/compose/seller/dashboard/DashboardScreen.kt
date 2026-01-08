@@ -95,7 +95,8 @@ private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 @Composable
 fun DashboardScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
-    onCreateProduct: () -> Unit = {}
+    onCreateProduct: () -> Unit = {},
+    onNotificationsScreenClick: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
@@ -105,7 +106,11 @@ fun DashboardScreen(
     val listState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { PremiumTopBar() },
+        topBar = {
+            PremiumTopBar(
+                goToNotificationsScreen = onNotificationsScreenClick
+            )
+        },
         floatingActionButton = {
             // simple prominent FAB for primary action (create product)
             ExtendedFloatingActionButton(
@@ -167,7 +172,7 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PremiumTopBar() {
+fun PremiumTopBar(goToNotificationsScreen: () -> Unit = {}) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(
@@ -184,7 +189,7 @@ fun PremiumTopBar() {
                 badge = { Badge { Text("3") } },
                 modifier = Modifier.padding(end = 12.dp)
             ) {
-                IconButton(onClick = { /* notifications */ }) { Icon(Icons.Default.Notifications, contentDescription = "Notificações") }
+                IconButton(onClick = goToNotificationsScreen) { Icon(Icons.Default.Notifications, contentDescription = "Notificações") }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

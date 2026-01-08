@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.example.notifications.NotificationsScreen
 import com.example.produtosdelimpeza.navigation.route.NavGraph
 import com.example.produtosdelimpeza.compose.customer.order.OrderListScreen
 import com.example.produtosdelimpeza.compose.customer.order.OrderDetailsScreen
@@ -50,7 +51,6 @@ import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
-import com.example.produtosdelimpeza.compose.customer.home.NotificationsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.compose.seller.profile.logistic.OperationScreen
@@ -123,7 +123,10 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
-                navigationLastUserModeViewModel
+                navigationLastUserModeViewModel,
+                onNotificationsScreenClick = {
+                    navController.navigate(CustomerScreen.NOTIFICATIONS.route)
+                }
             )
         }
 
