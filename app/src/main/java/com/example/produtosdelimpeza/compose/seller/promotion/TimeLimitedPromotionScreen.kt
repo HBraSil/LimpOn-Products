@@ -4,6 +4,7 @@ import androidx.compose.animation.togetherWith
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,7 +29,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/* ----------------------------- SCREEN ----------------------------- */
+
+private enum class DiscountType(val label: String) {
+    PERCENTAGE("Porcentagem"),
+    FIXED("Valor fixo")
+}
+
+private enum class PromotionDuration(val label: String) {
+    ONE_HOUR("1 hora"),
+    THREE_HOURS("3 horas"),
+    TODAY("Hoje"),
+    CUSTOM("Personalizado")
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,34 +64,28 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                     containerColor = Color.Transparent
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { /* confirmar depois */ }) {
-                Icon(Icons.Outlined.Check, null)
-            }
         }
     ) { padding ->
-
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp)
+                .padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(30.dp)
         ) {
-            item { ImpactHeader() }
-            item {
+            item{ ImpactHeader() }
+            item{
                 DiscountTypeSelector(
                     selected = discountType,
                     onSelect = { discountType = it }
                 )
             }
-            item {
+            item{
                 DurationSelector(
                     selected = duration,
                     onSelect = { duration = it }
                 )
             }
-            item {
+            item{
                 PromotionAppliesToSelector(
                     options = listOf(
                         "Todos os produtos",
@@ -90,19 +97,25 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                     selectedOption = selectedCategory,
                     onOptionSelected = { selectedCategory = it }
                 )
-
             }
-            item {
+            item{
                 PromotionBannerSection(
                     bannerBitmap = null,
                     onPickBannerClick = {}
                 )
             }
             item{
-                PromotionPreviewSection(
-                    discountType = discountType,
-                    duration = duration
-                )
+                Button(
+                    onClick = { /* Criar cupom */ },
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 16.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(text = "Criar promoção")
+                }
             }
         }
     }
@@ -168,7 +181,11 @@ private fun DiscountTypeSelector(
                         index = type.ordinal,
                         count = DiscountType.entries.size
                     ),
-                    label = { Text(type.label) }
+                    label = { Text(type.label) },
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.onBackground.copy(0.8f),
+                        activeContentColor = MaterialTheme.colorScheme.background
+                    )
                 )
             }
         }
@@ -194,13 +211,17 @@ private fun DurationSelector(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            PromotionDuration.values().forEach { duration ->
+            PromotionDuration.entries.forEach { duration ->
                 AssistChip(
                     onClick = { onSelect(duration) },
                     label = { Text(duration.label) },
                     leadingIcon = {
                         if (selected == duration) {
-                            Icon(Icons.Outlined.Check, null)
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.surfaceVariant
+                            )
                         }
                     }
                 )
@@ -209,105 +230,10 @@ private fun DurationSelector(
     }
 }
 
-/* ----------------------- PREVIEW ----------------------- */
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun PromotionPreviewSection(
-    discountType: DiscountType,
-    duration: PromotionDuration
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-        Text(
-            "Preview da promoção",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        AnimatedContent(
-            targetState = Pair(discountType, duration),
-            transitionSpec = {
-                fadeIn(tween(300)).togetherWith(fadeOut(tween(300)))
-            },
-            label = ""
-        ) {
-            PromotionPreviewCard(discountType, duration)
-        }
-    }
-}
-
-@Composable
-private fun PromotionPreviewCard(
-    discountType: DiscountType,
-    duration: PromotionDuration
-) {
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        tonalElevation = 4.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color(0xFFFF6A00),
-                            Color(0xFFFF3D00)
-                        )
-                    )
-                )
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-
-            Text(
-                "OFERTA RELÂMPAGO",
-                color = Color.White.copy(alpha = 0.8f),
-                letterSpacing = 1.sp,
-                fontSize = 12.sp
-            )
-
-            Text(
-                if (discountType == DiscountType.PERCENTAGE) "30% OFF"
-                else "R$ 10 OFF",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-
-            Surface(
-                color = Color.White.copy(alpha = 0.2f),
-                shape = CircleShape
-            ) {
-                Text(
-                    duration.label,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    color = Color.White,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-}
-
-/* ----------------------- MODELS ----------------------- */
-
-private enum class DiscountType(val label: String) {
-    PERCENTAGE("Porcentagem"),
-    FIXED("Valor fixo")
-}
-
-private enum class PromotionDuration(val label: String) {
-    ONE_HOUR("1 hora"),
-    THREE_HOURS("3 horas"),
-    TODAY("Hoje"),
-    CUSTOM("Personalizado")
-}
 
 @Composable
 fun PromotionBannerPicker(
-    bannerBitmap: ImageBitmap?, // depois vem do ViewModel
+    bannerBitmap: ImageBitmap?,
     onPickBannerClick: () -> Unit
 ) {
     Surface(
@@ -317,10 +243,7 @@ fun PromotionBannerPicker(
             .fillMaxWidth()
             .height(180.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
+        Box(modifier = Modifier.fillMaxSize()) {
             if (bannerBitmap != null) {
                 Image(
                     bitmap = bannerBitmap,
@@ -372,7 +295,7 @@ private fun EmptyBannerState(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.7f)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -380,14 +303,15 @@ private fun EmptyBannerState(
             Icons.Outlined.Image,
             contentDescription = null,
             modifier = Modifier.size(40.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.background
         )
 
         Spacer(Modifier.height(12.dp))
 
         Text(
             text = "Adicione um banner",
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.background
         )
 
         Spacer(Modifier.height(6.dp))
@@ -395,13 +319,22 @@ private fun EmptyBannerState(
         Text(
             text = "Opcional, mas recomendado",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.background.copy(0.7f)
+
         )
 
         Spacer(Modifier.height(12.dp))
 
-        OutlinedButton(onClick = onPickBannerClick) {
-            Text("Selecionar imagem")
+        OutlinedButton(
+            onClick = onPickBannerClick,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface)
+        ) {
+            Text(
+                text = "Selecionar imagem"
+            )
         }
     }
 }
@@ -409,8 +342,7 @@ private fun EmptyBannerState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromotionAppliesToSelector(
-    title: String = "O" +
-            "e",
+    title: String = "Onde essa promoção vale",
     subtitle: String = "Selecione a categoria de produtos",
     options: List<String>,
     selectedOption: String?,

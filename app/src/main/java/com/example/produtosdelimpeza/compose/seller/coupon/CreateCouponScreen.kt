@@ -81,40 +81,35 @@ fun CreateCouponScreen(onBackNavigation: () -> Unit = {}) {
         LazyColumn (
             modifier = Modifier
                 .padding(padding)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 10.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            item{ CouponInsightCard() }
             item{
-                CouponInsightCard()
-            }
-
-            item {
                 CouponTextField(
                     label = "Código do cupom",
                     placeholder = "EX: PRIMEIRA10",
                     supporting = "O cliente digitará esse código no checkout"
                 )
             }
-            item{
-                DiscountTypeSection()
-            }
-
+            item{ DiscountTypeSection() }
             item{
                 ValiditySection()
                 Spacer(Modifier.height(6.dp))
                 HorizontalDivider()
             }
-            item{
-                CouponPreviewSection()
-            }
-
+            item{ CouponPreviewSection() }
             item{
                 Button(
                     onClick = { /* Criar cupom */ },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
                 ) {
-                    Text("Criar cupom")
+                    Text(text = "Criar cupom")
                 }
             }
         }

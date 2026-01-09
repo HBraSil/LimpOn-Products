@@ -50,9 +50,7 @@ fun StoreAnalyticsScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onBackNavigation) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
@@ -317,7 +315,7 @@ private fun BehaviorBox(
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
