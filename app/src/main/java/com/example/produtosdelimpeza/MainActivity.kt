@@ -40,21 +40,21 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ProdutosDeLimpezaTheme {
-            val startProfile by sessionViewModel.lastUserMode.collectAsState()
-            startProfile?.let { profileMode ->
-                val startDestination = when (profileMode) {
-                    ProfileMode.LoggedIn.Store -> NavGraph.SELLER_MAIN.route
-                    ProfileMode.LoggedIn.Customer -> NavGraph.USER_MAIN.route
-                    ProfileMode.LoggedOut -> NavGraph.AUTH.route
+                val startProfile by sessionViewModel.lastUserMode.collectAsState()
+                startProfile?.let { profileMode ->
+                    val startDestination = when (profileMode) {
+                        ProfileMode.LoggedIn.Store -> NavGraph.SELLER_MAIN.route
+                        ProfileMode.LoggedIn.Customer -> NavGraph.USER_MAIN.route
+                        ProfileMode.LoggedOut -> NavGraph.AUTH.route
+                    }
+                    LimpOnAppNavigation(startDestination)
                 }
 
-                LimpOnAppNavigation(startDestination)
-            }
+
                 val activity = LocalActivity.current as ComponentActivity
                 val statusBarColor = Color.Transparent.toArgb() // Fundo da Status Bar BRANCO
 
                 DisposableEffect(Unit) {
-
                     val statusBarStyle = SystemBarStyle.light(
                         scrim = statusBarColor, // Define o fundo da Status Bar como BRANCO
                         darkScrim = statusBarColor

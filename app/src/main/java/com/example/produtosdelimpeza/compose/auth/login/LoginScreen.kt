@@ -139,21 +139,15 @@ fun ContentLoginScreen(
         }
     }
 
-    // 🚨 1. REAGE AO ERRO USANDO LaunchedEffect
-    // O bloco será executado SOMENTE quando o valor de 'state.error' mudar.
     LaunchedEffect(state.error) {
         state.error?.let { errorMessage ->
 
-            // 🚨 Use o 'errorMessage' real do estado
             Toast.makeText(
                 context,
-                errorMessage, // Use a mensagem real, não o texto literal "state.error"
+                errorMessage,
                 Toast.LENGTH_LONG
             ).show()
 
-            // 🚨 2. LIMPA O ERRO no ViewModel
-            // Isso garante que o Toast só apareça uma vez por erro,
-            // e não dispare novamente em futuras recomposições.
             loginViewModel.cleanErrorMessage()
         }
     }

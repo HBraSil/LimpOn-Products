@@ -2,19 +2,11 @@ package com.example.produtosdelimpeza.navigation
 
 import android.util.Log
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -250,7 +242,7 @@ fun NavGraphBuilder.userMainGraph(
     ) {
         sharedGraph(navController)
 
-        homeGraph(navController, cartViewModel, appLayoutViewModel)
+        homeGraph(navController, cartViewModel)
         searchGraph(navController)
         ordersGraph(navController)
         profileGraph(navController)
@@ -276,7 +268,6 @@ private fun NavGraphBuilder.sharedGraph(controller: NavHostController) {
 fun NavGraphBuilder.homeGraph(
     navController: NavHostController,
     cartViewModel: CartViewModel,
-    appLayoutViewModel: NavigationLastUserModeViewModel
 ){
     navigation(
         route = NavGraph.HOME.route,

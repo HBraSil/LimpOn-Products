@@ -69,7 +69,6 @@ fun SignupScreen(
     var confirmPasswordHidden by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
-    val verticalScrollState = rememberScrollState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var showEmailSentSnackbar by remember { mutableStateOf(false) }
@@ -86,7 +85,7 @@ fun SignupScreen(
                 }
                 context.startActivity(intent)
             }
-            showEmailSentSnackbar = false
+            //showEmailSentSnackbar = false
         }
     }
 
@@ -114,7 +113,7 @@ fun SignupScreen(
             Column(
                 modifier = Modifier
                     .padding(top = contentPadding.calculateTopPadding())
-                    .verticalScroll(verticalScrollState)
+                    .verticalScroll(rememberScrollState())
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

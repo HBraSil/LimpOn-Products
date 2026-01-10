@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import com.example.produtosdelimpeza.compose.component.StoreTimeManagement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,6 +26,8 @@ fun OperationScreen() {
     var deliveryEnabled by remember { mutableStateOf(true) }
     var pickupEnabled by remember { mutableStateOf(true) }
     var scheduledOrders by remember { mutableStateOf(false) }
+    var showStoreTimeManagementSheet by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
@@ -78,10 +81,9 @@ fun OperationScreen() {
                 }
             }
 
-            // 3. HORÁRIO DE FUNCIONAMENTO (Design em Lista Limpa)
             item {
                 Card(
-                    onClick = {},
+                    onClick = {showStoreTimeManagementSheet = true},
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(24.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -118,6 +120,12 @@ fun OperationScreen() {
             }
 
             item { Spacer(Modifier.height(40.dp)) }
+        }
+
+        if (showStoreTimeManagementSheet) {
+            StoreTimeManagement(
+                onDismiss = { showStoreTimeManagementSheet = false }
+            )
         }
     }
 }
