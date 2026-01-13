@@ -33,14 +33,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,6 +68,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -75,6 +79,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
@@ -90,6 +95,18 @@ private const val todayRevenueMock = 1250.75  // R$ faturamento do dia
 private const val activeOrdersMock = 7        // pedidos ativos
 private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 
+
+data class DaySales(
+    val dayLabel: String,   // ex: "SEG", "TER"
+    val itemsSold: Int,
+    val revenue: Float      // in currency units, e.g. BRL
+)
+
+
+data class MinFabItem(
+    var icon: ImageVector,
+    var name: String,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,14 +130,7 @@ fun DashboardScreen(
             )
         },
         floatingActionButton = {
-            // simple prominent FAB for primary action (create product)
-            ExtendedFloatingActionButton(
-                onClick = onCreateProduct,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Criar produto") },
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.background
-            )
+            MultiFloatingButton{}
         },
     ) { paddingValues ->
         LazyColumn(
@@ -270,21 +280,6 @@ fun StoreProfileCardAdvanced(
 }
 
 
-@Composable
-fun SmallActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
-    ElevatedCard(modifier = Modifier
-        .height(44.dp)
-        .clickable(onClick = onClick)
-        .padding(horizontal = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 10.dp)) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(label, style = MaterialTheme.typography.labelSmall)
-        }
-    }
-}
 
 @Composable
 fun TinyMetric(label: String, value: String) {
@@ -294,9 +289,8 @@ fun TinyMetric(label: String, value: String) {
     }
 }
 
-// -----------------------------
-// KPI Hero Row: Revenue + Active orders emphasized
-// -----------------------------
+
+
 @Composable
 fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>, onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
     // responsive: side-by-side on wide screens, stacked on narrow
@@ -426,9 +420,7 @@ fun Sparkline(spark: List<Int>, modifier: Modifier = Modifier) {
     }
 }
 
-// -----------------------------
-// Quick insights row (smaller cards)
-// -----------------------------
+
 @Composable
 fun QuickInsightsRow() {
     Row(modifier = Modifier
@@ -453,9 +445,7 @@ fun MiniInsightCard(title: String, value: String) {
     }
 }
 
-// -----------------------------
-// Orders compact card (mock)
-// -----------------------------
+
 @Composable
 fun OrderCompactCard(index: Int) {
     Card(
@@ -485,9 +475,8 @@ fun OrderCompactCard(index: Int) {
     }
 }
 
-// -----------------------------
-// Section header helper
-// -----------------------------
+
+
 @Composable
 fun SectionHeader(title: String, actionText: String, onAction: () -> Unit) {
     Column(
@@ -512,12 +501,6 @@ fun SectionHeader(title: String, actionText: String, onAction: () -> Unit) {
     }
 }
 
-
-data class DaySales(
-    val dayLabel: String,   // ex: "SEG", "TER"
-    val itemsSold: Int,
-    val revenue: Float      // in currency units, e.g. BRL
-)
 
 @Composable
 fun SalesSummaryCardInteractive(
@@ -908,6 +891,99 @@ fun BarChart7Days(
                     Text(text = days[i].dayLabel, style = MaterialTheme.typography.labelSmall, fontSize = 10.sp)
                 }
             }
+        }
+    }
+}
+
+
+
+@Composable
+fun MultiFloatingButton(onClick: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val list = listOf(
+        MinFabItem(Icons.Default.Campaign, "Criar Promoção"),
+        MinFabItem(Icons.Default.ConfirmationNumber, "Criar Cupom"),
+        MinFabItem(Icons.Default.AddBox, "Criar Produto")
+    )
+    Column(horizontalAlignment = Alignment.End) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it }) + expandVertically(),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { it }) + shrinkVertically(),
+        ) {
+            Column(
+                modifier = Modifier.wrapContentHeight()
+            ) {
+                list.forEach { item ->
+                    MinFab(item) {
+                        onClick(item.name)
+                    }
+                }
+            }
+        }
+
+
+        val transition = updateTransition(targetState = expanded, label = "transition")
+        val rotate by transition.animateFloat(label = "rotate") {
+            if (it) 90f else 0f
+        }
+        ExtendedFloatingActionButton(
+            onClick = { expanded = !expanded },
+            text = { Text(if (expanded) "Fechar" else "Criar") },
+            icon = {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.rotate(rotate)
+
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.onSecondary,
+            contentColor = MaterialTheme.colorScheme.background
+        )
+    }
+}
+
+
+
+@Composable
+fun MinFab(item: MinFabItem, onClick: (String) -> Unit = {}) {
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
+                //.background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
+                .padding(4.dp)
+                .wrapContentWidth(),
+        ) {
+            Text(
+                text = item.name, modifier = Modifier.wrapContentWidth(),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+
+        FloatingActionButton(
+            onClick = {
+                when(item.name) {
+                    "Add" -> onClick("Add")
+                    "Delete" -> onClick("Delete")
+                    else -> onClick("Save")
+                }
+            },
+            modifier = Modifier
+                .padding(start = 10.dp, bottom = 7.dp)
+                .size(40.dp),
+            containerColor = MaterialTheme.colorScheme.onBackground
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.name,
+                tint = MaterialTheme.colorScheme.background
+            )
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,12 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.utils.toBrazilianCurrency
@@ -112,8 +116,14 @@ fun OrderDetailsScreen(
         paymentStatus = "Pago"
     )
 
+    val buttonHeight = 56.dp
+    val bottomMargin = 16.dp
+    val extraSpacing = 16.dp
 
-    val scrollBehavior = enterAlwaysScrollBehavior()
+    val totalBottomPadding = buttonHeight + bottomMargin + extraSpacing
+    val gradientHeight = buttonHeight + bottomMargin
+    val backgroundColor = MaterialTheme.colorScheme.secondary
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -125,36 +135,33 @@ fun OrderDetailsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBackNavigation
-                    ) {
+                    IconButton(onClick = onBackNavigation) {
                         Icon(
-                            Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "Detalhes do pedido"
+                            imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
+                            contentDescription = stringResource(R.string.icon_navigate_back)
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        val buttonHeight = 42.dp
-        val bottomMargin = 18.dp
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(backgroundColor)
         ) {
             LazyColumn(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.background),
-                contentPadding = PaddingValues(bottom = bottomMargin + buttonHeight + 10.dp),
+                contentPadding = PaddingValues(
+                    top = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = totalBottomPadding
+                ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item { TimelineSection(current = order.status, order) }
@@ -167,8 +174,34 @@ fun OrderDetailsScreen(
                         onSupport,
                     )
                 }
+                item {
+                    Card(Modifier.fillMaxWidth().height(100.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("ÚLTIMO ITEM (Resumo de Valores)", style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                }
             }
-            // 🔹 Botão sobreposto (flutuante)
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(gradientHeight)
+                    .background(
+                        // Cria um gradiente vertical
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent, // Começa transparente no topo
+                                backgroundColor    // Termina na cor do fundo da tela na base
+                            ),
+                            startY = 0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+
+
             ElevatedButton(
                 onClick = { onRepeat(order) },
                 colors = ButtonDefaults.elevatedButtonColors(
@@ -531,3 +564,8 @@ private fun ActionsSection(
     }
 }
 
+@Preview
+@Composable
+fun Test() {
+    OrderDetailsScreen()
+}

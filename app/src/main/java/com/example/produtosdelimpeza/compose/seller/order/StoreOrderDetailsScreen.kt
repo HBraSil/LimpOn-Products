@@ -19,8 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -45,7 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.customer.order.OrderStatus
 
 
@@ -67,7 +70,6 @@ data class OrderItem(val qty: Int, val name: String, val obs: String? = null)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreOrderDetailsScreen() {
-    // Estado do status do pedido
     var currentStatus by remember { mutableStateOf(OrderStatus.PREPARING) }
     var showStatusDialog by remember { mutableStateOf(false) }
     var showCancelSheet by remember { mutableStateOf(false) }
@@ -75,9 +77,7 @@ fun StoreOrderDetailsScreen() {
 
 
     Scaffold(
-        topBar = {
-            OrderHeader(orderId = "#1234", status = currentStatus, onBack = {})
-        }
+        topBar = { OrderHeader(orderId = "#1234", status = currentStatus, onBack = {}) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -323,7 +323,6 @@ fun StatusUpdateDialog(
     }
 }
 
-// --- (Componentes de Apoio Mantidos para integridade do código) ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -339,7 +338,14 @@ fun OrderHeader(orderId: String, status: OrderStatus, onBack: () -> Unit) {
                 }
             }
         },
-        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) } },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.icon_navigate_back)
+                )
+            }
+        },
         actions = {
             Surface(color = status.color, shape = RoundedCornerShape(16.dp)) {
                 Text(status.label, Modifier.padding(horizontal = 12.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium)
@@ -365,7 +371,7 @@ fun LogisticsSection(isDelivery: Boolean, customerName: String) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(customerName, fontWeight = FontWeight.SemiBold)
                 Row {
-                    IconButton(onClick = {}) { Icon(Icons.Default.Chat, null, tint = MaterialTheme.colorScheme.primary) }
+                    IconButton(onClick = {}) { Icon(Icons.AutoMirrored.Filled.Chat, null, tint = MaterialTheme.colorScheme.primary) }
                     IconButton(onClick = {}) { Icon(Icons.Default.Phone, null, tint = MaterialTheme.colorScheme.primary) }
                 }
             }
