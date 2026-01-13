@@ -40,8 +40,13 @@ import com.example.produtosdelimpeza.compose.customer.search.SearchScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
+import com.example.produtosdelimpeza.compose.customer.profile.coupons.Coupon
 import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
+import com.example.produtosdelimpeza.compose.seller.dashboard.COUPON
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
+import com.example.produtosdelimpeza.compose.seller.dashboard.PRODUCT
+import com.example.produtosdelimpeza.compose.seller.dashboard.PROMOTION
+import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistrationScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
@@ -124,6 +129,13 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 },
                 onNavigateToAnalyticsScreenClick = {
                     navController.navigate(StoreScreen.ANALYTICS.route)
+                },
+                onNavigateToItemFab = {
+                    when(it) {
+                        PRODUCT -> navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
+                        PROMOTION -> {navController.navigate(StoreScreen.LIMITED_PROMOTION.route)}
+                        COUPON -> {navController.navigate(StoreScreen.CREATE_COUPUN.route)}
+                    }
                 }
             )
         }
@@ -190,6 +202,14 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 
         composable(StoreScreen.LIMITED_PROMOTION.route) {
             TimeLimitedPromotionScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(StoreScreen.PRODUCT_REGISTRATION.route) {
+            ProductRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }

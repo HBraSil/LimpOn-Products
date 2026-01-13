@@ -56,7 +56,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.outlined.Campaign
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -79,8 +82,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import com.example.produtosdelimpeza.commons.ProfileMode
@@ -91,9 +92,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 
-private const val todayRevenueMock = 1250.75  // R$ faturamento do dia
 private const val activeOrdersMock = 7        // pedidos ativos
-private val weeklySparkMock = listOf(6, 8, 5, 12, 10, 14, 11) // mock sparkline
 
 
 data class DaySales(
@@ -108,13 +107,19 @@ data class MinFabItem(
     var name: String,
 )
 
+const val COUPON = "criar_cupom"
+const val PROMOTION = "criar_promoção"
+const val PRODUCT = "criar_produto"
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
-    onCreateProduct: () -> Unit = {},
     onNotificationsScreenClick: () -> Unit = {},
-    onNavigateToAnalyticsScreenClick: () -> Unit = {}
+    onNavigateToAnalyticsScreenClick: () -> Unit = {},
+    onNavigateToItemFab: (String) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
@@ -130,7 +135,9 @@ fun DashboardScreen(
             )
         },
         floatingActionButton = {
-            MultiFloatingButton{}
+            MultiFloatingButton{
+                onNavigateToItemFab(it)
+            }
         },
     ) { paddingValues ->
         LazyColumn(
@@ -156,9 +163,7 @@ fun DashboardScreen(
             item {
                 // Top KPI row - always visible
                 KPIHeroRow(
-                    revenue = todayRevenueMock,
                     activeOrders = activeOrdersMock,
-                    spark = weeklySparkMock,
                     onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
                 )
             }
@@ -225,16 +230,12 @@ fun StoreProfileCardAdvanced(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-
             .padding(10.dp)
-            .background(
-                color = MaterialTheme.colorScheme.background
-            )
+            .background(color = MaterialTheme.colorScheme.background)
             .clickable { onClick() },
 
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // avatar or placeholder
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -253,9 +254,7 @@ fun StoreProfileCardAdvanced(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(storeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
@@ -265,9 +264,7 @@ fun StoreProfileCardAdvanced(
                 }
             }
         }
-
         Spacer(modifier = Modifier.height(12.dp))
-
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text("+${recentFeedbackCount} novos feedbacks", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -276,7 +273,6 @@ fun StoreProfileCardAdvanced(
             }
         }
     }
-
 }
 
 
@@ -292,8 +288,7 @@ fun TinyMetric(label: String, value: String) {
 
 
 @Composable
-fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>, onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
-    // responsive: side-by-side on wide screens, stacked on narrow
+fun KPIHeroRow(activeOrders: Int, onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,12 +300,12 @@ fun KPIHeroRow(revenue: Double, activeOrders: Int, spark: List<Int>, onNavigateT
         if (wide) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(spacing)) {
                 RevenueCard(onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick)
-                OrdersCard(activeOrders = activeOrders, modifier = Modifier.weight(1f))
+                OrdersCard(activeOrders = activeOrders)
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(spacing)) {
                 RevenueCard(onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick)
-                OrdersCard(activeOrders = activeOrders, modifier = Modifier.fillMaxWidth())
+                OrdersCard(activeOrders = activeOrders)
             }
         }
     }
@@ -347,9 +342,8 @@ fun RevenueCard(onNavigateToAnalyticsScreenClick: () -> Unit = {}) {
 }
 
 
-// OrdersCard (corrigida)
 @Composable
-fun OrdersCard(activeOrders: Int, modifier: Modifier = Modifier) {
+fun OrdersCard(activeOrders: Int) {
 
     Column(modifier = Modifier
         .padding(16.dp)
@@ -367,7 +361,6 @@ fun OrdersCard(activeOrders: Int, modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // AnimatedContent sem transitionSpec
                 AnimatedContent(targetState = activeOrders) { count ->
                     Text(
                         "$count",
@@ -378,14 +371,13 @@ fun OrdersCard(activeOrders: Int, modifier: Modifier = Modifier) {
                 }
             }
 
-            // action button inside card
             ElevatedButton(
                 onClick = { /* abrir pedidos */ },
                 colors = ButtonDefaults.buttonColors(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Icon(Icons.Default.List, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Gerenciar")
             }
@@ -402,48 +394,6 @@ fun OrdersCard(activeOrders: Int, modifier: Modifier = Modifier) {
 
 }
 
-// -----------------------------
-// Sparkline mock (simple columns) - replace with chart lib if desired
-// -----------------------------
-@Composable
-fun Sparkline(spark: List<Int>, modifier: Modifier = Modifier) {
-    val max = (spark.maxOrNull() ?: 1).toFloat()
-    Row(modifier = modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        spark.forEach { v ->
-            val h = (v / max) * 40f
-            Box(modifier = Modifier
-                .weight(1f)
-                .height(with(LocalDensity.current) { h.dp })
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
-            )
-        }
-    }
-}
-
-
-@Composable
-fun QuickInsightsRow() {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        MiniInsightCard(title = "Conversão", value = "12.6%")
-        MiniInsightCard(title = "Tempo médio", value = "14m")
-        MiniInsightCard(title = "Itens ativos", value = "42")
-    }
-}
-
-@Composable
-fun MiniInsightCard(title: String, value: String) {
-    Card(modifier = Modifier
-        .fillMaxWidth(0.5f)
-        .height(96.dp), elevation = CardDefaults.cardElevation(4.dp)) {
-        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.SpaceBetween) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            TextButton(onClick = { /* quick action */ }) { Text("Ver") }
-        }
-    }
-}
 
 
 @Composable
@@ -490,7 +440,7 @@ fun SectionHeader(title: String, actionText: String, onAction: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                title,
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -542,9 +492,7 @@ fun SalesSummaryCardInteractive(
         Column(
             modifier = Modifier
                 .weight(0.45f)
-                .background(
-                    color =  MaterialTheme.colorScheme.background.copy(0.4f)
-            )
+                .background(color =  MaterialTheme.colorScheme.background.copy(0.4f))
         ) {
             Row(
                 Modifier.padding(10.dp)
@@ -731,27 +679,20 @@ fun BarChart7Days(
                 barRects = newRects
             }
 
-            // overlay tooltip (interno ao Box, usa offset em Dp)
             if (selectedIndex != null && selectedIndex!! in days.indices && canvasSize != Size.Zero) {
                 val sel = days[selectedIndex!!]
                 val tooltipText1 = "${sel.itemsSold} itens"
                 val tooltipText2 = currencyFormatter.format(sel.revenue.toDouble())
 
-                // anchor local no Canvas (px)
                 val anchorX = tooltipLocalAnchor.x
                 val anchorY = tooltipLocalAnchor.y
 
-                // calcular xPx centralizado e clamped dentro do canvas
                 val sideMarginPx = with(density) { 8.dp.toPx() }
                 var xPx = anchorX - tooltipWidthPxStable / 2f
                 xPx = xPx.coerceIn(sideMarginPx, canvasSize.width - tooltipWidthPxStable - sideMarginPx)
 
-                // decide se cabe acima (usando valor estável)
-                // distância opcional entre a barra e o tooltip quando fica acima
-                // espaço entre o tooltip e a parte superior da barra quando tooltip aparece acima
                 val tooltipMarginAbovePx = with(density) { 3.dp.toPx() }
 
-// decide se cabe acima com a margem adicional
                 val preferredYPxAbove =
                     anchorY - (tooltipHeightPxStable + pointerHeightPx + safetyMarginPx + tooltipMarginAbovePx)
 
@@ -765,14 +706,12 @@ fun BarChart7Days(
                     (anchorY + pointerHeightPx + safetyMarginPx).coerceAtMost((canvasSize.height - tooltipHeightPxStable))
                 }
 
-                // pointerX dentro do tooltip (px)
                 val pointerXInTooltip = (anchorX - xPx).coerceIn(pointerHeightPx, tooltipWidthPxStable - pointerHeightPx)
 
                 // converte para Dp (offset do tooltip dentro do Box/Canvas)
                 val offsetXDp = with(density) { xPx.toDp() }
                 val offsetYDp = with(density) { yPx.toDp() }
 
-                // AnimatedVisibility qualificada para evitar conflitos de receiver
                 androidx.compose.animation.AnimatedVisibility(
                     visible = true,
                     modifier = Modifier
@@ -794,12 +733,11 @@ fun BarChart7Days(
                             ) {
                                 val triW = 20f
                                 val triH = 12f
-                                val px = pointerXInTooltip
 
                                 val path = Path().apply {
-                                    moveTo(px, 0f)                     // topo do canvas (ponta para baixo)
-                                    lineTo(px - triW / 2f, triH)       // base esquerda
-                                    lineTo(px + triW / 2f, triH)       // base direita
+                                    moveTo(pointerXInTooltip, 0f)                     // topo do canvas (ponta para baixo)
+                                    lineTo(pointerXInTooltip - triW / 2f, triH)       // base esquerda
+                                    lineTo(pointerXInTooltip + triW / 2f, triH)       // base direita
                                     close()
                                 }
 
@@ -860,11 +798,10 @@ fun BarChart7Days(
                                 .height(pointerHeightDp)) {
                                 val triW = 20f
                                 val triH = 12f
-                                val px = pointerXInTooltip
                                 val path = Path().apply {
-                                    moveTo(px, triH)
-                                    lineTo(px - triW / 2f, 0f)
-                                    lineTo(px + triW / 2f, 0f)
+                                    moveTo(pointerXInTooltip, triH)
+                                    lineTo(pointerXInTooltip - triW / 2f, 0f)
+                                    lineTo(pointerXInTooltip + triW / 2f, 0f)
                                     close()
                                 }
                                 drawPath(path = path, color = tooltipBackground)
@@ -901,11 +838,13 @@ fun BarChart7Days(
 fun MultiFloatingButton(onClick: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val list = listOf(
-        MinFabItem(Icons.Default.Campaign, "Criar Promoção"),
-        MinFabItem(Icons.Default.ConfirmationNumber, "Criar Cupom"),
-        MinFabItem(Icons.Default.AddBox, "Criar Produto")
+        MinFabItem(Icons.Outlined.Campaign, PROMOTION),
+        MinFabItem(Icons.Outlined.LocalOffer, COUPON),
+        MinFabItem(Icons.Outlined.Inventory2, PRODUCT)
     )
-    Column(horizontalAlignment = Alignment.End) {
+
+
+    Column(horizontalAlignment = Alignment.End,  verticalArrangement = Arrangement.Center) {
         AnimatedVisibility(
             visible = expanded,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it }) + expandVertically(),
