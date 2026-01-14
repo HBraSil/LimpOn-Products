@@ -48,6 +48,7 @@ import com.example.produtosdelimpeza.compose.seller.dashboard.PROMOTION
 import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistrationScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
+import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
@@ -218,8 +219,19 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 
         composable(StoreScreen.STORE_MANAGEMENT.route) {
             StoreManagementScreen(
-                onNavigateToCreateProductClick = {
+                onNavigateToCreateProductScreenClick = {
                     navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
+                },
+                onNavigateToPromotionDetailScreenClick = {
+                    navController.navigate(StoreScreen.PROMOTION_DETAIL.route)
+                }
+            )
+        }
+
+        composable(StoreScreen.PROMOTION_DETAIL.route) {
+            PromotionDetailsScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
                 }
             )
         }

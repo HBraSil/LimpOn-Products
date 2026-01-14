@@ -23,7 +23,10 @@ import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.Prom
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
+fun StoreManagementScreen(
+    onNavigateToCreateProductScreenClick: () -> Unit,
+    onNavigateToPromotionDetailScreenClick: () -> Unit
+) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Produtos", "Cupons", "Promoções")
 
@@ -78,9 +81,9 @@ fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
             }
 
             when (selectedTabIndex) {
-                0 -> ProductsTabContent(onNewProductClick = onNavigateToCreateProductClick)
+                0 -> ProductsTabContent(onNewProductClick = onNavigateToCreateProductScreenClick)
                 1 -> CouponsTabContent()
-                2 -> PromotionsTabContent()
+                2 -> PromotionsTabContent(onPromotionClick = { onNavigateToPromotionDetailScreenClick() })
             }
         }
     }
