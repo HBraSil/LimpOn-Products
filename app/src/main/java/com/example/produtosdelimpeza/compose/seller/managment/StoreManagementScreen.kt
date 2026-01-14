@@ -3,11 +3,9 @@ package com.example.produtosdelimpeza.compose.seller.managment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionsTabContent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,16 +83,5 @@ fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
                 2 -> PromotionsTabContent()
             }
         }
-    }
-}
-
-
-@Composable
-fun PromotionsTabContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Lista de Promoções vai aqui")
     }
 }
