@@ -40,7 +40,6 @@ import com.example.produtosdelimpeza.compose.customer.search.SearchScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
-import com.example.produtosdelimpeza.compose.customer.profile.coupons.Coupon
 import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.COUPON
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
@@ -48,6 +47,7 @@ import com.example.produtosdelimpeza.compose.seller.dashboard.PRODUCT
 import com.example.produtosdelimpeza.compose.seller.dashboard.PROMOTION
 import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistrationScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
+import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
@@ -212,6 +212,14 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             ProductRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
+                }
+            )
+        }
+
+        composable(StoreScreen.STORE_MANAGEMENT.route) {
+            StoreManagementScreen(
+                onNavigateToCreateProductClick = {
+                    navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
                 }
             )
         }

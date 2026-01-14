@@ -5,8 +5,10 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -29,13 +31,19 @@ object StoreBottomNavConfig {
             router = StoreScreen.DASHBOARD.route
         ),
         NavigationItem(
-            title = R.string.customer_order_detail,
+            title = R.string.order_detail_screen,
             iconSelected = Icons.AutoMirrored.Filled.List,
             iconUnselected = Icons.AutoMirrored.Outlined.List,
             router = StoreScreen.STORE_ORDER.route
         ),
         NavigationItem(
-            title = R.string.customer_profile,
+            title = R.string.store_managment,
+            iconSelected = Icons.Default.Storefront,
+            iconUnselected = Icons.Outlined.Storefront,
+            router = StoreScreen.STORE_MANAGEMENT.route
+        ),
+        NavigationItem(
+            title = R.string.profile_store,
             iconSelected = Icons.Filled.Person,
             iconUnselected = Icons.Outlined.Person,
             router = StoreScreen.STORE_PROFILE.route

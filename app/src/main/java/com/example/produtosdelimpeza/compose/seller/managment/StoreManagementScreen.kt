@@ -1,6 +1,7 @@
 package com.example.produtosdelimpeza.compose.seller.managment
 
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,22 +19,37 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun ManageStoreScreen() {
+fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Produtos", "Cupons", "Promoções")
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Gerenciar Loja") },
+                title = {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "Central de Vendas",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = "Produtos, cupons e promoções",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -43,10 +59,9 @@ fun ManageStoreScreen() {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // --- TabRow ---
             TabRow(
                 selectedTabIndex = selectedTabIndex,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
@@ -65,9 +80,8 @@ fun ManageStoreScreen() {
                 }
             }
 
-            // --- Conteúdo da aba ---
             when (selectedTabIndex) {
-                0 -> ProductsTabContent()
+                0 -> ProductsTabContent(onNewProductClick = onNavigateToCreateProductClick)
                 1 -> CouponsTabContent()
                 2 -> PromotionsTabContent()
             }

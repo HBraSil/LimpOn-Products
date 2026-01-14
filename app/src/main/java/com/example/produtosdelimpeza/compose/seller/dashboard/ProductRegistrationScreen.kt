@@ -40,7 +40,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         },
@@ -52,7 +52,11 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
                         .fillMaxWidth()
                         .padding(16.dp)
                         .height(56.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
                 ) {
                     Text("Salvar Produto", style = MaterialTheme.typography.titleMedium)
                 }

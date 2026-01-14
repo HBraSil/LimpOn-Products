@@ -4,6 +4,7 @@ enum class StoreScreen(val route: String, val showBottomBar: Boolean = false) {
     DASHBOARD("dashboard", true),
     STORE_ORDER("store_order", true),
     STORE_PROFILE("store_profile", true),
+    STORE_MANAGEMENT("store_management", true),
 
 
 
