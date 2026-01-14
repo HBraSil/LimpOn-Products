@@ -62,7 +62,7 @@ fun ProductsTabContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .height(56.dp),
+                .height(50.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedContent(

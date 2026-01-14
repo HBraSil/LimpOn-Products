@@ -79,7 +79,7 @@ fun SwipeableCardOne(modifier: Modifier = Modifier) {
         }
     }
 
-    val verticalSpacingPx = 10f // 10 pixels por card
+    val verticalSpacingPx = 10f
     val cardCount = items.size
 
     val topCompensationDp = ((cardCount - 1) * verticalSpacingPx).dp
@@ -95,7 +95,7 @@ fun SwipeableCardOne(modifier: Modifier = Modifier) {
         if (items.size <= 1) return
         val first = items.removeAt(0)
         items.add(first)
-        lastSwipeSign = sign // ATUALIZA o sinal com a direção de saída
+        lastSwipeSign = sign
     }
 
     var isTopCardBeingSwapped by remember { mutableStateOf(false) }

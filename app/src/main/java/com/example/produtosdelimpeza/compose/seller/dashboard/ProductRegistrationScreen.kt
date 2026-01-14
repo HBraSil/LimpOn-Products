@@ -43,24 +43,6 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
                     containerColor = Color.Transparent
                 )
             )
-        },
-        bottomBar = {
-            Surface(shadowElevation = 8.dp) {
-                Button(
-                    onClick = { /* Salvar Logic */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.background
-                    )
-                ) {
-                    Text("Salvar Produto", style = MaterialTheme.typography.titleMedium)
-                }
-            }
         }
     ) { paddingValues ->
         Column(
@@ -161,8 +143,20 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             Spacer(Modifier.height(16.dp))
 
             InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8", onQuantityChange = {})
-
-            Spacer(modifier = Modifier.height(80.dp)) // Espaço para o botão fixo não cobrir o conteúdo
+            Button(
+                onClick = { /* Salvar Logic */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Text("Salvar Produto", style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }

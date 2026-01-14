@@ -20,11 +20,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -89,17 +87,6 @@ fun StoreManagementScreen(onNavigateToCreateProductClick: () -> Unit) {
     }
 }
 
-
-
-@Composable
-fun CouponsTabContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Lista de Cupons vai aqui")
-    }
-}
 
 @Composable
 fun PromotionsTabContent() {
