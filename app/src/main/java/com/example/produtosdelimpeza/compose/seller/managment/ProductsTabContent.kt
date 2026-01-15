@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Search
@@ -42,8 +46,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 
-
+@Preview
 @Composable
 fun ProductsTabContent(
     onNewProductClick: () -> Unit = {}
@@ -62,14 +67,14 @@ fun ProductsTabContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .height(50.dp),
+                .height(56.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedContent(
                 targetState = isSearchExpanded,
                 transitionSpec = {
-                    fadeIn(animationSpec = tween(100)) + expandHorizontally() togetherWith
-                            fadeOut(animationSpec = tween(100)) + shrinkHorizontally()
+                    fadeIn(animationSpec = tween(600)) + expandHorizontally() togetherWith
+                            fadeOut(animationSpec = tween(600)) + shrinkHorizontally()
                 },
                 modifier = Modifier.weight(1f),
                 label = "SearchAnimation"
@@ -91,8 +96,8 @@ fun ProductsTabContent(
                             }
                         },
                         colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            focusedContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.5f)
                         )
                     )
                 } else {
@@ -114,27 +119,33 @@ fun ProductsTabContent(
                 }
             }
 
-            if (!isSearchExpanded) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = onNewProductClick,
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.background
-                    )
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(Modifier.width(4.dp))
-                    Text(text = "Novo")
-                }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlinedButton(onClick = {}) {
+                Text(text = "Ver todos os produtos")
+            }
+
+            Button(
+                onClick = onNewProductClick,
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text(text = "Novo")
             }
         }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 30.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             val filteredList = mockProducts.filter {
@@ -142,23 +153,48 @@ fun ProductsTabContent(
             }
 
             item {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {},
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text("Lanchonete", style = MaterialTheme.typography.titleLarge)
 
-                    TextButton(onClick = {}){ Text("Ver todos produtos", color = MaterialTheme.colorScheme.surfaceVariant.copy(0.8f)) }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = "",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
+
+                Spacer(Modifier.height(10.dp))
             }
             items(filteredList) { product ->
                 ProductListItem(product)
             }
 
+
             item {
                 Row(
-                    Modifier.padding(top = 60.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier
+                        .padding(top = 60.dp)
+                        .fillMaxWidth()
+                        .clickable {},
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Remédios", style = MaterialTheme.typography.titleLarge)
-                    TextButton(onClick = {}){ Text(text = "Ver todos produtos", color = MaterialTheme.colorScheme.surfaceVariant.copy(0.8f)) }
+                    Text("Remédio", style = MaterialTheme.typography.titleLarge)
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = "",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
+
+                Spacer(Modifier.height(10.dp))
             }
             items(filteredList) { product ->
                 ProductListItem(product)

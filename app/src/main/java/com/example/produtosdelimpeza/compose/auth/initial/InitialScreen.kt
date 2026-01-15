@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.customer.initial
+package com.example.produtosdelimpeza.compose.auth.initial
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -108,7 +108,6 @@ fun InitialScreen(
                 Card(
                     onClick = onStartClick,
                     modifier = Modifier
-                        .navigationBarsPadding()
                         .height(70.dp)
                         .align(Alignment.End)
                         .width(160.dp),

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,8 +23,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.alpha
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
 
 data class PromotionUiModel(
@@ -65,17 +69,16 @@ val mockPromotions = listOf(
 @Composable
 fun PromotionsTabContent(
     promotions: List<PromotionUiModel> = mockPromotions,
-    onPromotionClick: (PromotionUiModel) -> Unit = {}
+    onPromotionClick: (String) -> Unit,
+    onNavigateToCreatePromotionScreenClick: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
-        item {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)){
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp).weight(1f)) {
                 Text(
                     text = "Promoções",
                     style = MaterialTheme.typography.titleLarge
@@ -83,16 +86,37 @@ fun PromotionsTabContent(
                 Text(
                     text = "Promoções inativas são exibidas apenas por 30 dias",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2
                 )
+            }
+            Button(
+                onClick = onNavigateToCreatePromotionScreenClick,
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text(text = "Novo")
             }
         }
 
-        items(promotions, key = { it.id }) { promotion ->
-            PromotionCompactCard(
-                promotion = promotion,
-                onClick = { onPromotionClick(promotion) }
-            )
+        Spacer(Modifier.height(20.dp))
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(promotions, key = { it.id }) { promotion ->
+                PromotionCompactCard(
+                    promotion = promotion,
+                    onClick = { onPromotionClick(StoreScreen.PROMOTION_DETAIL.route) }
+                )
+            }
         }
     }
 }
@@ -102,17 +126,9 @@ fun PromotionCompactCard(
     promotion: PromotionUiModel,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (promotion.isActive) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-
-    val statusColor = if (promotion.isActive) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.outline
-    }
+    val statusColor =
+        if (promotion.isActive) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.outline
 
     val cardAlpha = if (promotion.isActive) 1f else 0.5f
 

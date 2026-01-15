@@ -27,7 +27,7 @@ import com.example.produtosdelimpeza.compose.customer.about.AboutScreen
 import com.example.produtosdelimpeza.compose.customer.cart.CartScreen
 import com.example.produtosdelimpeza.compose.customer.highlights.HighlightsScreen
 import com.example.produtosdelimpeza.compose.customer.home.HomeScreen
-import com.example.produtosdelimpeza.compose.customer.initial.InitialScreen
+import com.example.produtosdelimpeza.compose.auth.initial.InitialScreen
 import com.example.produtosdelimpeza.compose.auth.login.LoginScreen
 import com.example.produtosdelimpeza.compose.customer.notifications.ManagementNotificationScreen
 import com.example.produtosdelimpeza.compose.customer.profile.ProfileScreen
@@ -48,6 +48,7 @@ import com.example.produtosdelimpeza.compose.seller.dashboard.PROMOTION
 import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistrationScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
+import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
@@ -134,7 +135,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 onNavigateToItemFab = {
                     when(it) {
                         PRODUCT -> navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
-                        PROMOTION -> {navController.navigate(StoreScreen.LIMITED_PROMOTION.route)}
+                        PROMOTION -> {navController.navigate(StoreScreen.CREATE_PROMOTION.route)}
                         COUPON -> {navController.navigate(StoreScreen.CREATE_COUPUN.route)}
                     }
                 }
@@ -201,7 +202,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             )
         }
 
-        composable(StoreScreen.LIMITED_PROMOTION.route) {
+        composable(StoreScreen.CREATE_PROMOTION.route) {
             TimeLimitedPromotionScreen(
                 onBackNavigation = {
                     navController.navigateUp()
@@ -222,14 +223,25 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 onNavigateToCreateProductScreenClick = {
                     navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
                 },
-                onNavigateToPromotionDetailScreenClick = {
-                    navController.navigate(StoreScreen.PROMOTION_DETAIL.route)
+                onNavigateToTabContentDetailScreenClick = { route ->
+                    navController.navigate(route)
+                },
+                onNewProductClick = { route ->
+                    navController.navigate(route)
                 }
             )
         }
 
         composable(StoreScreen.PROMOTION_DETAIL.route) {
             PromotionDetailsScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(StoreScreen.COUPON_DETAIL.route) {
+            CouponDetailScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }

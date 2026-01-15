@@ -33,7 +33,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Novo Produto", style = MaterialTheme.typography.titleMedium) },
+                title = { Text("Novo Produto") },
                 navigationIcon = {
                     IconButton(onClick = onBackNavigation) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Voltar")
@@ -77,7 +77,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             OutlinedTextField(
                 value = productName,
                 onValueChange = { productName = it },
-                label = { Text("Nome do Produto") },
+                label = { Text("Nome do Produto*") },
                 placeholder = { Text("Ex: Hambúrguer Artesanal") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -86,7 +86,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descrição detalhada") },
+                label = { Text("Descrição detalhada*") },
                 placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
@@ -99,7 +99,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
                 OutlinedTextField(
                     value = price,
                     onValueChange = { price = it },
-                    label = { Text("Preço") },
+                    label = { Text("Preço*") },
                     prefix = { Text("R$ ") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
@@ -142,7 +142,7 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
 
             Spacer(Modifier.height(16.dp))
 
-            InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8", onQuantityChange = {})
+            InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8*", onQuantityChange = {})
             Button(
                 onClick = { /* Salvar Logic */ },
                 modifier = Modifier

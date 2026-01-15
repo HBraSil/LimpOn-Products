@@ -108,13 +108,6 @@ fun PromotionDetailsScreen(onBackNavigation: () -> Unit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = null)
                     }
                 },
-                actions = {
-                    if (promotion.isActive && !promotion.isCanceled) {
-                        IconButton(onClick = { showEditSheet = true }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar")
-                        }
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -161,7 +154,7 @@ fun PromotionDetailsScreen(onBackNavigation: () -> Unit) {
                 }
             }
 
-            // 🔹 Card principal (desconto)
+
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
@@ -189,17 +182,30 @@ fun PromotionDetailsScreen(onBackNavigation: () -> Unit) {
                 }
             }
 
-            // 🔹 Desempenho
             PromotionPerformanceSection()
 
-            // 🔹 Informações adicionais
             PromotionInfoSection()
 
-            // 🔹 Ação crítica
             if (promotion.isActive && !promotion.isCanceled) {
+                Spacer(Modifier.height(20.dp))
+                ElevatedButton(
+                    onClick = { showEditSheet = true },
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Ajustar Prazo ou Limite")
+                }
+
+
                 OutlinedButton(
                     onClick = { showCancelDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     ),

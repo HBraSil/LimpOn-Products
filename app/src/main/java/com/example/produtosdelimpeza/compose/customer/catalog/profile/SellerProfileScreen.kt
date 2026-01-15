@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreProfileScreen(onBackNavigation: () -> Unit = {}) {
-
     val tabItems = listOf(
         "Informações",
         "Cupons",

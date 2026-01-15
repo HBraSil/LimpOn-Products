@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.automirrored.outlined.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.ConfirmationNumber
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.TrendingDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -414,7 +412,7 @@ fun CreatePromotionBottomSheet(
                 title = "Promoção por tempo limitado",
                 description = "Aumente vendas em horários estratégicos",
             ) {
-                onPromotionActionItemClick(StoreScreen.LIMITED_PROMOTION.route)
+                onPromotionActionItemClick(StoreScreen.CREATE_PROMOTION.route)
                 onDismiss()
             }
 

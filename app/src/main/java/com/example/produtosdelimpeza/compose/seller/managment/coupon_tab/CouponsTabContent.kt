@@ -1,8 +1,8 @@
-package com.example.produtosdelimpeza.compose.seller.managment
+package com.example.produtosdelimpeza.compose.seller.managment.coupon_tab
 
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,17 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
@@ -32,15 +34,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
 
 @Composable
-fun CouponsTabContent() {
+fun CouponsTabContent(
+    onCouponClick: (String) -> Unit = {},
+    onNavigateToCreateCouponScreenClick: () -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
-
-
     val mockCoupons = listOf(
         Coupon("BEMVINDO20", "R$ 20,00 de desconto", "Ativo", "Vence em 25/01/2026", "Pedido mín. R$ 50"),
         Coupon("FRETEGRATIS", "Entrega Grátis", "Ativo", "Vence em 30/01/2026", "Válido para toda loja"),
@@ -49,16 +52,36 @@ fun CouponsTabContent() {
     )
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Column(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)) {
-            Text(
-                text = "Cupons",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = "Cupons inativos são exibidos apenas por 30 dias",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp).weight(1f)) {
+                Text(
+                    text = "Cupons",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = "Cupons inativos são exibidos apenas por 30 dias",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2
+                )
+            }
+            Button(
+                onClick = onNavigateToCreateCouponScreenClick,
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text(text = "Novo")
+            }
         }
         Spacer(Modifier.height(20.dp))
         LazyColumn(
@@ -68,22 +91,24 @@ fun CouponsTabContent() {
             val filteredCoupons = mockCoupons.filter { it.code.contains(searchQuery, ignoreCase = true) }
 
             items(filteredCoupons) { coupon ->
-                CouponCard(coupon)
+                CouponCard(coupon) { route ->
+                    onCouponClick(route)
+                }
             }
         }
     }
 }
 
 @Composable
-fun CouponCard(coupon: Coupon) {
+fun CouponCard(coupon: Coupon, onCardClick: (String) -> Unit) {
     val isActive = coupon.status == "Ativo"
     val cardAlpha = if (coupon.status == "Ativo") 1f else 0.5f
-
 
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .alpha(cardAlpha),
+            .alpha(cardAlpha)
+            .clickable { onCardClick(StoreScreen.COUPON_DETAIL.route) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.elevatedCardElevation(2.dp)
     ) {

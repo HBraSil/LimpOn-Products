@@ -107,9 +107,9 @@ data class MinFabItem(
     var name: String,
 )
 
-const val COUPON = "criar_cupom"
-const val PROMOTION = "criar_promoção"
-const val PRODUCT = "criar_produto"
+const val COUPON = "Criar cupom"
+const val PROMOTION = "Criar promoção"
+const val PRODUCT = "Criar produto"
 
 
 

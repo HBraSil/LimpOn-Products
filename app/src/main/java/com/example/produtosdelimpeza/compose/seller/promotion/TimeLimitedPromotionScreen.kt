@@ -59,10 +59,8 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                         Icon(Icons.AutoMirrored.Default.ArrowBackIos, null)
                     }
                 },
-                title = { Text("Promoção por tempo limitado") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                title = { Text("Criar Promoção") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { padding ->
