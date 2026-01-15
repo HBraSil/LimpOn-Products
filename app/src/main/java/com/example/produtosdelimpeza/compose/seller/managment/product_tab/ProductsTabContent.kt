@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment
+package com.example.produtosdelimpeza.compose.seller.managment.product_tab
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -34,8 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Search
@@ -47,11 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
-@Preview
 @Composable
 fun ProductsTabContent(
-    onNewProductClick: () -> Unit = {}
+    onNavigateToCreateProductScreenClick: () -> Unit = {},
+    onProductClick: (String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearchExpanded by remember { mutableStateOf(false) }
@@ -129,7 +128,7 @@ fun ProductsTabContent(
             }
 
             Button(
-                onClick = onNewProductClick,
+                onClick = onNavigateToCreateProductScreenClick,
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -146,7 +145,7 @@ fun ProductsTabContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 30.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val filteredList = mockProducts.filter {
                 it.name.contains(searchQuery, ignoreCase = true)
@@ -172,7 +171,9 @@ fun ProductsTabContent(
                 Spacer(Modifier.height(10.dp))
             }
             items(filteredList) { product ->
-                ProductListItem(product)
+                ProductListItem(product) {
+                    onProductClick(StoreScreen.PRODUCT_DETAIL.route)
+                }
             }
 
 
@@ -205,11 +206,11 @@ fun ProductsTabContent(
 
 
 @Composable
-fun ProductListItem(product: Product) {
+fun ProductListItem(product: Product, onClickItem: () -> Unit = {}) {
     ElevatedCard(
+        onClick = onClickItem,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -219,7 +220,7 @@ fun ProductListItem(product: Product) {
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Default.Image, contentDescription = null, tint = Color.Gray)

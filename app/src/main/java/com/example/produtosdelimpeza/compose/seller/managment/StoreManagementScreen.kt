@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponsTabContent
+import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductsTabContent
 import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionsTabContent
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
 
@@ -30,7 +31,6 @@ import com.example.produtosdelimpeza.navigation.route.StoreScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreManagementScreen(
-    onNavigateToCreateProductScreenClick: () -> Unit,
     onNavigateToTabContentDetailScreenClick: (String) -> Unit,
     onNewProductClick: (String) -> Unit
 ) {
@@ -102,7 +102,10 @@ fun StoreManagementScreen(
                 modifier = Modifier.fillMaxWidth()
             ) { index ->
                 when (index) {
-                    0 -> ProductsTabContent(onNewProductClick = onNavigateToCreateProductScreenClick)
+                    0 -> ProductsTabContent(
+                        onProductClick = { onNavigateToTabContentDetailScreenClick(it)},
+                        onNavigateToCreateProductScreenClick = { onNewProductClick(StoreScreen.CREATE_PRODUCT.route) }
+                    )
                     1 -> CouponsTabContent (
                         onCouponClick = { onNavigateToTabContentDetailScreenClick(it) },
                         onNavigateToCreateCouponScreenClick = { onNewProductClick(StoreScreen.CREATE_COUPUN.route) }

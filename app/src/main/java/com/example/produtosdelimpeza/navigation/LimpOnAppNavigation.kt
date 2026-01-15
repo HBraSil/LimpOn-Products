@@ -49,6 +49,7 @@ import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistratio
 import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
+import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
 import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
@@ -134,7 +135,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 },
                 onNavigateToItemFab = {
                     when(it) {
-                        PRODUCT -> navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
+                        PRODUCT -> navController.navigate(StoreScreen.CREATE_PRODUCT.route)
                         PROMOTION -> {navController.navigate(StoreScreen.CREATE_PROMOTION.route)}
                         COUPON -> {navController.navigate(StoreScreen.CREATE_COUPUN.route)}
                     }
@@ -210,7 +211,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             )
         }
 
-        composable(StoreScreen.PRODUCT_REGISTRATION.route) {
+        composable(StoreScreen.CREATE_PRODUCT.route) {
             ProductRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
@@ -220,9 +221,6 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
 
         composable(StoreScreen.STORE_MANAGEMENT.route) {
             StoreManagementScreen(
-                onNavigateToCreateProductScreenClick = {
-                    navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
-                },
                 onNavigateToTabContentDetailScreenClick = { route ->
                     navController.navigate(route)
                 },
@@ -245,6 +243,12 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 onBackNavigation = {
                     navController.navigateUp()
                 }
+            )
+        }
+
+        composable(StoreScreen.PRODUCT_DETAIL.route) {
+            ProductDetailScreen(
+                onBackNavigation = {navController.navigateUp()}
             )
         }
     }

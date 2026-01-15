@@ -261,9 +261,8 @@ fun MenuSection(onItemProfileClick: (String) -> Unit) {
 
         MenuItem(icon = Icons.Default.Edit, title = "Editar Perfil e Endereço") {onItemProfileClick(StoreScreen.STORE_EDIT_PROFILE.route)}
         MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas") {onItemProfileClick("")}
-        MenuItem(icon = Icons.Default.Inventory, title = "Gerenciar Cardápio") {onItemProfileClick("")}
         MenuItem(icon = Icons.Default.Schedule, title = "Logística") {onItemProfileClick(StoreScreen.LOGISTIC.route)}
-        MenuItem(icon = Icons.Default.SupportAgent, title = "Suporte e Ajuda") {onItemProfileClick("")}
+        //MenuItem(icon = Icons.Default.SupportAgent, title = "Suporte e Ajuda") {onItemProfileClick("")}
 
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(
