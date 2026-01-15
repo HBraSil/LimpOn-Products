@@ -187,8 +187,6 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
             tonalElevation = 6.dp,
             shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
         ) {
-
-            // Header
             Text(
                 text = "Escolher perfil",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -197,7 +195,6 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
                     .padding(horizontal = 24.dp)
             )
 
-            // Lista de perfis
             profiles.forEach { profile ->
                 ListItem(
                     headlineContent = {
@@ -224,7 +221,6 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
                 thickness = 2.dp, color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // Botão de Logout em destaque
             ListItem(
                 headlineContent = {
                     Text(
@@ -247,7 +243,6 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
                     }
                     .padding(horizontal = 8.dp)
             )
-
             Spacer(modifier = Modifier.height(30.dp))
         }
     }
@@ -260,7 +255,7 @@ fun MenuSection(onItemProfileClick: (String) -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
 
         MenuItem(icon = Icons.Default.Edit, title = "Editar Perfil e Endereço") {onItemProfileClick(StoreScreen.STORE_EDIT_PROFILE.route)}
-        MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas") {onItemProfileClick("")}
+        MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas") {onItemProfileClick(StoreScreen.ANALYTICS.route)}
         MenuItem(icon = Icons.Default.Schedule, title = "Logística") {onItemProfileClick(StoreScreen.LOGISTIC.route)}
         //MenuItem(icon = Icons.Default.SupportAgent, title = "Suporte e Ajuda") {onItemProfileClick("")}
 

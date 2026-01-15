@@ -1,18 +1,15 @@
 package com.example.produtosdelimpeza.compose.seller.dashboard
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lightbulb
@@ -23,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -33,6 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.navigation.route.StoreScreen
+
+
+private data class ProductRank(
+    val name: String,
+    val quantity: Int
+)
+
+private val Emerald = Color(0xFF10B981)
+private val Slate = Color(0xFF3D3030).copy(0.7f)
+private val Indigo = Color(0xFF4F46E5)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,35 +90,25 @@ fun StoreAnalyticsScreen(
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(30.dp)
         ) {
-            item { FaturamentoHeroCard() }
             item {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(tween(500)) + slideInVertically(
-                        initialOffsetY = { it / 4 },
-                        animationSpec = tween(500)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        RevenueChartSection()
-                        KpiSection()
-                        BehaviorAnalysisSection()
-                        InsightsSection()
-                    }
-                }
+                RevenueHero()
+                Spacer(Modifier.height(12.dp))
+                SecondaryMetrics()
             }
+            item { DailyRevenueSection() }
+            item { KpiSection() }
+            item { BehaviorAnalysisSection() }
+            item { TopSellingProducts() }
+            item { InsightsSection() }
         }
     }
 
     if (showInfoSheet) {
-        FaturamentoInfoBottomSheet(
+        RevenueInfoBottomSheet(
             onDismiss = { showInfoSheet = false }
         )
     }
@@ -126,108 +123,188 @@ fun StoreAnalyticsScreen(
 }
 
 
+
 @Composable
-fun FaturamentoHeroCard(
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth().padding(10.dp),
-        shape = RoundedCornerShape(28.dp),
-        tonalElevation = 6.dp,
-        shadowElevation = 10.dp
+private fun RevenueHero() {
+    Column {
+        Text(
+            text = "Receita Bruta",
+            fontSize = 14.sp,
+            color = Slate
+        )
+
+        Spacer(Modifier.height(4.dp))
+
+        Text(
+            text = "R$ 18.450,90",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            text = "▲ 12,4% em relação ao período anterior",
+            fontSize = 14.sp,
+            color = Emerald,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+
+@Composable
+private fun SecondaryMetrics() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF1E3A8A),
-                            Color(0xFF020617)
-                        )
-                    )
-                )
-                .padding(18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        MetricSmall("Pedidos", "284")
+        MetricSmall("Ticket Médio", "R$ 64,90")
+        MetricSmall("Cancelados", "2")
+    }
+}
+
+@Composable
+private fun MetricSmall(label: String, value: String) {
+    Column {
+        Text(text = label, fontSize = 12.sp, color = Slate)
+        Text(text = value, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+
+@Composable
+fun DailyRevenueSection() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text(
-                text = "Faturamento Total (7 dias)",
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.75f)
+                text = "Faturamento diário",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color(0xFF0F172A)
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Text(
-                text = "R$ 12.450,80",
-                fontSize = 34.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                letterSpacing = (-0.5).sp
+                text = "Hoje vs. Última Terça",
+                fontSize = 12.sp,
+                color = Color(0xFF64748B)
             )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Surface(
-                color = Color(0xFF22C55E).copy(alpha = 0.15f),
-                shape = CircleShape
-            ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Header do Card com Valor Atual e Badge de Performance
                 Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.TrendingUp,
-                        contentDescription = null,
-                        tint = Color(0xFF22C55E),
-                        modifier = Modifier.size(16.dp)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "R$ 1.240,00",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color(0xFF0F172A)
+                        )
+                        Text(
+                            text = "Atualizado às 14:30",
+                            fontSize = 12.sp,
+                            color = Color(0xFF94A3B8)
+                        )
+                    }
+
+                    // Badge de Performance (Moderno)
+                    Surface(
+                        color = Color(0xFFECFDF5),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.TrendingUp,
+                                contentDescription = null,
+                                tint = Color(0xFF10B981),
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                "15% acima",
+                                color = Color(0xFF065F46),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Visualização de Mini-Gráfico de Área (Moderno e Minimalista)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    // Linha de Meta (Tracejada ou Opaca)
+                    Divider(
+                        modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                        color = Color(0xFFF1F5F9),
+                        thickness = 2.dp
                     )
 
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        // Simulação de barras de faturamento por hora (Estilo Moderno)
+                        val hourlyData = listOf(0.2f, 0.3f, 0.45f, 0.4f, 0.6f, 0.8f, 0.9f, 0.7f, 0.4f, 0.2f)
+                        hourlyData.forEachIndexed { index, value ->
+                            val isCurrentHour = index == 6
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(value)
+                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    .background(
+                                        if (isCurrentHour) Color(0xFF4F46E5)
+                                        else Color(0xFF4F46E5).copy(alpha = 0.2f)
+                                    )
+                            )
+                        }
+                    }
+                }
 
-                    Text(
-                        text = "+12,5% vs semana anterior",
-                        color = Color(0xFF22C55E),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 13.sp
-                    )
+                // Legenda de Horários
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("08h", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text("12h", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text("16h", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text("20h", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                    Text("00h", fontSize = 10.sp, color = Color(0xFF94A3B8))
                 }
             }
         }
     }
 }
 
-
-@Composable
-private fun RevenueChartSection() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = "Faturamento diário",
-            fontWeight = FontWeight.Medium,
-            fontSize = 18.sp
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(220.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.BarChart,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(48.dp)
-            )
-        }
-    }
-}
-
-/* ---------- KPI SECTION ---------- */
 
 @Composable
 private fun KpiSection() {
@@ -276,12 +353,11 @@ private fun KpiItem(
     }
 }
 
-/* ---------- BEHAVIOR ANALYSIS ---------- */
 
 @Composable
 private fun BehaviorAnalysisSection() {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
             text = "Comportamento de vendas",
@@ -289,44 +365,65 @@ private fun BehaviorAnalysisSection() {
             fontSize = 18.sp
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
         ) {
-            BehaviorBox(
-                title = "Dias fortes",
-                description = "Sex • Sáb"
-            )
-            BehaviorBox(
-                title = "Dias fracos",
-                description = "Seg • Ter"
-            )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                BehaviorLine(
+                    label = "Dias fracos",
+                    days = "Seg • Ter",
+                    accentColor = Color(0xFFF59E0B) // amber
+                )
+
+                Divider(
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+
+                BehaviorLine(
+                    label = "Dias fortes",
+                    days = "Sex • Sáb",
+                    accentColor = Color(0xFF10B981) // emerald
+                )
+            }
         }
     }
 }
 
+
 @Composable
-private fun BehaviorBox(
-    title: String,
-    description: String
+private fun BehaviorLine(
+    label: String,
+    days: String,
+    accentColor: Color
 ) {
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+
+        // Label à esquerda
         Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium
+            text = label,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        // Dias à direita (destaque)
         Text(
-            text = description,
-            fontWeight = FontWeight.SemiBold
+            text = days,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = accentColor
         )
     }
 }
+
 
 /* ---------- INSIGHTS SECTION ---------- */
 
@@ -512,7 +609,7 @@ fun PromotionActionItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FaturamentoInfoBottomSheet(onDismiss: () -> Unit) {
+fun RevenueInfoBottomSheet(onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
@@ -571,6 +668,86 @@ fun InfoItem(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+
+@Composable
+fun TopSellingProducts() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Top 5 produtos mais vendidos",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp
+        )
+
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            color = MaterialTheme.colorScheme.background,
+           // tonalElevation = 2.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                val products = listOf(
+                    ProductRank("Hambúrguer Artesanal", 420),
+                    ProductRank("Batata Especial", 310),
+                    ProductRank("Pizza Média", 260),
+                    ProductRank("Refrigerante Lata", 190),
+                    ProductRank("Milkshake", 140)
+                )
+
+                products.forEachIndexed { index, product ->
+                    ProductRankRow(
+                        position = index + 1,
+                        name = product.name,
+                        quantity = product.quantity
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ProductRankRow(
+    position: Int,
+    name: String,
+    quantity: Int
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // Posição
+        Text(
+            text = position.toString(),
+            modifier = Modifier.width(24.dp),
+            fontWeight = FontWeight.Bold,
+            color = if (position == 1) Indigo else Slate
+        )
+
+        // Nome do produto
+        Text(
+            text = name,
+            modifier = Modifier.weight(1f),
+            fontSize = 14.sp,
+            fontWeight = if (position == 1) FontWeight.Medium else FontWeight.Normal,
+            color = if (position == 1) Indigo else Slate
+        )
+
+        // Quantidade vendida
+        Text(
+            text = "$quantity vendas",
+            fontSize = 12.sp,
+            color = if (position == 1) Indigo else Slate
         )
     }
 }
