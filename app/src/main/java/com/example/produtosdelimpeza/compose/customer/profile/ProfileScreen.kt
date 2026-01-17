@@ -49,6 +49,7 @@ fun ProfileScreen(
     onEditUserProfileScreenClick: () -> Unit = {},
     onPaymentMethodsScreenClick: () -> Unit = {},
     onCouponsScreenClick: () -> Unit = {},
+    onSellInTheApp: () -> Unit = {},
     onMyAddressesScreenClick: () -> Unit = {},
     onAboutScreenClick: () -> Unit = {},
     onHelpScreenClick: () -> Unit = {},
@@ -62,7 +63,7 @@ fun ProfileScreen(
         bottomBar = {
             //MainBottomNavigation(navController!!)
         },
-        containerColor = Color.White // Fundo levemente cinza para a tela
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -100,6 +101,11 @@ fun ProfileScreen(
                     icon = Icons.Default.Discount,
                     text = "Cupons",
                     onClick = onCouponsScreenClick
+                )
+                InfoItem(
+                    icon = Icons.Default.Discount,
+                    text = "Quero vender no app",
+                    onClick = onSellInTheApp
                 )
             }
 

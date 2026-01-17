@@ -14,10 +14,13 @@ enum class CustomerScreen(val route: String, val showBottomBar: Boolean = false)
     CUSTOMER_COUPON("coupon"),
     CUSTOMER_ADDRESS("customer_address"),
     HELP("help"),
+    SELLER_ENTRY_POINT("seller_entry_point"),
+    ENTER_INVITE_KEY("enter_invite_key"),
+    SIGNUP_STORE("signup_store"),
 
 
 
-    // TELAS DAS ROTAS DA USER_MAIN ROUTE
+    // TELAS DAS ROTAS
     CUSTOMER_HOME("customer_home",true),
     CUSTOMER_PROFILE("customer_profile",true),
     CUSTOMER_SEARCH("customer_search",true),

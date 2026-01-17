@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.navigation
 
+import SellerEntryPointScreen
 import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -40,6 +41,8 @@ import com.example.produtosdelimpeza.compose.customer.search.SearchScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.auth.signup.SignupScreen
+import com.example.produtosdelimpeza.compose.seller.EnterInviteKeyScreen
+import com.example.produtosdelimpeza.compose.seller.SignupStoreScreen
 import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
 import com.example.produtosdelimpeza.compose.seller.dashboard.COUPON
 import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
@@ -112,7 +115,7 @@ fun LimpOnAppNavigation(
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             authGraph(navController)
-            userMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
+            customerMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
             storeMainGraph(navController, navigationLastUserModeViewModel)
         }
     }
@@ -287,7 +290,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
 }
 
 
-fun NavGraphBuilder.userMainGraph(
+fun NavGraphBuilder.customerMainGraph(
     navController: NavHostController,
     cartViewModel: CartViewModel,
     appLayoutViewModel: NavigationLastUserModeViewModel
@@ -439,6 +442,9 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onAboutScreenClick = {
                     navController.navigate(CustomerScreen.ABOUT.route)
                 },
+                onSellInTheApp = {
+                    navController.navigate(CustomerScreen.SELLER_ENTRY_POINT.route)
+                },
                 onHelpScreenClick = {
                     navController.navigate(CustomerScreen.HELP.route)
                 },
@@ -499,6 +505,29 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onBackNavigation = { navController.navigateUp() }
             )
         }
+
+        composable(route = CustomerScreen.SELLER_ENTRY_POINT.route) {
+            SellerEntryPointScreen(
+                onHaveInvite = { navController.navigate(CustomerScreen.ENTER_INVITE_KEY.route) },
+                onRequestInvite = { /*navController.navigate(CustomerScreen.SIGNUP_STORE.route)*/ },
+                onBackNavigation = { navController.navigateUp() }
+            )
+        }
+
+        composable(route = CustomerScreen.ENTER_INVITE_KEY.route) {
+            EnterInviteKeyScreen(
+                onBackNavigation = { navController.navigateUp() },
+                onConfirm = { navController.navigate(CustomerScreen.SIGNUP_STORE.route) }
+            )
+        }
+
+        composable(route = CustomerScreen.SIGNUP_STORE.route) {
+            SignupStoreScreen(
+                onBackNavigation = { navController.navigateUp() },
+                onSuccess = {}
+            )
+        }
+
     }
 }
 
