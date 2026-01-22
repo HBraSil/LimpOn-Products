@@ -38,14 +38,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.model.Product
-import com.example.produtosdelimpeza.utils.toBrazilianCurrency
+import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
-    product: Product = Product(),
+    productEntity: ProductEntity = ProductEntity(),
     txtQuantity: Int = 0,
     isProductScreen: Boolean = true,
     onClickProduct: () -> Unit = {},
@@ -67,7 +67,7 @@ fun LimpOnCardProducts(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.sabao_lava_roupa),
-                contentDescription = "Product Image",
+                contentDescription = "ProductEntity Image",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.align(Alignment.Center),
                 alignment = Alignment.Center
@@ -100,7 +100,7 @@ fun LimpOnCardProducts(
                 )
         ) {
             Text(
-                text = product.name,
+                text = productEntity.name,
                 modifier = Modifier.padding(top = 6.dp, start = 6.dp),
                 fontSize = 15.sp,
                 maxLines = 1,
@@ -123,14 +123,14 @@ fun LimpOnCardProducts(
             )
 
 
-            if (product.badges.isNotEmpty()) {
+            if (productEntity.badges.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .padding(start = 6.dp, end = 6.dp, top = 4.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
                 ) {
-                    product.badges.forEach { badge ->
+                    productEntity.badges.forEach { badge ->
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
                             shape = RoundedCornerShape(50),
@@ -156,7 +156,7 @@ fun LimpOnCardProducts(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = "R$ ${product.price.toBrazilianCurrency()}",
+                    text = "R$ ${productEntity.price.toBrazilianCurrency()}",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -183,7 +183,7 @@ fun LimpOnCardProducts(
                     AddAndSubButton(
                         modifier = Modifier,
                         txtQuantity = txtQuantity,
-                        product = product,
+                        productEntity = productEntity,
                         subOfProducts = subOfProducts,
                         sumOfProducts = sumOfProducts
                     )
@@ -198,7 +198,7 @@ fun LimpOnCardProducts(
 @Composable
 private fun LimpCardProductsPreview(modifier: Modifier = Modifier) {
     LimpOnCardProducts(
-        product = Product(
+        productEntity = ProductEntity(
             name = "Sabão líquido 5 litros",
             price = 25.0,
             quantity = 1

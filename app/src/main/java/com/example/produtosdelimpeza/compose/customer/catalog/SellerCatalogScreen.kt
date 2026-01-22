@@ -96,9 +96,9 @@ import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.compose.component.AddAndSubButton
-import com.example.produtosdelimpeza.model.Product
-import com.example.produtosdelimpeza.utils.toBrazilianCurrency
-import com.example.produtosdelimpeza.viewmodels.CartViewModel
+import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
+import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -132,21 +132,21 @@ fun SellerProductsScreen(
         },
         containerColor = Color.Transparent
     ) {contentPadding ->
-        val sampleProducts = listOf(
-            Product(id = 1, name = "Sabão líquido 5 litros", price = 25.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[0]),
-            Product(id = 2, name = "Desinfetante Floral 2L", price = 15.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[1]),
-            Product(id = 3, name = "Detergente Neutro 500ml", price = 5.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[2]),
-            Product(id = 4, name = "Álcool 70% 1L", price = 10.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[3]),
-            Product(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
-            Product(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
-            Product(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
-            Product(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
-            Product(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
-            Product(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
+        val sampleProductEntities = listOf(
+            ProductEntity(id = 1, name = "Sabão líquido 5 litros", price = 25.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[0]),
+            ProductEntity(id = 2, name = "Desinfetante Floral 2L", price = 15.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[1]),
+            ProductEntity(id = 3, name = "Detergente Neutro 500ml", price = 5.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[2]),
+            ProductEntity(id = 4, name = "Álcool 70% 1L", price = 10.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[3]),
+            ProductEntity(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
+            ProductEntity(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
+            ProductEntity(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
+            ProductEntity(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
+            ProductEntity(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
+            ProductEntity(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
         )
 
         val sampleHighlights = List(6) {
-            Product(
+            ProductEntity(
                 name = listOf("Esponja multiuso (pacote com 3)", "Pizza Artesanal", "Amaciante Concentrado 1L", "Limpa vidros 500ml", "Suco Natural", "Café Torrado")[it],
                 price = listOf(12.0, 29.0, 10.22, 12.00, 40.00, 11.11)[it]
             )
@@ -182,7 +182,7 @@ fun SellerProductsScreen(
                     ) {
                         items(sampleHighlights) { product ->
                             ProductCard(
-                                product = product,
+                                productEntity = product,
                                 //isFavorite = favorites[product.id] == true,
                                 onToggleFavorite = {  },
                                 onClick = {   },
@@ -228,7 +228,7 @@ fun SellerProductsScreen(
                             .fillMaxWidth()
                             .padding(top = 10.dp)
                     ) {
-                        sampleProducts.forEachIndexed { index, product ->
+                        sampleProductEntities.forEachIndexed { index, product ->
                             val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
 
                         LimpOnCardProducts(
@@ -236,14 +236,14 @@ fun SellerProductsScreen(
                                 //.fillParentMaxWidth(0.48f)
                                 .weight(1f)
                                 .wrapContentHeight(),
-                                product = product,
+                                productEntity = product,
                                 txtQuantity = quantity,
                                 onClickProduct = {
                                     isSheetProductOpen = true
                                 },
                                 subOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.deleteOrRemoveProduct(
-                                        Product(
+                                        ProductEntity(
                                             id = index,
                                             name = name,
                                             price = curPrice,
@@ -253,7 +253,7 @@ fun SellerProductsScreen(
                                 },
                                 sumOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.addOrUpdateProduct(
-                                        Product(
+                                        ProductEntity(
                                             id = index,
                                             name = name,
                                             price = curPrice,
@@ -359,12 +359,12 @@ fun SellerProductsScreen(
                     }
                 }
             ) { contentPadding ->
-                val sampleProductsOfSpecificSeller = listOf(
-                    Product(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
-                    Product(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
-                    Product(id = 8, name = "Lustra móveis 500ml", price = 14.0),
-                    Product(id = 9, name = "Desengordurante 500ml", price = 9.0),
-                    Product(id = 10, name = "Limpa vidros 500ml", price = 7.0)
+                val sampleProductsOfSpecificSellers = listOf(
+                    ProductEntity(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
+                    ProductEntity(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
+                    ProductEntity(id = 8, name = "Lustra móveis 500ml", price = 14.0),
+                    ProductEntity(id = 9, name = "Desengordurante 500ml", price = 9.0),
+                    ProductEntity(id = 10, name = "Limpa vidros 500ml", price = 7.0)
                 )
 
                 var expanded by remember { mutableStateOf(false) }
@@ -514,7 +514,7 @@ fun SellerProductsScreen(
                             .padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        sampleProductsOfSpecificSeller.forEachIndexed { index, product ->
+                        sampleProductsOfSpecificSellers.forEachIndexed { index, product ->
                             LimpOnCardProducts(
                                 modifier = Modifier
                                     .width(150.dp)
@@ -524,7 +524,7 @@ fun SellerProductsScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                         shape = RoundedCornerShape(16.dp)
                                     ),
-                                product = product,
+                                productEntity = product,
                                 isProductScreen = false,
                                 onClickProduct = {}
                             )
@@ -540,7 +540,7 @@ fun SellerProductsScreen(
 // ---------- Card do produto ----------
 @Composable
 fun ProductCard(
-    product: Product,
+    productEntity: ProductEntity,
     //isFavorite: Boolean,
     onToggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
@@ -549,7 +549,7 @@ fun ProductCard(
 ) {
     Card(
         modifier = modifier
-            .clickable { onClick(product.name) },
+            .clickable { onClick(productEntity.name) },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
     ) {
@@ -572,7 +572,7 @@ fun ProductCard(
                 )
 
                 IconButton(
-                    onClick = { onToggleFavorite(product.name) },
+                    onClick = { onToggleFavorite(productEntity.name) },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
@@ -589,13 +589,13 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = product.name,
+                text = productEntity.name,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "R$ ${product.price.toBrazilianCurrency()}",
+                text = "R$ ${productEntity.price.toBrazilianCurrency()}",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.titleSmall

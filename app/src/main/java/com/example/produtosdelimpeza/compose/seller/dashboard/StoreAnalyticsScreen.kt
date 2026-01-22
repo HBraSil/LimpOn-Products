@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 
 private data class ProductRank(

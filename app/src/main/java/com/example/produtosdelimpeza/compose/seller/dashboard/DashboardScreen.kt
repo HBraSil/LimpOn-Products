@@ -85,7 +85,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat

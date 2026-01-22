@@ -21,7 +21,7 @@
     <string name="move_on">Continuar</string>
     <string name="home">Início</string>
     <string name="profile">Perfil</string>
-    <string name="product">Produto</string>
+    <string name="productEntity">Produto</string>
     <string name="image_profile">Imagem do perfil do usuário</string>
     <string name="edit_profile_name_and_city">Editar nome e cidade do usuário</string>
     <string name="search">Pesquisar</string>

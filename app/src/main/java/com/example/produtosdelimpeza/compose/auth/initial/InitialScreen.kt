@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -34,10 +33,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.ui.theme.LightDarkBlue
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.core.theme.LightDarkBlue
+import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 
 
+/*
 @Composable
 fun InitialScreen(
     onStartClick: () -> Unit = {},
@@ -45,10 +45,6 @@ fun InitialScreen(
 ) {
     val verticalScrollState = rememberScrollState()
 
-
-    LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
-    }
 
 
     Surface(
@@ -135,4 +131,4 @@ fun InitialScreen(
             }
         }
     }
-}
+}*/

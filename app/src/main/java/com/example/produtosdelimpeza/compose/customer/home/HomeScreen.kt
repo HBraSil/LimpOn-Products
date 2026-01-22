@@ -88,10 +88,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.model.Product
-import com.example.produtosdelimpeza.utils.toBrazilianCurrency
-import com.example.produtosdelimpeza.viewmodels.CartViewModel
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
+import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 data class ItemInitialCard(
         val id: Int,
@@ -154,12 +154,12 @@ private val itemsLista = listOf(
     ),
 )
 
-private val sampleProducts = listOf(
-    Product(1, "Detergente Líquido", 62.71),
-    Product(2, "Sabao Líquido", 6.49),
-    Product(2, "Kiboa", 2.39),
-    Product(2, "Brilho", 1.69),
-    Product(2, "Amaciante Líquidp", 10.00),
+private val sampleProductEntities = listOf(
+    ProductEntity(1, "Detergente Líquido", 62.71),
+    ProductEntity(2, "Sabao Líquido", 6.49),
+    ProductEntity(2, "Kiboa", 2.39),
+    ProductEntity(2, "Brilho", 1.69),
+    ProductEntity(2, "Amaciante Líquidp", 10.00),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -255,7 +255,7 @@ fun HomeScreen(
                     onAction = onSeeAllClick,
                     textColor = MaterialTheme.colorScheme.secondary.copy(blue = 1.5f)
                 ) }
-                item { FeaturedProductsRow(products = sampleProducts, onAdd = {}) }
+                item { FeaturedProductsRow(productEntities = sampleProductEntities, onAdd = {}) }
 
                 item { Spacer(modifier = Modifier.height(30.dp)) }
 
@@ -275,15 +275,15 @@ fun HomeScreen(
 }
 
 @Composable
-fun FeaturedProductsRow(products: List<Product>, onAdd: (Product) -> Unit) {
+fun FeaturedProductsRow(productEntities: List<ProductEntity>, onAdd: (ProductEntity) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         contentPadding = PaddingValues(start = 12.dp)
     ) {
-        items(products) { productCart ->
+        items(productEntities) { productCart ->
             SampleFeaturedProducts(
                 modifier = Modifier.padding(end = 12.dp),
-                productCart = productCart,
+                productEntityCart = productCart,
                 onAdd = onAdd
             )
         }
@@ -293,8 +293,8 @@ fun FeaturedProductsRow(products: List<Product>, onAdd: (Product) -> Unit) {
 @Composable
 fun SampleFeaturedProducts(
     modifier: Modifier = Modifier,
-    productCart: Product,
-    onAdd: (Product) -> Unit
+    productEntityCart: ProductEntity,
+    onAdd: (ProductEntity) -> Unit
 ) {
     Card(
         modifier = modifier.width(160.dp),
@@ -312,7 +312,7 @@ fun SampleFeaturedProducts(
             ) {
                 Icon(
                     imageVector = Icons.Default.South,
-                    contentDescription = productCart.name,
+                    contentDescription = productEntityCart.name,
                     modifier = Modifier.size(44.dp)
                 )
             }
@@ -320,7 +320,7 @@ fun SampleFeaturedProducts(
 
             Column {
                 Text(
-                    text = productCart.name, style = MaterialTheme.typography.bodySmall,
+                    text = productEntityCart.name, style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -328,13 +328,13 @@ fun SampleFeaturedProducts(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "R$ ${productCart.price.toBrazilianCurrency()}",
+                    text = "R$ ${productEntityCart.price.toBrazilianCurrency()}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Surface(
-                    onClick = { onAdd(productCart) },
+                    onClick = { onAdd(productEntityCart) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),

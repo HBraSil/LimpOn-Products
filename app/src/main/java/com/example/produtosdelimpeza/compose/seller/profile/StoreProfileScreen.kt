@@ -39,8 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.*
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.ui.draw.shadow
-import com.example.produtosdelimpeza.navigation.route.CustomerScreen
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
+import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)

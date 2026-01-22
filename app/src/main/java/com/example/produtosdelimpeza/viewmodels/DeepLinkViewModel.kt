@@ -3,7 +3,7 @@ package com.example.produtosdelimpeza.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.data.AuthRepositoryImpl
+import com.example.produtosdelimpeza.core.auth.data.AuthRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

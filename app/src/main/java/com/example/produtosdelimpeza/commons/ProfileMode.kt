@@ -1,5 +1,4 @@
 package com.example.produtosdelimpeza.commons
-
 sealed class ProfileMode {
     object LoggedOut : ProfileMode()
 
@@ -12,5 +11,5 @@ sealed class ProfileMode {
 enum class ProfileModeKey {
     LOGGED_OUT,
     CUSTOMER,
-    STORE
+    STORE,
 }

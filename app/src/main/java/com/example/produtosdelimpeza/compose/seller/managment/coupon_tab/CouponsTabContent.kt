@@ -35,7 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 
 @Composable

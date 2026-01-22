@@ -6,10 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.produtosdelimpeza.converter.Converters
-import com.example.produtosdelimpeza.model.Product
+import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
+import com.example.produtosdelimpeza.model.ProductEntity
 
 @TypeConverters(Converters::class)
-@Database(entities = [Product::class], version = 1, exportSchema = false)
+@Database(entities = [ProductEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartProductsDao(): CartProductsDAO
 
@@ -19,9 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
         const val DATABASE_NAME = "cart_products_database"
 
         fun getInstance(context: Context): AppDatabase {
-            // Se a INSTANCE já existe, retorna a existente (otimização de performance)
             return INSTANCE ?: synchronized(this) {
-                // Se ainda for nula após o bloqueio, cria o banco
                 INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
             }
         }

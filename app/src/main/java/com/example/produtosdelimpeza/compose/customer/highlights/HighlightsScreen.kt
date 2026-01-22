@@ -51,13 +51,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.produtosdelimpeza.model.Product
+import com.example.produtosdelimpeza.model.ProductEntity
 import java.util.Locale
 import kotlin.random.Random
 
 
-fun generateMockProducts(count: Int = 10): List<Product> {
-    val mockProducts = mutableListOf<Product>()
+fun generateMockProducts(count: Int = 10): List<ProductEntity> {
+    val mockProductEntities = mutableListOf<ProductEntity>()
     for (i in 1..count) {
         val hasDiscount = i % 3 != 0 // 2/3 dos produtos têm desconto
         val isTopSeller = i % 4 == 0 // 1/4 dos produtos são mais vendidos
@@ -66,8 +66,8 @@ fun generateMockProducts(count: Int = 10): List<Product> {
         val price = Random.nextDouble(50.0, 300.0)
         val oldPrice = if (discount != null) price / (1 - discount / 100.0) else null
 
-        mockProducts.add(
-            Product(
+        mockProductEntities.add(
+            ProductEntity(
                 id = i,
                 name = "Produto Incrível $i",
                 price = "%.2f".format(Locale.US, price).toDouble(),
@@ -78,7 +78,7 @@ fun generateMockProducts(count: Int = 10): List<Product> {
             )
         )
     }
-    return mockProducts
+    return mockProductEntities
 }
 
 sealed class ScreenState<out T> {
@@ -92,14 +92,14 @@ sealed class ScreenState<out T> {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlightsScreen(
-    //state: ScreenState<List<Product>>,
+    //state: ScreenState<List<ProductEntity>>,
     onProductClick: (Int) -> Unit = {},
     onAddToCart: (Int) -> Unit = {},
     onBackNavigation: () -> Unit = {},
     onRetry: () -> Unit = {}
 ) {
-    val listProductMock: List<Product> = generateMockProducts(15)
-    val state: ScreenState<List<Product>> = ScreenState.Success(listProductMock)
+    val listProductEntityMock: List<ProductEntity> = generateMockProducts(15)
+    val state: ScreenState<List<ProductEntity>> = ScreenState.Success(listProductEntityMock)
 
     Scaffold(
         topBar = {
@@ -188,7 +188,7 @@ fun HighlightsScreen(
 
 @Composable
 fun ProductCardHighlightScreen(
-    product: Product,
+    productEntity: ProductEntity,
     onProductClick: (Int) -> Unit,
     onAddToCart: (Int) -> Unit
 ) {
@@ -198,7 +198,7 @@ fun ProductCardHighlightScreen(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                onClick = { onProductClick(product.id) },
+                onClick = { onProductClick(productEntity.id) },
                 // Adicionando um pequeno efeito de escala ao pressionar
             )
             .padding(4.dp)
@@ -214,7 +214,7 @@ fun ProductCardHighlightScreen(
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
-                // Mock Image - Use Coil/Glide aqui com o product.imageUrl
+                // Mock Image - Use Coil/Glide aqui com o productEntity.imageUrl
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -231,7 +231,7 @@ fun ProductCardHighlightScreen(
 
 
                 // Discount Badge
-                product.discountPercent?.let { percent ->
+                productEntity.discountPercent?.let { percent ->
                     DiscountBadge(
                         percent = percent,
                         modifier = Modifier.align(Alignment.TopEnd)
@@ -242,24 +242,24 @@ fun ProductCardHighlightScreen(
             // Área de Informações
             Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                 Text(
-                    text = product.name,
+                    text = productEntity.name,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(2.dp))
 
-                ProductPriceText(product = product)
+                ProductPriceText(productEntity = productEntity)
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Botão de Ação
                 ElevatedButton(
-                    onClick = { onAddToCart(product.id) },
+                    onClick = { onAddToCart(productEntity.id) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(36.dp)
-                        .semantics { contentDescription = "Adicionar ${product.name} ao carrinho" },
+                        .semantics { contentDescription = "Adicionar ${productEntity.name} ao carrinho" },
                     contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -289,14 +289,14 @@ fun DiscountBadge(percent: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ProductPriceText(product: Product) {
-    val currentPrice = "R$ ${"%.2f".format(Locale.US, product.price)}"
+fun ProductPriceText(productEntity: ProductEntity) {
+    val currentPrice = "R$ ${"%.2f".format(Locale.US, productEntity.price)}"
 
     Text(
         text = buildAnnotatedString {
-            if (product.oldPrice != null) {
+            if (productEntity.oldPrice != null) {
                 // Preço antigo riscado
-                val oldPriceText = "R$ ${"%.2f".format(Locale.US, product.oldPrice)}"
+                val oldPriceText = "R$ ${"%.2f".format(Locale.US, productEntity.oldPrice)}"
                 pushStyle(
                     SpanStyle(
                         textDecoration = TextDecoration.LineThrough,
@@ -313,7 +313,7 @@ fun ProductPriceText(product: Product) {
                 SpanStyle(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = if (product.discountPercent != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    color = if (productEntity.discountPercent != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             )
             append(currentPrice)

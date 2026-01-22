@@ -39,7 +39,7 @@ import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.roundToInt
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.ui.theme.StarColor
+import com.example.produtosdelimpeza.core.theme.StarColor
 
 // --- Dados fictícios para preview/demo
 private val sampleCategories = listOf("Limpeza", "Mercado", "Bebidas", "Lanches", "Higiene")

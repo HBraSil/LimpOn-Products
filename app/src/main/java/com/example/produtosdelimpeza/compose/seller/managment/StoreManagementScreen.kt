@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponsTabContent
 import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductsTabContent
 import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionsTabContent
-import com.example.produtosdelimpeza.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)

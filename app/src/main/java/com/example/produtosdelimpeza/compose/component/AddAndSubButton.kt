@@ -31,14 +31,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.produtosdelimpeza.model.Product
+import com.example.produtosdelimpeza.model.ProductEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAndSubButton(
     modifier: Modifier = Modifier,
     txtQuantity: Int = 0,
-    product: Product = Product(),
+    productEntity: ProductEntity = ProductEntity(),
     subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
     sumOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
 ) {
@@ -66,7 +66,7 @@ fun AddAndSubButton(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             IconButton(
-                onClick = { subOfProducts(product.name, txtQuantity, product.price) },
+                onClick = { subOfProducts(productEntity.name, txtQuantity, productEntity.price) },
 
             ) {
                 Icon(
@@ -88,7 +88,7 @@ fun AddAndSubButton(
 
             Spacer(Modifier.width(4.dp))
 
-            IconButton(onClick = { sumOfProducts(product.name, txtQuantity, product.price) }) {
+            IconButton(onClick = { sumOfProducts(productEntity.name, txtQuantity, productEntity.price) }) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = "Aumentar",

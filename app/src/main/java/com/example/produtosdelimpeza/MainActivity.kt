@@ -16,11 +16,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.navigation.LimpOnAppNavigation
-import com.example.produtosdelimpeza.navigation.route.NavGraph
-import com.example.produtosdelimpeza.ui.theme.ProdutosDeLimpezaTheme
+import com.example.produtosdelimpeza.core.navigation.LimpOnAppNavigation
+import com.example.produtosdelimpeza.core.navigation.route.NavGraph
+import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.viewmodels.DeepLinkViewModel
-import com.example.produtosdelimpeza.viewmodels.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

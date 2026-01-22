@@ -25,9 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.produtosdelimpeza.ui.theme.GradientBackCardsComponents
-import com.example.produtosdelimpeza.ui.theme.StarColor
-import com.example.produtosdelimpeza.utils.toBrazilianCurrency
+import com.example.produtosdelimpeza.core.theme.GradientBackCardsComponents
+import com.example.produtosdelimpeza.core.theme.StarColor
+import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
