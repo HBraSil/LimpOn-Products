@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +28,7 @@ class LoginViewModel @Inject constructor(
     var passwordHidden: StateFlow<Boolean> = _passwordHidden.asStateFlow()
 
 
-    private val _loginUiState = MutableStateFlow<LoginUiState>(LoginUiState())
+    private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState = _loginUiState.asStateFlow()
 
  /*   fun reset() {
@@ -67,7 +68,7 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    fun login() {
+    fun loginWithEmailAndPassword() {
         _loginUiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
@@ -75,6 +76,19 @@ class LoginViewModel @Inject constructor(
             val result = authRepository.signInWithEmailAndPassword(loginFormState.email.field, loginFormState.password.field)
 
             when(result) {
+                is LoginResponse.Success -> {
+                    _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
+                }
+                is LoginResponse.Error -> {
+                    _loginUiState.value = LoginUiState(error = result.error)
+                }
+            }
+        }
+    }
+
+    fun signInWithGoogle() {
+        viewModelScope.launch {
+            when(val result = authRepository.signInWithGoogle()) {
                 is LoginResponse.Success -> {
                     _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
                 }

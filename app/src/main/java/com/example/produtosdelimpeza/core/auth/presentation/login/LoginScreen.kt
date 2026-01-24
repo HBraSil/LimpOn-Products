@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,8 +22,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -141,7 +138,6 @@ fun ContentLoginScreen(
     LaunchedEffect(state) {
         if(state.goToHome) {
             onLoginClick()
-            //loginViewModel.reset()
         }
     }
 
@@ -232,7 +228,7 @@ fun ContentLoginScreen(
             loginViewModel.loginFormState.email.field.isNotEmpty() &&
             loginViewModel.loginFormState.password.field.isNotEmpty()
         ){
-            loginViewModel.login()
+            loginViewModel.loginWithEmailAndPassword()
         }
 
         if (state.error != null) {
@@ -256,12 +252,14 @@ fun ContentLoginScreen(
             containerColor = MaterialTheme.colorScheme.secondary
         ) {
             Image(
-                painter = painterResource(id = R.drawable.light_google_logo), // seu drawable
+                painter = painterResource(id = R.drawable.light_google_logo),
                 contentDescription = stringResource(R.string.google_logo),
                 modifier = Modifier
                     .size(30.dp)
                     .wrapContentSize(Alignment.Center)
-                    .clickable {}
+                    .clickable {
+                        loginViewModel.signInWithGoogle()
+                    }
             )
         }
 

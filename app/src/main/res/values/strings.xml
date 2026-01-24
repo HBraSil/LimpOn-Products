@@ -24,7 +24,7 @@
     <string name="productEntity">Produto</string>
     <string name="image_profile">Imagem do perfil do usuário</string>
     <string name="edit_profile_name_and_city">Editar nome e cidade do usuário</string>
-    <string name="search">Pesquisar</string>
+    <string name="search">Busca</string>
     <string name="icon_navigate_next">Saber mais</string>
     <string name="icon_info">Informação importante</string>
     <string name="recent_search">Busca recente</string>
