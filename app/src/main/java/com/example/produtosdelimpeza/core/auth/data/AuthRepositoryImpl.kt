@@ -1,26 +1,16 @@
 package com.example.produtosdelimpeza.core.auth.data
 
-import android.content.Context
-import android.util.Base64
 import android.util.Log
 import androidx.core.net.toUri
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
 import com.example.produtosdelimpeza.connection.NetworkUtils
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
+import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
 import com.example.produtosdelimpeza.model.User
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
-import java.security.SecureRandom
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,7 +19,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val networkUtils: NetworkUtils,
-    @ApplicationContext private val context: Context
+    private val signInWithGoogleApi: SigninWithGoogleApi
 ) : AuthRepository {
     data class RegistrationException(override var message: String) : Exception(message)
 
@@ -85,60 +75,16 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signInWithGoogle(): LoginResponse {
-        return try {
-
-            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(false)
-                .setServerClientId("401816894466-b142p7vdsg4v1c0chkbfec89j28g0spg.apps.googleusercontent.com")
-                .setAutoSelectEnabled(false)
-                .setNonce(generateNonce())
-                .build()
-
-            val request: GetCredentialRequest = GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build()
-
-            val credentialManager = CredentialManager.create(context)
-            val result = credentialManager.getCredential(context, request)
-            val credential = result.credential
-
-            if (
-                credential is CustomCredential &&
-                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-            ) {
-                val googleIdTokenCredential = (credential as GoogleIdTokenCredential).idToken
-
-                val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential, null)
-
-                val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-                val user = signinResult.user
-
-                if (user?.isEmailVerified != null) LoginResponse.Success
-                else LoginResponse.Error("Login não foi bem sucedido")
-            } else {
-                LoginResponse.Error("Usuário nulo após login")
-            }
-        } catch (e: Exception) {
-            LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
+        val firebaseCredential = signInWithGoogleApi.signInWithGoogle()
+        return if (firebaseCredential != null) {
+            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            if (signinResult.user?.isEmailVerified != null) LoginResponse.Success
+            else LoginResponse.Error("Login não foi bem sucedido")
+        } else {
+            LoginResponse.Error("Login não foi bem sucedido")
         }
     }
 
-
-    fun generateNonce(
-        size: Int = 32
-    ): String {
-        require(size in 16..500) {
-            "Nonce size must be between 16 and 500 characters"
-        }
-
-        val randomBytes = ByteArray(size)
-        SecureRandom().nextBytes(randomBytes)
-
-        return Base64.encodeToString(
-            randomBytes,
-            Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
-        )
-    }
 
     suspend fun processEmailVerificationDeepLink(deepLinkUrl: String): Result<Boolean> {
         val uri = deepLinkUrl.toUri()
