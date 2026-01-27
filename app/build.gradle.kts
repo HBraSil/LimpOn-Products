@@ -117,4 +117,10 @@ dependencies {
 
     // SPLASH SCREEN
     implementation(libs.androidx.core.splashscreen)
+
+    // FACEBOOK
+    implementation(libs.facebook.android.sdk)
+    implementation("com.facebook.android:facebook-login:16.3.0")
+    implementation("com.facebook.android:facebook-core:16.3.0")
+
 }

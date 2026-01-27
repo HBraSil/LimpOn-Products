@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.dashboard
+package com.example.produtosdelimpeza.dashboard
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -92,13 +93,13 @@ import java.text.NumberFormat
 import java.util.Locale
 
 
-private const val activeOrdersMock = 7        // pedidos ativos
+private const val activeOrdersMock = 7
 
 
 data class DaySales(
-    val dayLabel: String,   // ex: "SEG", "TER"
+    val dayLabel: String,
     val itemsSold: Int,
-    val revenue: Float      // in currency units, e.g. BRL
+    val revenue: Float
 )
 
 
@@ -125,7 +126,6 @@ fun DashboardScreen(
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
     }
 
-    // scaffold with top app bar (visual icon instead of text)
     val listState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -548,14 +548,12 @@ fun SalesSummaryCardInteractive(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(30.dp)) // Espaçamento entre título e gráfico
-                    // GRÁFICO OTIMIZADO PARA USAR O RESTANTE DO ESPAÇO
+                    Spacer(modifier = Modifier.height(30.dp))
                     BarChart7Days(
                         days = mock,
-                        // weight(1f) garante que o gráfico use TODO o espaço vertical restante
                         modifier = Modifier
                             .fillMaxWidth(),
-                        barSpacingDp = 4f // Redução do espaçamento das barras para maximizar o rótulo
+                        barSpacingDp = 4f
                     )
                 }
             }
@@ -808,7 +806,7 @@ fun BarChart7Days(
                             }
                         }
                     }
-                } // AnimatedVisibility end
+                }
             } // overlay if end
         } // Box end
 

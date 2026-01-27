@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.dashboard
+package com.example.produtosdelimpeza.dashboard
 
 
 import androidx.compose.foundation.layout.size

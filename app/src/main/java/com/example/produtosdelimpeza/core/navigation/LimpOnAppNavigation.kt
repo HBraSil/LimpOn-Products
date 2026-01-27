@@ -36,12 +36,12 @@ import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.SignupStoreScreen
 import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
-import com.example.produtosdelimpeza.compose.seller.dashboard.COUPON
-import com.example.produtosdelimpeza.compose.seller.dashboard.DashboardScreen
-import com.example.produtosdelimpeza.compose.seller.dashboard.PRODUCT
-import com.example.produtosdelimpeza.compose.seller.dashboard.PROMOTION
-import com.example.produtosdelimpeza.compose.seller.dashboard.ProductRegistrationScreen
-import com.example.produtosdelimpeza.compose.seller.dashboard.StoreAnalyticsScreen
+import com.example.produtosdelimpeza.dashboard.COUPON
+import com.example.produtosdelimpeza.dashboard.DashboardScreen
+import com.example.produtosdelimpeza.dashboard.PRODUCT
+import com.example.produtosdelimpeza.dashboard.PROMOTION
+import com.example.produtosdelimpeza.dashboard.product_registration.presentation.ProductRegistrationScreen
+import com.example.produtosdelimpeza.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductDetailScreen
@@ -137,9 +137,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
                 },
                 onNavigateToItemFab = {
                     when(it) {
-                        PRODUCT -> navController.navigate(StoreScreen.CREATE_PRODUCT.route)
-                        PROMOTION -> {navController.navigate(StoreScreen.CREATE_PROMOTION.route)}
-                        COUPON -> {navController.navigate(StoreScreen.CREATE_COUPUN.route)}
+                        PRODUCT -> navController.navigate(StoreScreen.PRODUCT_REGISTRATION.route)
+                        PROMOTION -> {navController.navigate(StoreScreen.PROMOTION_REGISTRATION.route)}
+                        COUPON -> {navController.navigate(StoreScreen.COUPUN_REGISTRATION.route)}
                     }
                 }
             )
@@ -197,7 +197,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             )
         }
 
-        composable(StoreScreen.CREATE_COUPUN.route) {
+        composable(StoreScreen.COUPUN_REGISTRATION.route) {
             CreateCouponScreen(
                 onBackNavigation = {
                     navController.navigateUp()
@@ -205,7 +205,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             )
         }
 
-        composable(StoreScreen.CREATE_PROMOTION.route) {
+        composable(StoreScreen.PROMOTION_REGISTRATION.route) {
             TimeLimitedPromotionScreen(
                 onBackNavigation = {
                     navController.navigateUp()
@@ -213,7 +213,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             )
         }
 
-        composable(StoreScreen.CREATE_PRODUCT.route) {
+        composable(StoreScreen.PRODUCT_REGISTRATION.route) {
             ProductRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
@@ -276,7 +276,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
                     navController.navigate(NavGraph.USER_MAIN.route) {
                         popUpTo(AuthScreen.LOGIN.route) { inclusive = true }
                     }
-                }
+                },
             )
         }
 

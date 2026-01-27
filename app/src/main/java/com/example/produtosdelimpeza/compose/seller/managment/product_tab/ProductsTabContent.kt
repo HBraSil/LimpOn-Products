@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.example.produtosdelimpeza.core.data.Product
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 @Composable
@@ -55,9 +56,9 @@ fun ProductsTabContent(
     var isSearchExpanded by remember { mutableStateOf(false) }
 
     val mockProducts = listOf(
-        Product("Hambúrguer Duplo", "R$ 35,00", 15, true),
-        Product("Batata Frita G", "R$ 18,00", 0, false),
-        Product("Refrigerante Lata", "R$ 6,00", 42, true)
+        Product("Hambúrguer Duplo", "R$ 35,00", "15", inStock = true),
+        Product("Batata Frita G", "R$ 18,00", "0", inStock = false),
+        Product("Refrigerante Lata", "R$ 6,00", "42", inStock = true)
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -147,7 +148,7 @@ fun ProductsTabContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val filteredList = mockProducts.filter {
-                it.name.contains(searchQuery, ignoreCase = true)
+                it.productName.contains(searchQuery, ignoreCase = true)
             }
 
             item {
@@ -234,8 +235,8 @@ fun ProductListItem(product: Product, onClickItem: () -> Unit = {}) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = product.name, fontWeight = FontWeight.Bold)
-                    Text(text = product.price, color = MaterialTheme.colorScheme.onSecondary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    Text(text = product.productName, fontWeight = FontWeight.Bold)
+                    Text(text = product.productPrice, color = MaterialTheme.colorScheme.onSecondary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -247,11 +248,3 @@ fun ProductListItem(product: Product, onClickItem: () -> Unit = {}) {
         }
     }
 }
-
-data class Product(
-    val name: String,
-    val price: String,
-    val stockCount: Int,
-    val isActive: Boolean,
-    val inStock: Boolean = stockCount > 0
-)

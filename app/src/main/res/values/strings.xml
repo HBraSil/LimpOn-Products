@@ -68,4 +68,9 @@
     <string name="save_changes">Salvar Alterações</string>
     <string name="edit_name_store">editar nome da loja</string>
     <string name="store_managment">Gerenciamento</string>
+
+    <string name="facebook_app_id">1538777397410460</string>
+    <string name="fb_login_protocol_scheme">fb1538777397410460</string>
+    <string name="facebook_client_token">538df1fb63e63b4078cbf6614a5c9871</string>
+
 </resources>

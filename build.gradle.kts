@@ -7,3 +7,4 @@ plugins {
     alias(libs.plugins.hilt.plugin) apply false
     alias(libs.plugins.google.services) apply false
 }
+

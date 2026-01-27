@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.dashboard
+package com.example.produtosdelimpeza.dashboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -500,7 +500,7 @@ fun CreatePromotionBottomSheet(
                 title = "Cupom de desconto",
                 description = "Ofereça um cupom para atrair mais pedidos"
             ){
-                onPromotionActionItemClick(StoreScreen.CREATE_COUPUN.route)
+                onPromotionActionItemClick(StoreScreen.COUPUN_REGISTRATION.route)
                 onDismiss()
             }
 
@@ -509,7 +509,7 @@ fun CreatePromotionBottomSheet(
                 title = "Promoção por tempo limitado",
                 description = "Aumente vendas em horários estratégicos",
             ) {
-                onPromotionActionItemClick(StoreScreen.CREATE_PROMOTION.route)
+                onPromotionActionItemClick(StoreScreen.PROMOTION_REGISTRATION.route)
                 onDismiss()
             }
 

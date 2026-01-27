@@ -1,6 +1,8 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,6 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.auth.data.LoginResponse
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.auth.domain.validation.LoginValidators
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +41,40 @@ class LoginViewModel @Inject constructor(
  /*   fun reset() {
         _loginUiState.update { LoginUiState() }
     }*/
+
+
+    private val callbackManager = CallbackManager.Factory.create()
+
+    fun loginWithFacebook(
+        activity: Activity,
+        onSuccess: (LoginResult) -> Unit,
+        onError: (FacebookException) -> Unit
+    ) {
+        val loginManager = LoginManager.getInstance()
+
+        loginManager.registerCallback(
+            callbackManager,
+            callback = object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    Log.d("FB_LOGIN_SUCCESS", "sem mensagem")
+                    onSuccess(result)
+                }
+                override fun onCancel() {
+                    // opcional
+                }
+                override fun onError(error: FacebookException) {
+                    Log.e("FB_LOGIN_ERROR", error.message ?: "sem mensagem", error)
+                    onError(error)
+                }
+            }
+        )
+
+        // 2️⃣ dispara login (equivale ao click no LoginButton)
+        LoginManager.getInstance().logInWithReadPermissions(
+            activity,
+            listOf("public_profile", "email")
+        )
+    }
 
     fun updateEmail(email: String) {
         val isEmailValidate = LoginValidators.isEmailValid(email)

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.dashboard
+package com.example.produtosdelimpeza.dashboard.product_registration.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,16 +19,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
+fun ProductRegistrationScreen(
+    onBackNavigation: () -> Unit = {},
+    productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
     var productName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
+    var productDescription by remember { mutableStateOf("") }
+    var productPrice by remember { mutableStateOf("") }
+    var promotionalPrice by remember { mutableStateOf("") }
+    var stock by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
     var isAvailable by remember { mutableStateOf(true) }
+
+    val formState by productRegistrationViewModel._productFormState.collectAsState()
+    val isValidToSave by productRegistrationViewModel._isValid.collectAsState()
 
     Scaffold(
         topBar = {
@@ -75,8 +85,8 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             }
 
             OutlinedTextField(
-                value = productName,
-                onValueChange = { productName = it },
+                value = formState.productName,
+                onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.NameChanged(it)) },
                 label = { Text("Nome do Produto*") },
                 placeholder = { Text("Ex: Hambúrguer Artesanal") },
                 modifier = Modifier.fillMaxWidth(),
@@ -84,8 +94,8 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             )
 
             OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
+                value = formState.productDescription,
+                onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.ProductDescription(it)) },
                 label = { Text("Descrição detalhada*") },
                 placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
                 modifier = Modifier.fillMaxWidth(),
@@ -97,15 +107,14 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
-                    value = price,
-                    onValueChange = { price = it },
+                    value = formState.productPrice,
+                    onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.PriceChanged(it)) },
                     label = { Text("Preço*") },
                     prefix = { Text("R$ ") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 )
-                // Simulação de Categoria (Dropdown)
                 CategoryDropdown(
                     modifier = Modifier.weight(1.2f),
                     onCategorySelected = {  }
@@ -143,12 +152,14 @@ fun ProductRegistrationScreen(onBackNavigation: () -> Unit = {}) {
             Spacer(Modifier.height(16.dp))
 
             InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8*", onQuantityChange = {})
+
             Button(
                 onClick = { /* Salvar Logic */ },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(56.dp),
+                enabled = isValidToSave,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,

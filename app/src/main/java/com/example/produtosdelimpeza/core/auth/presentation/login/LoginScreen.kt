@@ -1,6 +1,9 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
+import android.app.Activity
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +39,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,6 +60,11 @@ import com.example.produtosdelimpeza.compose.component.LimpOnButton
 import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +82,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
     }
-
+    
     Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -84,45 +93,44 @@ fun LoginScreen(
                             onClick = onSignupClick,
                             modifier = Modifier.padding(end = 20.dp)
                         ) {
-                            Text(text = "Registre-se aqui",
+                            Text(
+                                text = "Registre-se aqui",
                                 fontSize = 14.sp,
                                 fontWeight = ExtraBold,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                         }
-
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
                 )
             },
-        ) { contentPadding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = contentPadding.calculateTopPadding())
-                        .verticalScroll(verticalScrollState)
-                        .navigationBarsPadding()
-                        .padding(start = 16.dp, end = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-
-                    Spacer(Modifier.height(20.dp))
-                    Image(
-                        painter = painterResource(R.drawable.limp_on_light_logo),
-                        contentDescription = stringResource(R.string.login_image),
-                    )
-
-                    Text(
-                        text = "Faça seu login",
-                        fontSize = 20.sp,
-                        fontWeight = Bold,
-                    )
-                    ContentLoginScreen(loginViewModel = loginViewModel, onLoginClick = onLoginClick, passwordHidden = passwordHidden)
-
-                }
-            }
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = contentPadding.calculateTopPadding())
+                .verticalScroll(verticalScrollState)
+                .navigationBarsPadding()
+                .padding(start = 16.dp, end = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Spacer(Modifier.height(20.dp))
+            Image(
+                painter = painterResource(R.drawable.limp_on_light_logo),
+                contentDescription = stringResource(R.string.login_image),
+            )
+            Text(
+                text = "Faça seu login",
+                fontSize = 20.sp,
+                fontWeight = Bold,
+            )
+            ContentLoginScreen(
+                loginViewModel = loginViewModel,
+                onLoginClick = onLoginClick,
+                passwordHidden = passwordHidden
+            )
+        }
+    }
 }
 
 @Composable
@@ -153,6 +161,7 @@ fun ContentLoginScreen(
             loginViewModel.cleanErrorMessage()
         }
     }
+
 
     LimpOnTxtField(
         modifier = Modifier.padding(top = 10.dp),
@@ -277,7 +286,16 @@ fun ContentLoginScreen(
             .weight(1f), 0.dp, Black)
 
         FloatingActionButton(
-            onClick = {},
+            onClick = {
+                loginViewModel.loginWithFacebook(
+                    activity = context as Activity,
+                    onSuccess = {
+                    },
+                    onError = {
+                        Log.e("FACEBOOK", "Erro no login", it)
+                    }
+                )
+            },
             modifier = Modifier.padding(end = 30.dp),
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.secondary

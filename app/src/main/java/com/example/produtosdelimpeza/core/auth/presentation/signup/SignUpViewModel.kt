@@ -55,13 +55,13 @@ class SignUpViewModel @Inject constructor(
 
     fun updateEmail(email: String){
         val isEmailValid = SignUpValidators.isEmailValid(email)
-        formState = formState.copy(email = FieldState(
-            field = email,
-            error = if (!isEmailValid) "Email inválido" else null,
-            isValid = isEmailValid
+        formState = formState.copy(
+            email = FieldState(
+                field = email,
+                error = if (!isEmailValid) "Email inválido" else null,
+                isValid = isEmailValid
+            )
         )
-        )
-
         updateButtonSignUpState()
     }
 

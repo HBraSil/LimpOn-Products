@@ -104,15 +104,15 @@ fun StoreManagementScreen(
                 when (index) {
                     0 -> ProductsTabContent(
                         onProductClick = { onNavigateToTabContentDetailScreenClick(it)},
-                        onNavigateToCreateProductScreenClick = { onNewProductClick(StoreScreen.CREATE_PRODUCT.route) }
+                        onNavigateToCreateProductScreenClick = { onNewProductClick(StoreScreen.PRODUCT_REGISTRATION.route) }
                     )
                     1 -> CouponsTabContent (
                         onCouponClick = { onNavigateToTabContentDetailScreenClick(it) },
-                        onNavigateToCreateCouponScreenClick = { onNewProductClick(StoreScreen.CREATE_COUPUN.route) }
+                        onNavigateToCreateCouponScreenClick = { onNewProductClick(StoreScreen.COUPUN_REGISTRATION.route) }
                     )
                     2 -> PromotionsTabContent(
                         onPromotionClick = { onNavigateToTabContentDetailScreenClick(it) },
-                        onNavigateToCreatePromotionScreenClick = { onNewProductClick(StoreScreen.CREATE_PROMOTION.route)}
+                        onNavigateToCreatePromotionScreenClick = { onNewProductClick(StoreScreen.PROMOTION_REGISTRATION.route)}
                     )
                 }
             }
