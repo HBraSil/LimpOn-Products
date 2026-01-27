@@ -35,16 +35,16 @@ import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfi
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.SignupStoreScreen
-import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.RegistrationCouponScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
-import com.example.produtosdelimpeza.compose.seller.profile.StoreProfileScreen
+import com.example.produtosdelimpeza.store.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
-import com.example.produtosdelimpeza.compose.seller.profile.edit_profile.EditProfileScreen
-import com.example.produtosdelimpeza.compose.seller.profile.logistic.OperationScreen
+import com.example.produtosdelimpeza.store.profile.edit_profile.EditProfileScreen
+import com.example.produtosdelimpeza.store.profile.logistic.OperationScreen
 import com.example.produtosdelimpeza.compose.seller.promotion.TimeLimitedPromotionScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.CustomerBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.StoreBottomNavConfig
@@ -198,7 +198,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
 
         composable(StoreScreen.COUPUN_REGISTRATION.route) {
-            CreateCouponScreen(
+            RegistrationCouponScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }

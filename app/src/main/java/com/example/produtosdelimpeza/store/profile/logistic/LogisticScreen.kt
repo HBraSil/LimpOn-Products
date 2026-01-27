@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.profile.logistic
+package com.example.produtosdelimpeza.store.profile.logistic
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

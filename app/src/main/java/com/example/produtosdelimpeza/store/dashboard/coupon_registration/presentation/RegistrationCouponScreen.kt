@@ -1,54 +1,42 @@
-package com.example.produtosdelimpeza.compose.seller.coupon
+package com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.automirrored.outlined.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.ConfirmationNumber
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.LocalOffer
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.TrendingDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
-
-enum class DiscountType {
-    PERCENTAGE, FIXED
-}
-
-enum class ValidityType {
-    DAYS_7, DAYS_15, DAYS_30, CUSTOM
-}
-
+import com.example.produtosdelimpeza.core.domain.DiscountType
+import com.example.produtosdelimpeza.core.domain.ValidityType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateCouponScreen(onBackNavigation: () -> Unit = {}) {
+fun RegistrationCouponScreen(
+    onBackNavigation: () -> Unit = {},
+    registrationCouponViewModel: RegistrationCouponViewModel = hiltViewModel()
+) {
+    val formState by registrationCouponViewModel._couponFormState.collectAsState()
+    val isValid by registrationCouponViewModel._isValid.collectAsState()
+
 
     Scaffold(
         topBar = {
@@ -77,7 +65,6 @@ fun CreateCouponScreen(onBackNavigation: () -> Unit = {}) {
             )
         }
     ) { padding ->
-
         LazyColumn (
             modifier = Modifier
                 .padding(padding)
@@ -89,12 +76,25 @@ fun CreateCouponScreen(onBackNavigation: () -> Unit = {}) {
                 CouponTextField(
                     label = "Código do cupom",
                     placeholder = "EX: PRIMEIRA10",
-                    supporting = "O cliente digitará esse código no checkout"
+                    supporting = "O cliente digitará esse código no checkout",
+                    currentCouponCode = formState.couponCode
+                ) {
+                    registrationCouponViewModel.onEvent(AddCouponField.CouponCodeField(it))
+                }
+            }
+            item{
+                DiscountTypeSection(
+                    currentDiscountValue = formState.discountValue,
+                    onDiscountTypeAndValueChange = { discountType, discountValue ->
+                        registrationCouponViewModel.onEvent(AddCouponField.DiscountTypeField(discountType))
+                        registrationCouponViewModel.onEvent(AddCouponField.DiscountValueField(discountValue))
+                    }
                 )
             }
-            item{ DiscountTypeSection() }
             item{
-                ValiditySection()
+                ValiditySection{
+                    registrationCouponViewModel.onEvent(AddCouponField.ValidityField(it))
+                }
                 Spacer(Modifier.height(6.dp))
                 HorizontalDivider()
             }
@@ -104,6 +104,7 @@ fun CreateCouponScreen(onBackNavigation: () -> Unit = {}) {
                     onClick = { /* Criar cupom */ },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
+                    enabled = isValid,
                     colors = ButtonDefaults.buttonColors(
                         contentColor = MaterialTheme.colorScheme.background,
                         containerColor = MaterialTheme.colorScheme.secondary
@@ -153,11 +154,13 @@ fun CouponInsightCard() {
 fun CouponTextField(
     label: String,
     placeholder: String,
-    supporting: String
+    supporting: String,
+    currentCouponCode: String = "",
+    onCouponCodeChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        value = "",
-        onValueChange = {},
+        value = currentCouponCode,
+        onValueChange = onCouponCodeChange,
         modifier = Modifier.fillMaxWidth(),
         label = { Text(label) },
         placeholder = { Text(placeholder) },
@@ -168,29 +171,26 @@ fun CouponTextField(
 }
 
 @Composable
-fun DiscountTypeSection() {
-
-    var selectedType by remember { mutableStateOf<DiscountType?>(null) }
-    var discountValue by remember { mutableStateOf("") }
+fun DiscountTypeSection(
+    currentDiscountValue: String = "",
+    onDiscountTypeAndValueChange: (DiscountType, String) -> Unit,
+) {
+    var selectedType by remember { mutableStateOf(DiscountType.NONE) }
     var hasError by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
         Text(
             text = "Tipo de desconto",
             fontWeight = FontWeight.SemiBold
         )
 
-        // 🔘 Opções de tipo
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-
             DiscountTypeOption(
                 title = "Percentual",
                 subtitle = "Ex: 10%",
                 selected = selectedType == DiscountType.PERCENTAGE,
                 onClick = {
                     selectedType = DiscountType.PERCENTAGE
-                    discountValue = ""
                     hasError = false
                 }
             )
@@ -201,23 +201,20 @@ fun DiscountTypeSection() {
                 selected = selectedType == DiscountType.FIXED,
                 onClick = {
                     selectedType = DiscountType.FIXED
-                    discountValue = ""
                     hasError = false
                 }
             )
         }
 
-        // ✨ Campo dinâmico com animação
         AnimatedVisibility(
-            visible = selectedType != null,
+            visible = selectedType != DiscountType.NONE,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically()
         ) {
-
             DiscountValueField(
-                value = discountValue,
+                value = currentDiscountValue,
                 onValueChange = {
-                    discountValue = it
+                    onDiscountTypeAndValueChange(selectedType, it)
                     hasError = !isValidDiscount(it, selectedType)
                 },
                 type = selectedType,
@@ -330,7 +327,7 @@ fun isValidDiscount(
 
 
 @Composable
-fun ValiditySection() {
+fun ValiditySection(onValidityChange: (ValidityType) -> Unit) {
 
     var selectedValidity by remember { mutableStateOf<ValidityType?>(ValidityType.DAYS_7) }
 
@@ -342,21 +339,20 @@ fun ValiditySection() {
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-
             ValidityChip(
                 label = "7 dias",
                 selected = selectedValidity == ValidityType.DAYS_7
-            ) { selectedValidity = ValidityType.DAYS_7 }
+            ) { onValidityChange(ValidityType.DAYS_7) }
 
             ValidityChip(
                 label = "15 dias",
                 selected = selectedValidity == ValidityType.DAYS_15
-            ) { selectedValidity = ValidityType.DAYS_15 }
+            ) { onValidityChange(ValidityType.DAYS_15) }
 
             ValidityChip(
                 label = "30 dias",
                 selected = selectedValidity == ValidityType.DAYS_30
-            ) { selectedValidity = ValidityType.DAYS_30 }
+            ) { onValidityChange(ValidityType.DAYS_30) }
 
             ValidityChip(
                 label = "Personalizado",
@@ -364,7 +360,6 @@ fun ValiditySection() {
             ) { selectedValidity = ValidityType.CUSTOM }
         }
 
-        // ✨ Campo customizado com animação
         AnimatedVisibility(
             visible = selectedValidity == ValidityType.CUSTOM,
             enter = fadeIn() + expandVertically(),
@@ -527,5 +522,5 @@ fun CouponPreviewCard() {
 @Preview
 @Composable
 fun Test(){
-    CreateCouponScreen()
+    RegistrationCouponScreen()
 }

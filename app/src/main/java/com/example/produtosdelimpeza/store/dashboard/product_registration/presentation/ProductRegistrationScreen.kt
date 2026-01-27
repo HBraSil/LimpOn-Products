@@ -80,7 +80,7 @@ fun ProductRegistrationScreen(
 
             OutlinedTextField(
                 value = formState.productName,
-                onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.NameChanged(it)) },
+                onValueChange = { productRegistrationViewModel.onEvent(AddProductField.NameChanged(it)) },
                 label = { Text("Nome do Produto*") },
                 placeholder = { Text("Ex: Hambúrguer Artesanal") },
                 modifier = Modifier.fillMaxWidth(),
@@ -89,7 +89,7 @@ fun ProductRegistrationScreen(
 
             OutlinedTextField(
                 value = formState.productDescription,
-                onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.ProductDescription(it)) },
+                onValueChange = { productRegistrationViewModel.onEvent(AddProductField.ProductDescription(it)) },
                 label = { Text("Descrição detalhada*") },
                 placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
                 modifier = Modifier.fillMaxWidth(),
@@ -102,7 +102,7 @@ fun ProductRegistrationScreen(
             ) {
                 OutlinedTextField(
                     value = formState.productPrice,
-                    onValueChange = { productRegistrationViewModel.onEvent(AddProductEvent.PriceChanged(it)) },
+                    onValueChange = { productRegistrationViewModel.onEvent(AddProductField.PriceChanged(it)) },
                     label = { Text("Preço*") },
                     prefix = { Text("R$ ") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -137,7 +137,7 @@ fun ProductRegistrationScreen(
                     onCheckedChange = { isAvailable = it }
                 )
             }
-            PromotionSection(originalPrice = formState.promotionalPrice, onPriceChange = { productRegistrationViewModel.onEvent(AddProductEvent.PromotionalPriceChanged(it)) })
+            PromotionSection(originalPrice = formState.promotionalPrice, onPriceChange = { productRegistrationViewModel.onEvent(AddProductField.PromotionalPriceChanged(it)) })
 
             Spacer(Modifier.height(16.dp))
 

@@ -27,14 +27,14 @@ class ProductRegistrationViewModel @Inject constructor(
 
 
 
-    fun onEvent(field: AddProductEvent) {
+    fun onEvent(field: AddProductField) {
         when (field) {
-            is AddProductEvent.NameChanged -> productFormState.update {it.copy(productName = field.value) }
-            is AddProductEvent.ProductDescription -> productFormState.update { it.copy(productDescription = field.value) }
-            is AddProductEvent.PriceChanged -> productFormState.update { it.copy(productPrice = field.value) }
-            is AddProductEvent.PromotionalPriceChanged -> productFormState.update { it.copy(promotionalPrice = field.value) }
-            is AddProductEvent.StockChanged -> productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
-            is AddProductEvent.CategoryChanged -> productFormState.update { it.copy(productCategory = field.value) }
+            is AddProductField.NameChanged -> productFormState.update {it.copy(productName = field.value) }
+            is AddProductField.ProductDescription -> productFormState.update { it.copy(productDescription = field.value) }
+            is AddProductField.PriceChanged -> productFormState.update { it.copy(productPrice = field.value) }
+            is AddProductField.PromotionalPriceChanged -> productFormState.update { it.copy(promotionalPrice = field.value) }
+            is AddProductField.StockChanged -> productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
+            is AddProductField.CategoryChanged -> productFormState.update { it.copy(productCategory = field.value) }
         }
 
         isValid.update { validateProductUseCase(productFormState.value) }

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.profile
+package com.example.produtosdelimpeza.store.profile
 
 
 import androidx.compose.foundation.background
