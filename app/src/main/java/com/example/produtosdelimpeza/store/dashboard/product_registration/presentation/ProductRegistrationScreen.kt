@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.dashboard.product_registration.presentation
+package com.example.produtosdelimpeza.store.dashboard.product_registration.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,12 +29,6 @@ fun ProductRegistrationScreen(
     productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
-    var productName by remember { mutableStateOf("") }
-    var productDescription by remember { mutableStateOf("") }
-    var productPrice by remember { mutableStateOf("") }
-    var promotionalPrice by remember { mutableStateOf("") }
-    var stock by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
     var isAvailable by remember { mutableStateOf(true) }
 
     val formState by productRegistrationViewModel._productFormState.collectAsState()
@@ -143,7 +137,7 @@ fun ProductRegistrationScreen(
                     onCheckedChange = { isAvailable = it }
                 )
             }
-            PromotionSection(originalPrice = "12.70", onPriceChange = {})
+            PromotionSection(originalPrice = formState.promotionalPrice, onPriceChange = { productRegistrationViewModel.onEvent(AddProductEvent.PromotionalPriceChanged(it)) })
 
             Spacer(Modifier.height(16.dp))
 
@@ -154,7 +148,7 @@ fun ProductRegistrationScreen(
             InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8*", onQuantityChange = {})
 
             Button(
-                onClick = { /* Salvar Logic */ },
+                onClick = { productRegistrationViewModel.saveProduct(formState) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)

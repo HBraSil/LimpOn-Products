@@ -44,8 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.example.produtosdelimpeza.core.data.Product
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.Product
 
 @Composable
 fun ProductsTabContent(

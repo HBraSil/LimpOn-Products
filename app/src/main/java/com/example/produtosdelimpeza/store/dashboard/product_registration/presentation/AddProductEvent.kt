@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.dashboard.product_registration.presentation
+package com.example.produtosdelimpeza.store.dashboard.product_registration.presentation
 
 sealed class AddProductEvent {
     data class NameChanged(val value: String) : AddProductEvent()

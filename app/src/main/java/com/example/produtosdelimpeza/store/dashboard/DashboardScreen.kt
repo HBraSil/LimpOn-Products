@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.dashboard
+package com.example.produtosdelimpeza.store.dashboard
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween

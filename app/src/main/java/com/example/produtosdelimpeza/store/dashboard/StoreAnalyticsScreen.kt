@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.dashboard
+package com.example.produtosdelimpeza.store.dashboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
