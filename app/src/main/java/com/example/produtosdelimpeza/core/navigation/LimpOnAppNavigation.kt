@@ -36,12 +36,6 @@ import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.compose.seller.onboarding.SignupStoreScreen
 import com.example.produtosdelimpeza.compose.seller.coupon.CreateCouponScreen
-import com.example.produtosdelimpeza.dashboard.COUPON
-import com.example.produtosdelimpeza.dashboard.DashboardScreen
-import com.example.produtosdelimpeza.dashboard.PRODUCT
-import com.example.produtosdelimpeza.dashboard.PROMOTION
-import com.example.produtosdelimpeza.dashboard.product_registration.presentation.ProductRegistrationScreen
-import com.example.produtosdelimpeza.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductDetailScreen
@@ -67,6 +61,12 @@ import com.example.produtosdelimpeza.customer.profile.presentation.coupons.Coupo
 import com.example.produtosdelimpeza.customer.profile.presentation.header_profile_screen.EditUserProfileScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.help.HelpScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.payment_methods.PaymentMethodsScreen
+import com.example.produtosdelimpeza.store.dashboard.COUPON
+import com.example.produtosdelimpeza.store.dashboard.DashboardScreen
+import com.example.produtosdelimpeza.store.dashboard.PRODUCT
+import com.example.produtosdelimpeza.store.dashboard.PROMOTION
+import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
+import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.ProductRegistrationScreen
 
 
 @Composable
