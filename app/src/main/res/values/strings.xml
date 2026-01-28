@@ -72,5 +72,9 @@
     <string name="facebook_app_id">1538777397410460</string>
     <string name="fb_login_protocol_scheme">fb1538777397410460</string>
     <string name="facebook_client_token">538df1fb63e63b4078cbf6614a5c9871</string>
+    <string name="seven_days">7 dias</string>
+    <string name="fifteen_days">15 dias</string>
+    <string name="thirty_days">30 dias</string>
+    <string name="custom">Personalizado</string>
 
 </resources>

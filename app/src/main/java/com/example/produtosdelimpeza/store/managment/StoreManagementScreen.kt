@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment
+package com.example.produtosdelimpeza.store.managment
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +22,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponsTabContent
-import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductsTabContent
-import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionsTabContent
+import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponsTabContent
+import com.example.produtosdelimpeza.store.managment.product_tab.ProductsTabContent
+import com.example.produtosdelimpeza.store.managment.promotion_tab.PromotionsTabContent
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 

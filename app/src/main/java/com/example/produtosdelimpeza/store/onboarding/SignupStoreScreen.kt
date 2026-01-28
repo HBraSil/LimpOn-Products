@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.onboarding
+package com.example.produtosdelimpeza.store.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

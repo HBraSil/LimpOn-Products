@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrationCouponViewModel @Inject constructor(
+class CouponRegistrationViewModel @Inject constructor(
     private val repository: CouponRepository,
     private val validateCouponUseCase: ValidateCouponUseCase
 ) : ViewModel() {
@@ -28,7 +28,7 @@ class RegistrationCouponViewModel @Inject constructor(
             is AddCouponField.CouponCodeField -> couponFormState.update { it.copy(couponCode = field.value) }
             is AddCouponField.DiscountTypeField -> couponFormState.update {it.copy(discountType = field.value) }
             is AddCouponField.DiscountValueField -> couponFormState.update { it.copy(discountValue = field.value) }
-            is AddCouponField.ValidityField -> couponFormState.update { it.copy(validityType = field.value) }
+            is AddCouponField.DurationField -> couponFormState.update { it.copy(expirationOffer = field.value) }
         }
 
         isValid.update { validateCouponUseCase(couponFormState.value) }

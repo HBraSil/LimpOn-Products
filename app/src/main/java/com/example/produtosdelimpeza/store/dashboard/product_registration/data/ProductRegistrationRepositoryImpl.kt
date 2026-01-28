@@ -2,7 +2,7 @@ package com.example.produtosdelimpeza.store.dashboard.product_registration.data
 
 
 import com.example.produtosdelimpeza.store.dashboard.product_registration.data.mapper.toDto
-import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.Product
+import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ProductRegistrationRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

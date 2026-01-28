@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.dashboard.product_registration.domain
+package com.example.produtosdelimpeza.core.domain
 
 import java.util.UUID
 

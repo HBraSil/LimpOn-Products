@@ -2,7 +2,7 @@ package com.example.produtosdelimpeza.store.dashboard.product_registration.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.Product
+import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ProductRegistrationRepository
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ValidateProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,12 +29,12 @@ class ProductRegistrationViewModel @Inject constructor(
 
     fun onEvent(field: AddProductField) {
         when (field) {
-            is AddProductField.NameChanged -> productFormState.update {it.copy(productName = field.value) }
-            is AddProductField.ProductDescription -> productFormState.update { it.copy(productDescription = field.value) }
-            is AddProductField.PriceChanged -> productFormState.update { it.copy(productPrice = field.value) }
-            is AddProductField.PromotionalPriceChanged -> productFormState.update { it.copy(promotionalPrice = field.value) }
-            is AddProductField.StockChanged -> productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
-            is AddProductField.CategoryChanged -> productFormState.update { it.copy(productCategory = field.value) }
+            is AddProductField.NameField -> productFormState.update {it.copy(productName = field.value) }
+            is AddProductField.ProductDescriptionField -> productFormState.update { it.copy(productDescription = field.value) }
+            is AddProductField.PriceField -> productFormState.update { it.copy(productPrice = field.value) }
+            is AddProductField.PromotionalPriceField -> productFormState.update { it.copy(promotionalPrice = field.value) }
+            is AddProductField.StockField -> productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
+            is AddProductField.CategoryField -> productFormState.update { it.copy(productCategory = field.value) }
         }
 
         isValid.update { validateProductUseCase(productFormState.value) }

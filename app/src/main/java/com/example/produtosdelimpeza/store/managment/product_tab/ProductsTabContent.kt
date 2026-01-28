@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment.product_tab
+package com.example.produtosdelimpeza.store.managment.product_tab
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -45,7 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
-import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.Product
+import com.example.produtosdelimpeza.core.domain.Product
 
 @Composable
 fun ProductsTabContent(

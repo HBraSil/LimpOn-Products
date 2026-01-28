@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment.coupon_tab
+package com.example.produtosdelimpeza.store.managment.coupon_tab
 
 
 import androidx.compose.foundation.background

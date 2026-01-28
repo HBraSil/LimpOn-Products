@@ -33,19 +33,19 @@ import com.example.produtosdelimpeza.customer.search.presentation.SearchScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
-import com.example.produtosdelimpeza.compose.seller.onboarding.EnterInviteKeyScreen
-import com.example.produtosdelimpeza.compose.seller.onboarding.SignupStoreScreen
+import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
+import com.example.produtosdelimpeza.store.onboarding.SignupStoreScreen
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.RegistrationCouponScreen
-import com.example.produtosdelimpeza.compose.seller.managment.StoreManagementScreen
-import com.example.produtosdelimpeza.compose.seller.managment.coupon_tab.CouponDetailScreen
-import com.example.produtosdelimpeza.compose.seller.managment.product_tab.ProductDetailScreen
-import com.example.produtosdelimpeza.compose.seller.managment.promotion_tab.PromotionDetailsScreen
-import com.example.produtosdelimpeza.compose.seller.order.StoreOrderScreen
+import com.example.produtosdelimpeza.store.managment.StoreManagementScreen
+import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScreen
+import com.example.produtosdelimpeza.store.managment.product_tab.ProductDetailScreen
+import com.example.produtosdelimpeza.store.managment.promotion_tab.PromotionDetailsScreen
+import com.example.produtosdelimpeza.store.order.StoreOrderScreen
 import com.example.produtosdelimpeza.store.profile.StoreProfileScreen
-import com.example.produtosdelimpeza.compose.seller.order.StoreOrderDetailsScreen
+import com.example.produtosdelimpeza.store.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.store.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.store.profile.logistic.OperationScreen
-import com.example.produtosdelimpeza.compose.seller.promotion.TimeLimitedPromotionScreen
+import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.PromotionRegistrationScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.CustomerBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.StoreBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.route.AuthScreen
@@ -206,7 +206,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
 
         composable(StoreScreen.PROMOTION_REGISTRATION.route) {
-            TimeLimitedPromotionScreen(
+            PromotionRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }

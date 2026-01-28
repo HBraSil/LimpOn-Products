@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment.product_tab
+package com.example.produtosdelimpeza.store.managment.product_tab
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -14,13 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.invoke
 
 data class ProductDetail(
     val id: String,

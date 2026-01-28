@@ -2,8 +2,8 @@ package com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain
 
 import android.util.Log
 import com.example.produtosdelimpeza.core.domain.Coupon
-import com.example.produtosdelimpeza.core.domain.DiscountType
-import com.example.produtosdelimpeza.core.domain.ValidityType
+import com.example.produtosdelimpeza.core.domain.model.DiscountType
+import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
 import javax.inject.Inject
 
 
@@ -13,7 +13,7 @@ class ValidateCouponUseCase @Inject constructor() {
             couponCode.isNotBlank() &&
             discountType != DiscountType.NONE &&
             discountValue.isNotBlank() &&
-            validityType != ValidityType.NONE
+            expirationOffer != ExpirationOffer.NONE
         }
 
         Log.d("RESULT", "$formIsValid")

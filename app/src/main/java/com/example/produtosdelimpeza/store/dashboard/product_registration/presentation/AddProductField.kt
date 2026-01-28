@@ -1,10 +1,10 @@
 package com.example.produtosdelimpeza.store.dashboard.product_registration.presentation
 
 sealed class AddProductField {
-    data class NameChanged(val value: String) : AddProductField()
-    data class ProductDescription(val value: String) : AddProductField()
-    data class PriceChanged(val value: String) : AddProductField()
-    data class PromotionalPriceChanged(val value: String) : AddProductField()
-    data class StockChanged(val value: String) : AddProductField()
-    data class CategoryChanged(val value: String) : AddProductField()
+    data class NameField(val value: String) : AddProductField()
+    data class ProductDescriptionField(val value: String) : AddProductField()
+    data class PriceField(val value: String) : AddProductField()
+    data class PromotionalPriceField(val value: String) : AddProductField()
+    data class StockField(val value: String) : AddProductField()
+    data class CategoryField(val value: String) : AddProductField()
 }

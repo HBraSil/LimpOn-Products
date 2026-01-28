@@ -1,17 +1,10 @@
-package com.example.produtosdelimpeza.compose.seller.promotion
+package com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation
 
-import androidx.compose.animation.togetherWith
-
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -20,35 +13,30 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
-private enum class DiscountType(val label: String) {
-    PERCENTAGE("Porcentagem"),
-    FIXED("Valor fixo")
-}
-
-private enum class PromotionDuration(val label: String) {
-    ONE_HOUR("1 hora"),
-    THREE_HOURS("3 horas"),
-    TODAY("Hoje"),
-    CUSTOM("Personalizado")
-}
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.compose.component.DiscountTypeSection
+import com.example.produtosdelimpeza.compose.component.DurationSelector
+import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
+import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.mapper.toDisplayName
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
+fun PromotionRegistrationScreen(
+    onBackNavigation: () -> Unit = {},
+    promotionRegistrationViewModel: PromotionRegistrationViewModel = hiltViewModel()
+) {
+    val formState by promotionRegistrationViewModel.promotionFormState.collectAsState()
+    val isValid by promotionRegistrationViewModel.isValid.collectAsState()
 
-    var discountType by remember { mutableStateOf(DiscountType.PERCENTAGE) }
-    var duration by remember { mutableStateOf(PromotionDuration.THREE_HOURS) }
     var selectedCategory by remember { mutableStateOf("") }
 
     Scaffold(
@@ -60,28 +48,32 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                     }
                 },
                 title = { Text("Criar Promoção") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
-    ) { padding ->
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
-                .padding(padding)
                 .padding(10.dp),
+            contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(30.dp)
         ) {
             item{ ImpactHeader() }
             item{
-                DiscountTypeSelector(
-                    selected = discountType,
-                    onSelect = { discountType = it }
+                DiscountTypeSection(
+                    currentDiscountValue = formState.discountValue,
+                    onDiscountTypeAndValueChange = { discountType, discountValue ->
+                        promotionRegistrationViewModel.onEvent(AddPromotionField.DiscountTypeField(discountType))
+                        promotionRegistrationViewModel.onEvent(AddPromotionField.DiscountValueField(discountValue))
+                    }
                 )
             }
             item{
-                DurationSelector(
-                    selected = duration,
-                    onSelect = { duration = it }
-                )
+                DurationSelector {
+                    promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
+                }
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider()
             }
             item{
                 PromotionAppliesToSelector(
@@ -93,7 +85,10 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                         "Sobremesas"
                     ),
                     selectedOption = selectedCategory,
-                    onOptionSelected = { selectedCategory = it }
+                    onOptionSelected = {
+                        promotionRegistrationViewModel.onEvent(AddPromotionField.CategoryField(it))
+                        selectedCategory = it
+                    }
                 )
             }
             item{
@@ -107,6 +102,7 @@ fun TimeLimitedPromotionScreen(onBackNavigation: () -> Unit = {}) {
                     onClick = { /* Criar cupom */ },
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 16.dp),
                     shape = RoundedCornerShape(14.dp),
+                    enabled = isValid,
                     colors = ButtonDefaults.buttonColors(
                         contentColor = MaterialTheme.colorScheme.background,
                         containerColor = MaterialTheme.colorScheme.secondary
@@ -155,78 +151,6 @@ private fun ImpactHeader() {
     }
 }
 
-/* ----------------------- DISCOUNT TYPE ----------------------- */
-
-@Composable
-private fun DiscountTypeSelector(
-    selected: DiscountType,
-    onSelect: (DiscountType) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-        Text(
-            "Tipo de desconto",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        SingleChoiceSegmentedButtonRow {
-            DiscountType.entries.forEach { type ->
-                SegmentedButton(
-                    selected = selected == type,
-                    onClick = { onSelect(type) },
-                    shape = SegmentedButtonDefaults.itemShape(
-                        index = type.ordinal,
-                        count = DiscountType.entries.size
-                    ),
-                    label = { Text(type.label) },
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = MaterialTheme.colorScheme.onBackground.copy(0.8f),
-                        activeContentColor = MaterialTheme.colorScheme.background
-                    )
-                )
-            }
-        }
-    }
-}
-
-/* ----------------------- DURATION ----------------------- */
-
-@Composable
-private fun DurationSelector(
-    selected: PromotionDuration,
-    onSelect: (PromotionDuration) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
-        Text(
-            "Duração da promoção",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            PromotionDuration.entries.forEach { duration ->
-                AssistChip(
-                    onClick = { onSelect(duration) },
-                    label = { Text(duration.label) },
-                    leadingIcon = {
-                        if (selected == duration) {
-                            Icon(
-                                imageVector = Icons.Outlined.Check,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
 
 
 @Composable
@@ -407,8 +331,8 @@ fun PromotionAppliesToSelector(
 
 @Preview(showBackground = true)
 @Composable
-private fun TimeLimitedPromotionScreenPreview() {
+private fun PromotionRegistrationScreenPreview() {
     MaterialTheme {
-        TimeLimitedPromotionScreen()
+        PromotionRegistrationScreen()
     }
 }

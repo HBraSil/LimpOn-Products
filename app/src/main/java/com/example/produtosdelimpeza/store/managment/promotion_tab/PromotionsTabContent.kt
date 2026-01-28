@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.managment.promotion_tab
+package com.example.produtosdelimpeza.store.managment.promotion_tab
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.store.dashboard.product_registration.domain
 
+import com.example.produtosdelimpeza.core.domain.Product
 import javax.inject.Inject
 
 class ValidateProductUseCase @Inject constructor() {
@@ -13,5 +14,4 @@ class ValidateProductUseCase @Inject constructor() {
 
         return formIsValid
     }
-
 }

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.compose.seller.order
+package com.example.produtosdelimpeza.store.order
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
