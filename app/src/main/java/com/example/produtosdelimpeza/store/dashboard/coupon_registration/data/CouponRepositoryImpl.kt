@@ -1,18 +1,21 @@
 package com.example.produtosdelimpeza.store.dashboard.coupon_registration.data
 
+import android.util.Log
 import com.example.produtosdelimpeza.core.domain.Coupon
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRepository
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.AddCouponField
-import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.AddProductField
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class CouponRepositoryImpl @Inject constructor(
     private val firebaseStore: FirebaseFirestore
 ): CouponRepository {
 
-    override suspend fun insertCoupon(coupon: Coupon) {
-        firebaseStore.collection("coupons").add(coupon)
+    override suspend fun createCoupon(coupon: Coupon) {
+        try {
+            firebaseStore.collection("coupons").add(coupon).await()
+        } catch (e: Exception) {
+            Log.e("CouponRepository", "Error inserting coupon", e)
+        }
     }
 }

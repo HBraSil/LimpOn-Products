@@ -22,20 +22,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.DateBox
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.mapper.toDisplayName
 
 
 @Composable
 fun DurationSelector(onValidityChange: (ExpirationOffer) -> Unit) {
     var expiration by remember { mutableStateOf(ExpirationOffer.DAYS_7) }
     val expirationOffersFiltered = ExpirationOffer.entries.filter { it != ExpirationOffer.NONE }
-
-
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -49,13 +45,12 @@ fun DurationSelector(onValidityChange: (ExpirationOffer) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             expirationOffersFiltered.forEach { duration ->
-                val durationDisplayName = stringResource(duration.toDisplayName())
                 AssistChip(
                     onClick = {
                         expiration = duration
                         onValidityChange(duration)
                     },
-                    label = { Text(durationDisplayName) },
+                    label = { Text(duration.name) },
                     leadingIcon = {
                         if (expiration == duration) {
                             Icon(

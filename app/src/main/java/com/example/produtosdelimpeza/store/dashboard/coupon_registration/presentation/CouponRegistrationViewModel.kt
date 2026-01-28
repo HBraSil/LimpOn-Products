@@ -34,9 +34,9 @@ class CouponRegistrationViewModel @Inject constructor(
         isValid.update { validateCouponUseCase(couponFormState.value) }
     }
 
-    fun registerCoupon(coupon: Coupon) {
+    fun createCoupon(coupon: Coupon) {
         viewModelScope.launch {
-            repository.insertCoupon(coupon)
+            repository.createCoupon(coupon)
         }
     }
 }

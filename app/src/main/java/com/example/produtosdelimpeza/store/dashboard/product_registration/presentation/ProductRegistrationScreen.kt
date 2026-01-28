@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.compose.component.LimpOnRegistrationButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,21 +148,12 @@ fun ProductRegistrationScreen(
 
             InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8*", onQuantityChange = {})
 
-            Button(
-                onClick = { productRegistrationViewModel.saveProduct(formState) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(56.dp),
-                enabled = isValidToSave,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.background
-                )
-            ) {
-                Text("Salvar Produto", style = MaterialTheme.typography.titleMedium)
-            }
+            Spacer(Modifier.height(16.dp))
+
+            LimpOnRegistrationButton(
+                text = "Salvar Produto",
+                isValid = isValidToSave
+            ) {}
         }
     }
 }

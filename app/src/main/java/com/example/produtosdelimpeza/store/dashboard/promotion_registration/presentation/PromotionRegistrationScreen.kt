@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,8 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.compose.component.DiscountTypeSection
 import com.example.produtosdelimpeza.compose.component.DurationSelector
-import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.mapper.toDisplayName
+import com.example.produtosdelimpeza.compose.component.LimpOnRegistrationButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,17 +96,11 @@ fun PromotionRegistrationScreen(
                 )
             }
             item{
-                Button(
-                    onClick = { /* Criar cupom */ },
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 16.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    enabled = isValid,
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.background,
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                ) {
-                    Text(text = "Criar promoção")
+                LimpOnRegistrationButton(
+                    text = "Criar promoção",
+                    isValid = isValid
+                ){
+                    promotionRegistrationViewModel.createPromotion()
                 }
             }
         }

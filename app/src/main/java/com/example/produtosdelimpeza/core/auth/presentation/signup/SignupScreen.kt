@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.LimpOnButton
+import com.example.produtosdelimpeza.compose.component.LimpOnAuthButton
 import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -266,7 +266,7 @@ fun SignupScreen(
                 )
 
 
-                LimpOnButton(
+                LimpOnAuthButton(
                     text = R.string.to_signup,
                     enabled = signUpViewModel.formState.formIsValid,
                     modifier = Modifier
@@ -275,7 +275,7 @@ fun SignupScreen(
                     //if (isConnected) {
                         signUpViewModel.registerUser()
                          showEmailSentSnackbar = true
-                        return@LimpOnButton
+                        return@LimpOnAuthButton
 
                 }
             }

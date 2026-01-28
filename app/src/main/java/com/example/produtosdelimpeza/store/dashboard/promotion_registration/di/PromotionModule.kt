@@ -16,5 +16,4 @@ abstract class PromotionModule {
     abstract fun bindPromotionRegistrationRepository(
         promotionRegistrationRepositoryImpl: PromotionRegistrationRepositoryImpl
     ): PromotionRegistrationRepository
-
 }

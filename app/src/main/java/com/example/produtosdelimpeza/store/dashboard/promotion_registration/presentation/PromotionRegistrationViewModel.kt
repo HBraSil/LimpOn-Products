@@ -1,18 +1,22 @@
 package com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.domain.Promotion
+import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.PromotionRegistrationRepository
 import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.ValidatePromotionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class PromotionRegistrationViewModel @Inject constructor(
-    private val validatePromotionUseCase: ValidatePromotionUseCase
+    private val validatePromotionUseCase: ValidatePromotionUseCase,
+    private val promotionRegistrationRepository: PromotionRegistrationRepository
 ) : ViewModel() {
 
     private val _promotionFormState = MutableStateFlow(Promotion())
@@ -30,5 +34,11 @@ class PromotionRegistrationViewModel @Inject constructor(
         }
 
         _isValid.update { validatePromotionUseCase(_promotionFormState.value) }
+    }
+
+    fun createPromotion() {
+        viewModelScope.launch {
+            promotionRegistrationRepository.createPromotion(_promotionFormState.value)
+        }
     }
 }

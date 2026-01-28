@@ -35,7 +35,7 @@ import com.example.produtosdelimpeza.compose.customer.catalog.profile.StoreProfi
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.store.onboarding.SignupStoreScreen
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.RegistrationCouponScreen
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.CouponRegistrationScreen
 import com.example.produtosdelimpeza.store.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.store.managment.product_tab.ProductDetailScreen
@@ -198,7 +198,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
         }
 
         composable(StoreScreen.COUPUN_REGISTRATION.route) {
-            RegistrationCouponScreen(
+            CouponRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
                 }

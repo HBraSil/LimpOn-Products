@@ -17,12 +17,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.produtosdelimpeza.R
 
 @Composable
-fun LimpOnButton(
+fun LimpOnAuthButton(
     modifier: Modifier = Modifier,
     text: Int,
     enabled: Boolean = true,

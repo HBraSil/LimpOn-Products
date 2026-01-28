@@ -4,5 +4,5 @@ import com.example.produtosdelimpeza.core.domain.Coupon
 
 
 interface CouponRepository {
-    suspend fun insertCoupon(coupon: Coupon)
+    suspend fun createCoupon(coupon: Coupon)
 }

@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,13 +24,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.compose.component.DiscountTypeSection
 import com.example.produtosdelimpeza.compose.component.DurationSelector
-import com.example.produtosdelimpeza.core.domain.model.DiscountType
-import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.mapper.toDisplayName
+import com.example.produtosdelimpeza.compose.component.LimpOnRegistrationButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationCouponScreen(
+fun CouponRegistrationScreen(
     onBackNavigation: () -> Unit = {},
     couponRegistrationViewModel: CouponRegistrationViewModel = hiltViewModel()
 ) {
@@ -101,22 +97,17 @@ fun RegistrationCouponScreen(
             }
             item{ CouponPreviewSection() }
             item{
-                Button(
-                    onClick = { /* Criar cupom */ },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    enabled = isValid,
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.background,
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
+                LimpOnRegistrationButton(
+                    text = "Criar cupom",
+                    isValid = isValid
                 ) {
-                    Text(text = "Criar cupom")
+                    couponRegistrationViewModel.createCoupon(formState)
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun CouponInsightCard() {
@@ -151,6 +142,7 @@ fun CouponInsightCard() {
     }
 }
 
+
 @Composable
 fun CouponTextField(
     label: String,
@@ -172,7 +164,6 @@ fun CouponTextField(
 }
 
 
-
 @Composable
 fun DateBox(
     label: String,
@@ -180,7 +171,6 @@ fun DateBox(
 ) {
     Surface(
         modifier = Modifier
-            //.weight(1f)
             .clickable { /* Abrir DatePicker futuramente */ },
         shape = RoundedCornerShape(14.dp),
         tonalElevation = 2.dp
@@ -203,11 +193,10 @@ fun DateBox(
 }
 
 
+
 @Composable
 fun CouponPreviewSection() {
-
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
         Text(
             text = "Preview do cupom",
             style = MaterialTheme.typography.titleMedium,
@@ -267,5 +256,5 @@ fun CouponPreviewCard() {
 @Preview
 @Composable
 fun Test(){
-    RegistrationCouponScreen()
+    CouponRegistrationScreen()
 }
