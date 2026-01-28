@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import com.example.produtosdelimpeza.compose.customer.order.OrderStatus
+import com.example.produtosdelimpeza.customer.order.OrderStatus
 
 
 data class Order(

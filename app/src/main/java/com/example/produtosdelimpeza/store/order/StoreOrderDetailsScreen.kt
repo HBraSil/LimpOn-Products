@@ -49,7 +49,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.customer.order.OrderStatus
+import com.example.produtosdelimpeza.customer.order.OrderStatus
 
 
 fun nextStatus(status: OrderStatus): OrderStatus? = when (status) {

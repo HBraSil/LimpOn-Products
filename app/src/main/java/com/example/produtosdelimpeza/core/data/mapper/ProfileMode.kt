@@ -1,7 +1,7 @@
 package com.example.produtosdelimpeza.core.data.mapper
 
-import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.commons.ProfileModeKey
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
+import com.example.produtosdelimpeza.core.domain.model.ProfileModeKey
 
 
 fun ProfileModeKey.toProfileMode(): ProfileMode =

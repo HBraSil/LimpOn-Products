@@ -62,7 +62,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -83,24 +82,21 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 
 @Composable
 fun SearchScreen(
-    searchScreenViewModel: SearchHistoryViewModel = viewModel(),
+    searchScreenViewModel: SearchHistoryViewModel = hiltViewModel(),
 ) {
-    Scaffold(
-       // bottomBar = { MainBottomNavigation(navControler) }
-    ) { contentPadding ->
+    Scaffold { contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = contentPadding.calculateBottomPadding()),
             verticalArrangement = Arrangement.Top
         ) {
-
             SearchBarContainer(searchScreenViewModel)
-
             SearchContentBelowBar()
         }
     }
@@ -112,7 +108,6 @@ fun SearchScreen(
 fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
     var query by remember { mutableStateOf(("")) }
     var expanded by remember { mutableStateOf(false) }
-    var viewModel = searchScreenViewModel
 
     val products =
         listOf("Sabão", "Desinfetante", "Amaciante", "Detergente", "Limpa Alumínio", "Kiboa")
@@ -296,7 +291,7 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
 
             TextButton(
                 onClick = {
-                    viewModel.clearSearchHistory()
+                    searchScreenViewModel.clearSearchHistory()
                 },
                 modifier = Modifier.padding(start = 40.dp, end = 10.dp),
             ) {
@@ -319,7 +314,7 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            if (viewModel.history.isEmpty()) {
+            if (searchScreenViewModel.history.isEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
@@ -334,16 +329,16 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
 
                 }
             } else {
-                viewModel.history.forEach {
+                searchScreenViewModel.history.forEach {
                     Row(verticalAlignment = Alignment.CenterVertically) {
 
                         Button(
                             onClick = {
                                 query = it
-                                expanded = false // Fecha ao selecionar
+                                expanded = false
                             },
                             modifier = Modifier
-                                .weight(1f) // <-- O Button vai expandir para ocupar todo o espaço
+                                .weight(1f)
                                 .padding(start = 8.dp, end = 8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent,
@@ -351,7 +346,6 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
                             ),
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            // Conteúdo do botão em uma Row para alinhamento
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -377,7 +371,6 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
                             Icon(
                                 imageVector = Icons.Outlined.ArrowOutward,
                                 contentDescription = "Seta para a esquerda (rotacionada)",
-                                // Aplica a rotação de 180 graus no ícone
                                 modifier = Modifier.rotate(275f)
                             )
                         }
@@ -388,11 +381,9 @@ fun SearchBarContainer(searchScreenViewModel: SearchHistoryViewModel) {
     }
 }
 
-// ---------- Modelo simples de dados (substitua por seu modelo real) ----------
 data class Seller(val id: String, val name: String, val initials: String, val color: Color)
 data class Promo(val id: String, val title: String, val badge: String, val gradient: List<Color>)
 
-// ---------- Tela principal que será colocada abaixo da SearchBar ----------
 @Composable
 fun SearchContentBelowBar(
     modifier: Modifier = Modifier,
@@ -410,10 +401,7 @@ fun SearchContentBelowBar(
     ) {
 
         Spacer(modifier = Modifier.height(12.dp))
-
-        // Animated content area: shows either the "visual home" or the "typeahead results"
         if (searchQuery.isBlank()) {
-            // When nothing is typed: show categories, sellers, promos
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 CategoryChipsSection(
                     categories = categories,
@@ -435,7 +423,6 @@ fun SearchContentBelowBar(
                 )
             }
         } else {
-            // When typing: show simulated search results and hide the visual sections
             SearchSuggestionsList(
                 query = searchQuery,
                 onItemClick = { item ->
@@ -446,7 +433,7 @@ fun SearchContentBelowBar(
     }
 }
 
-// ---------- CategoryChipsSection ----------
+
 @Composable
 fun CategoryChipsSection(
     categories: List<Pair<String, Int>>,
@@ -463,7 +450,6 @@ fun CategoryChipsSection(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // FlowRow permite quebrar linha automaticamente quando não cabe
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -479,9 +465,9 @@ fun CategoryChipsSection(
     }
 }
 
+
 @Composable
 fun Chip(label: String, onClick: () -> Unit) {
-    // Simple chip with soft background, rounded corners and slight elevation
     Surface(
         modifier = Modifier
             .wrapContentWidth()
@@ -498,7 +484,6 @@ fun Chip(label: String, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(horizontal = 12.dp)
         ) {
-            // optional icon placeholder
             Box(
                 modifier = Modifier
                     .size(18.dp)
@@ -513,7 +498,7 @@ fun Chip(label: String, onClick: () -> Unit) {
     }
 }
 
-// ---------- SellerSection ----------
+
 @Composable
 fun SellerSection(sellers: List<Seller>, onSellerClick: (Seller) -> Unit) {
     Column {
@@ -523,7 +508,6 @@ fun SellerSection(sellers: List<Seller>, onSellerClick: (Seller) -> Unit) {
             modifier = Modifier.padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
@@ -543,7 +527,6 @@ fun SellerItem(seller: Seller, onClick: () -> Unit) {
             .width(88.dp)
             .clickable { onClick() }
     ) {
-        // Circular image placeholder with initials
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -575,7 +558,7 @@ fun SellerItem(seller: Seller, onClick: () -> Unit) {
     }
 }
 
-// ---------- PromoSection ----------
+
 @Composable
 fun PromoSection(promos: List<Promo>, onPromoClick: (Promo) -> Unit) {
     Column {

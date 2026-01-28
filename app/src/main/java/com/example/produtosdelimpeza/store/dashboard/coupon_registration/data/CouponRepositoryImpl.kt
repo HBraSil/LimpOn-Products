@@ -10,7 +10,6 @@ import javax.inject.Inject
 class CouponRepositoryImpl @Inject constructor(
     private val firebaseStore: FirebaseFirestore
 ): CouponRepository {
-
     override suspend fun createCoupon(coupon: Coupon) {
         try {
             firebaseStore.collection("coupons").add(coupon).await()

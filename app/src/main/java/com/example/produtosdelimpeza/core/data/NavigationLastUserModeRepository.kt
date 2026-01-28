@@ -3,8 +3,8 @@ package com.example.produtosdelimpeza.core.data
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.commons.ProfileModeKey
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
+import com.example.produtosdelimpeza.core.domain.model.ProfileModeKey
 import com.example.produtosdelimpeza.core.data.mapper.toProfileMode
 import com.example.produtosdelimpeza.core.data.mapper.toProfileModeKey
 import dagger.hilt.android.qualifiers.ApplicationContext

@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.example.produtosdelimpeza.connection.NetworkUtils
-import com.example.produtosdelimpeza.data.AppDatabase
+import com.example.produtosdelimpeza.core.data.system.NetworkChecker
+import com.example.produtosdelimpeza.core.data.AppDatabase
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
 import dagger.Module
 import dagger.Provides
@@ -41,7 +41,7 @@ object DatabaseModule {
     @Singleton
     fun provideNetworkChecker(
         @ApplicationContext context: Context
-    ): NetworkUtils = NetworkUtils(context)
+    ): NetworkChecker = NetworkChecker(context)
 
 
     @Provides

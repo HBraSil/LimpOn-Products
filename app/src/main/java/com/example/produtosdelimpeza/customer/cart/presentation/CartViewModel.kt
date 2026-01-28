@@ -3,7 +3,7 @@ package com.example.produtosdelimpeza.customer.cart.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.customer.cart.domain.CartRepository
-import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

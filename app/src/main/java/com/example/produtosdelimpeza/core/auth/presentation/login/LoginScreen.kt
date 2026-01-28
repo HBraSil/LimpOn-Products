@@ -53,9 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.commons.ProfileMode
-import com.example.produtosdelimpeza.compose.component.LimpOnAuthButton
-import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
+import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
+import com.example.produtosdelimpeza.core.component.LimpOnTxtField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
 

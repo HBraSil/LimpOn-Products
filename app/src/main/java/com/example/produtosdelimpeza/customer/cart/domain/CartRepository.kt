@@ -1,6 +1,6 @@
 package com.example.produtosdelimpeza.customer.cart.domain
 
-import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 
 interface CartRepository {
     suspend fun insertProduct(productEntity: ProductEntity)

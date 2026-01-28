@@ -21,9 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.produtosdelimpeza.compose.component.DiscountTypeSection
-import com.example.produtosdelimpeza.compose.component.DurationSelector
-import com.example.produtosdelimpeza.compose.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.DiscountTypeSection
+import com.example.produtosdelimpeza.core.component.DurationSelector
+import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)

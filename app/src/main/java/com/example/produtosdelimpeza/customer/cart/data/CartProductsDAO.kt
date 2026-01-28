@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 
 @Dao
 interface CartProductsDAO {

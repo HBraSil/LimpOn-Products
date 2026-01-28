@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.produtosdelimpeza.compose.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)

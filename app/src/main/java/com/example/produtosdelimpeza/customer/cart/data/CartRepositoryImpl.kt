@@ -1,7 +1,7 @@
 package com.example.produtosdelimpeza.customer.cart.data
 
 import com.example.produtosdelimpeza.customer.cart.domain.CartRepository
-import com.example.produtosdelimpeza.model.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import javax.inject.Inject
 import javax.inject.Singleton
 

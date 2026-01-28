@@ -2,7 +2,7 @@ package com.example.produtosdelimpeza.core.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.commons.ProfileMode
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.data.NavigationLastUserModeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

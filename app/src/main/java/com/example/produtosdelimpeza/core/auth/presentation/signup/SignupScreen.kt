@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.compose.component.LimpOnAuthButton
-import com.example.produtosdelimpeza.compose.component.LimpOnTxtField
+import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
+import com.example.produtosdelimpeza.core.component.LimpOnTxtField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

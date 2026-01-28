@@ -2,10 +2,10 @@ package com.example.produtosdelimpeza.core.auth.data
 
 import android.util.Log
 import androidx.core.net.toUri
-import com.example.produtosdelimpeza.connection.NetworkUtils
+import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
-import com.example.produtosdelimpeza.model.User
+import com.example.produtosdelimpeza.core.domain.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val networkUtils: NetworkUtils,
+    private val networkChecker: NetworkChecker,
     private val signInWithGoogleApi: SigninWithGoogleApi
 ) : AuthRepository {
     data class RegistrationException(override var message: String) : Exception(message)
@@ -56,7 +56,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signInWithEmailAndPassword(email: String, password: String): LoginResponse {
         return try {
-            val isInternetAvailable = networkUtils.isInternetAvailable()
+            val isInternetAvailable = networkChecker.isInternetAvailable()
             Log.d("INTERNET", "status internet: $isInternetAvailable")
             if (isInternetAvailable) {
                 val signInResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()

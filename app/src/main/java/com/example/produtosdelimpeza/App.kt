@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Base64
 import android.util.Log
-import com.example.produtosdelimpeza.data.AppDatabase
+import com.example.produtosdelimpeza.core.data.AppDatabase
 import com.facebook.FacebookSdk
 import com.facebook.LoggingBehavior
 import com.facebook.appevents.AppEventsLogger
