@@ -2,7 +2,10 @@ package com.example.produtosdelimpeza.store.dashboard.coupon_registration.presen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.domain.AppResult
 import com.example.produtosdelimpeza.core.domain.Coupon
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
+import com.example.produtosdelimpeza.core.presentation.SessionUserUiState
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRepository
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.ValidateCouponUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +18,14 @@ import javax.inject.Inject
 @HiltViewModel
 class CouponRegistrationViewModel @Inject constructor(
     private val repository: CouponRepository,
-    private val validateCouponUseCase: ValidateCouponUseCase
+    private val validateCouponUseCase: ValidateCouponUseCase,
 ) : ViewModel() {
     private val couponFormState = MutableStateFlow(Coupon())
     val _couponFormState = couponFormState.asStateFlow()
+
+    private val _uiState = MutableStateFlow(SessionUserUiState())
+    val uiState = _uiState.asStateFlow()
+
 
     private val isValid = MutableStateFlow(false)
     val _isValid = isValid.asStateFlow()
@@ -36,7 +43,12 @@ class CouponRegistrationViewModel @Inject constructor(
 
     fun createCoupon(coupon: Coupon) {
         viewModelScope.launch {
-            repository.createCoupon(coupon)
+            when (repository.createCoupon(coupon)) {
+                is AppResult.Success -> repository.createCoupon(coupon)
+                is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpiredDialog = true) }
+                is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternetToast = true) }
+                is AppResult.Error.Unknown -> _uiState.update { it.copy() }
+            }
         }
     }
 }

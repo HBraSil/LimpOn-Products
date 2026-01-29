@@ -11,7 +11,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class CouponRegistrationModule {
-
     @Binds
     @Singleton
     abstract fun bindCouponRepository(

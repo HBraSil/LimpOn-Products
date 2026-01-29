@@ -1,10 +1,12 @@
 package com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -15,16 +17,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.domain.AppResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +39,28 @@ fun CouponRegistrationScreen(
 ) {
     val formState by couponRegistrationViewModel._couponFormState.collectAsState()
     val isValid by couponRegistrationViewModel._isValid.collectAsState()
+
+    val state by couponRegistrationViewModel.uiState.collectAsState()
+
+    if (state.showSessionExpiredDialog) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                Button(onClick = {}) {
+                    Text("OK")
+                }
+            },
+            text = { Text("Sua sessão expirou. Faça login novamente.") }
+        )
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(state.showNoInternetToast) {
+        if (state.showNoInternetToast) {
+            Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     Scaffold(
         topBar = {

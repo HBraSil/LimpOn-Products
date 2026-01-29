@@ -13,8 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NavigationLastUserModeRepository @Inject constructor(@ApplicationContext private val context: Context) {
-
+class LastUserModeLocalStorage @Inject constructor(@ApplicationContext private val context: Context) {
     private val navigationDataStore = context.navigationDataStore
 
     companion object {
@@ -23,7 +22,6 @@ class NavigationLastUserModeRepository @Inject constructor(@ApplicationContext p
 
     val lastActiveProfile = navigationDataStore.data.map { preferences ->
         val storedValue = preferences[LAST_ACTIVE_PROFILE] ?: ProfileModeKey.LOGGED_OUT.name
-
         ProfileModeKey.valueOf(storedValue).toProfileMode()
     }
 
