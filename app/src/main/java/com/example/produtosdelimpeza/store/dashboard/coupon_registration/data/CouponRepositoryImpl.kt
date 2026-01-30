@@ -24,15 +24,12 @@ class CouponRepositoryImpl @Inject constructor(
 ): CouponRepository {
     override suspend fun createCoupon(coupon: Coupon): AppResult<Boolean> {
         return try {
-
             if (!networkChecker.isInternetAvailable()) {
                 return AppResult.Error.Network
             }
-
             val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
             val couponId = UUID.randomUUID().toString()
-
             firebaseStore.collection("users")
                 .document(userUid)
                 .collection("coupons")

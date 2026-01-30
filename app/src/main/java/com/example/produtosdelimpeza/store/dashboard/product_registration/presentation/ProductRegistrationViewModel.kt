@@ -2,7 +2,9 @@ package com.example.produtosdelimpeza.store.dashboard.product_registration.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.domain.AppResult
 import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.core.presentation.SessionUserErrors
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ProductRegistrationRepository
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ValidateProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +23,8 @@ class ProductRegistrationViewModel @Inject constructor(
 
     private var productFormState = MutableStateFlow(Product())
     val _productFormState = productFormState.asStateFlow()
-
+    private val _uiState = MutableStateFlow(SessionUserErrors())
+    val uiState = _uiState.asStateFlow()
     private var isValid = MutableStateFlow(false)
     val _isValid = isValid.asStateFlow()
 
@@ -41,18 +44,14 @@ class ProductRegistrationViewModel @Inject constructor(
     }
 
 
-    fun saveProduct(product: Product) {
+    fun registerProduct(product: Product) {
         viewModelScope.launch {
-            val result = repository.registerProduct(product)
-
-            result.fold(
-                onSuccess = {
-                    println("Produto salvo com sucesso!")
-                },
-                onFailure = { error ->
-                    println("Erro ao salvar: ${error.message}")
-                }
-            )
+            when (repository.registerProduct(product)) {
+                is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
+                is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
+                is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
+                else -> {}
+            }
         }
     }
 }

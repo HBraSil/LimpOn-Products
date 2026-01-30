@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.store.dashboard.product_registration.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,12 +12,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -34,6 +37,28 @@ fun ProductRegistrationScreen(
 
     val formState by productRegistrationViewModel._productFormState.collectAsState()
     val isValidToSave by productRegistrationViewModel._isValid.collectAsState()
+
+    val state by productRegistrationViewModel.uiState.collectAsState()
+
+    if (state.showSessionExpired) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                Button(onClick = {}) {
+                    Text("OK")
+                }
+            },
+            text = { Text("Sua sessão expirou. Faça login novamente.") }
+        )
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(state.showNoInternet) {
+        if (state.showNoInternet) {
+            Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -153,7 +178,9 @@ fun ProductRegistrationScreen(
             LimpOnRegistrationButton(
                 text = "Salvar Produto",
                 isValid = isValidToSave
-            ) {}
+            ) {
+                productRegistrationViewModel.registerProduct(formState)
+            }
         }
     }
 }

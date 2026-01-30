@@ -2,7 +2,9 @@ package com.example.produtosdelimpeza.store.dashboard.promotion_registration.pre
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.domain.AppResult
 import com.example.produtosdelimpeza.core.domain.Promotion
+import com.example.produtosdelimpeza.core.presentation.SessionUserErrors
 import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.PromotionRegistrationRepository
 import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.ValidatePromotionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PromotionRegistrationViewModel @Inject constructor(
     private val validatePromotionUseCase: ValidatePromotionUseCase,
-    private val promotionRegistrationRepository: PromotionRegistrationRepository
+    private val promotionRepository: PromotionRegistrationRepository
 ) : ViewModel() {
 
     private val _promotionFormState = MutableStateFlow(Promotion())
@@ -24,6 +26,10 @@ class PromotionRegistrationViewModel @Inject constructor(
 
     private val _isValid = MutableStateFlow(false)
     val isValid = _isValid.asStateFlow()
+
+    private val _uiState = MutableStateFlow(SessionUserErrors())
+    val uiState = _uiState.asStateFlow()
+
 
     fun onEvent(field: AddPromotionField) {
         when (field) {
@@ -36,9 +42,14 @@ class PromotionRegistrationViewModel @Inject constructor(
         _isValid.update { validatePromotionUseCase(_promotionFormState.value) }
     }
 
-    fun createPromotion() {
+    fun createPromotion(promotion: Promotion) {
         viewModelScope.launch {
-            promotionRegistrationRepository.createPromotion(_promotionFormState.value)
+            when (promotionRepository.createPromotion(promotion)) {
+                is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
+                is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
+                is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
+                else -> {}
+            }
         }
     }
 }

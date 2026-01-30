@@ -1,5 +1,5 @@
 package com.example.produtosdelimpeza.core.domain.model
-sealed class    ProfileMode {
+sealed class ProfileMode {
     object LoggedOut : ProfileMode()
 
     sealed class LoggedIn : ProfileMode() {

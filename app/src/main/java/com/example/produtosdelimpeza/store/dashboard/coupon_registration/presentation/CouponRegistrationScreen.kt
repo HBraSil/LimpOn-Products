@@ -24,12 +24,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
-import com.example.produtosdelimpeza.core.domain.AppResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +40,7 @@ fun CouponRegistrationScreen(
 
     val state by couponRegistrationViewModel.uiState.collectAsState()
 
-    if (state.showSessionExpiredDialog) {
+    if (state.showSessionExpired) {
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {
@@ -55,8 +53,8 @@ fun CouponRegistrationScreen(
     }
 
     val context = LocalContext.current
-    LaunchedEffect(state.showNoInternetToast) {
-        if (state.showNoInternetToast) {
+    LaunchedEffect(state.showNoInternet) {
+        if (state.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
