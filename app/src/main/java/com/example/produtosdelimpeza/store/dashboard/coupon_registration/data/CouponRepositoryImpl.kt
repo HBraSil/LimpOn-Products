@@ -27,20 +27,21 @@ class CouponRepositoryImpl @Inject constructor(
             if (!networkChecker.isInternetAvailable()) {
                 return AppResult.Error.Network
             }
+
             val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
-            val couponId = UUID.randomUUID().toString()
             firebaseStore.collection("users")
                 .document(userUid)
                 .collection("coupons")
-                .document(couponId)
-                .set(coupon.copy(id = couponId))
+                .document(coupon.id)
+                .set(coupon)
                 .await()
+
             AppResult.Success(true)
         } catch (e: IOException) {
-                AppResult.Error.Network
+            AppResult.Error.Network
         } catch (e: Exception) {
-                AppResult.Error.Unknown(e.message)
+            AppResult.Error.Unknown(e.message)
         }
     }
 }

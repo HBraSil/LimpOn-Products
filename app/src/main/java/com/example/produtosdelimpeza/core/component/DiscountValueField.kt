@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,11 +18,14 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,6 +40,8 @@ fun DiscountTypeSection(
 ) {
     val options = DiscountType.entries.filter { it != DiscountType.NONE }
     var selected by remember { mutableStateOf(DiscountType.NONE) }
+    val focusRequester = remember { FocusRequester() }
+
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -48,7 +54,9 @@ fun DiscountTypeSection(
             options.forEachIndexed { index, type ->
                 SegmentedButton(
                     selected = selected == type,
-                    onClick = { selected = type },
+                    onClick = {
+                        selected = type
+                    },
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
                         count = options.size
@@ -70,11 +78,17 @@ fun DiscountTypeSection(
     ) {
         DiscountValueField(
             value = currentDiscountValue,
-            onValueChange = {
-                onDiscountTypeAndValueChange(selected, it)
-            },
             type = selected,
-        )
+            focusRequester = focusRequester
+        ) {
+            onDiscountTypeAndValueChange(selected, it)
+        }
+    }
+
+    LaunchedEffect(selected) {
+        if (selected != DiscountType.NONE) {
+            focusRequester.requestFocus()
+        }
     }
 }
 
@@ -82,30 +96,28 @@ fun DiscountTypeSection(
 @Composable
 private fun DiscountValueField(
     value: String,
-    onValueChange: (String) -> Unit,
     type: DiscountType?,
+    focusRequester: FocusRequester,
+    onValueChange: (String) -> Unit,
 ) {
     val label = if (type == DiscountType.PERCENTAGE)
         "Porcentagem de desconto. Ex: 10%"
     else
         "Valor do desconto. Ex: R$15,00"
 
-    var isFocused by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-            },
+            .focusRequester(focusRequester),
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
         trailingIcon = {
-            if (isFocused) {
+            if (type != null) {
                 Text(
                     text = when (type) {
                         DiscountType.PERCENTAGE -> "%"

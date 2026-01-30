@@ -21,16 +21,16 @@ class PromotionRegistrationRepositoryImpl @Inject constructor(
             if (!networkChecker.isInternetAvailable()) {
                 return AppResult.Error.Network
             }
-            val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
-            val promotionId = UUID.randomUUID().toString()
+            val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
             firestore.collection("users")
                 .document(userUid)
                 .collection("promotions")
-                .document(promotionId)
-                .set(promotion.copy(id = promotionId))
+                .document(promotion.id)
+                .set(promotion)
                 .await()
+
             AppResult.Success(true)
         } catch (e: IOException) {
             AppResult.Error.Network

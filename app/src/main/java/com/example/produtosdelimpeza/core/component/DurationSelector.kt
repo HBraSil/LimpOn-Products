@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,12 +31,12 @@ import com.example.produtosdelimpeza.store.dashboard.coupon_registration.present
 
 @Composable
 fun DurationSelector(onValidityChange: (ExpirationOffer) -> Unit) {
-    var expiration by remember { mutableStateOf(ExpirationOffer.DAYS_7) }
+    var expiration by remember { mutableStateOf(ExpirationOffer.NONE) }
     val expirationOffersFiltered = ExpirationOffer.entries.filter { it != ExpirationOffer.NONE }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            "Duração da promoção",
+            text = "Duração da promoção",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -59,7 +60,14 @@ fun DurationSelector(onValidityChange: (ExpirationOffer) -> Unit) {
                                 tint = MaterialTheme.colorScheme.surfaceVariant
                             )
                         }
-                    }
+                    },
+                    elevation = AssistChipDefaults.assistChipElevation(
+                        elevation = 6.dp
+                    ),
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.onBackground,
+                        labelColor = MaterialTheme.colorScheme.background
+                    )
                 )
             }
         }

@@ -16,33 +16,32 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CouponRegistrationViewModel @Inject constructor(
-    private val repository: CouponRepository,
+    private val couponRepository: CouponRepository,
     private val validateCouponUseCase: ValidateCouponUseCase,
 ) : ViewModel() {
-    private val couponFormState = MutableStateFlow(Coupon())
-    val _couponFormState = couponFormState.asStateFlow()
 
     private val _uiState = MutableStateFlow(SessionUserErrors())
     val uiState = _uiState.asStateFlow()
 
-
     private val isValid = MutableStateFlow(false)
     val _isValid = isValid.asStateFlow()
 
+    private val _couponFormState = MutableStateFlow(Coupon())
+    val couponFormState = _couponFormState.asStateFlow()
     fun onEvent(field: AddCouponField) {
         when (field) {
-            is AddCouponField.CouponCodeField -> couponFormState.update { it.copy(couponCode = field.value) }
-            is AddCouponField.DiscountTypeField -> couponFormState.update {it.copy(discountType = field.value) }
-            is AddCouponField.DiscountValueField -> couponFormState.update { it.copy(discountValue = field.value) }
-            is AddCouponField.DurationField -> couponFormState.update { it.copy(expirationOffer = field.value) }
+            is AddCouponField.CouponCodeField -> _couponFormState.update { it.copy(couponCode = field.value) }
+            is AddCouponField.DiscountTypeField -> _couponFormState.update {it.copy(discountType = field.value) }
+            is AddCouponField.DiscountValueField -> _couponFormState.update { it.copy(discountValue = field.value) }
+            is AddCouponField.DurationField -> _couponFormState.update { it.copy(expirationOffer = field.value) }
         }
 
-        isValid.update { validateCouponUseCase(couponFormState.value) }
+        isValid.update { validateCouponUseCase(_couponFormState.value) }
     }
 
     fun createCoupon(coupon: Coupon) {
         viewModelScope.launch {
-            when (repository.createCoupon(coupon)) {
+            when (couponRepository.createCoupon(coupon)) {
                 is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
                 is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
                 is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }

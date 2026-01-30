@@ -35,7 +35,7 @@ fun CouponRegistrationScreen(
     onBackNavigation: () -> Unit = {},
     couponRegistrationViewModel: CouponRegistrationViewModel = hiltViewModel()
 ) {
-    val formState by couponRegistrationViewModel._couponFormState.collectAsState()
+    val formState by couponRegistrationViewModel.couponFormState.collectAsState()
     val isValid by couponRegistrationViewModel._isValid.collectAsState()
 
     val state by couponRegistrationViewModel.uiState.collectAsState()

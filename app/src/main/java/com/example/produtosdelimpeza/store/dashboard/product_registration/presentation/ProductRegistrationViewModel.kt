@@ -23,8 +23,10 @@ class ProductRegistrationViewModel @Inject constructor(
 
     private var productFormState = MutableStateFlow(Product())
     val _productFormState = productFormState.asStateFlow()
+
     private val _uiState = MutableStateFlow(SessionUserErrors())
     val uiState = _uiState.asStateFlow()
+
     private var isValid = MutableStateFlow(false)
     val _isValid = isValid.asStateFlow()
 

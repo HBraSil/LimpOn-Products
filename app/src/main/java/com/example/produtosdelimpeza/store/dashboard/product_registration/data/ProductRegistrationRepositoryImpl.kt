@@ -20,6 +20,7 @@ class ProductRegistrationRepositoryImpl @Inject constructor(
             if (!networkChecker.isInternetAvailable()) {
                 return AppResult.Error.Network
             }
+
             val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
             firestore
