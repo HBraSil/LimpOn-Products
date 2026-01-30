@@ -6,4 +6,5 @@ import com.example.produtosdelimpeza.core.domain.Coupon
 
 interface CouponRepository {
     suspend fun createCoupon(coupon: Coupon): AppResult<Boolean>
+    fun signOut()
 }

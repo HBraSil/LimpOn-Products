@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.outlined.*
@@ -24,35 +23,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromotionRegistrationScreen(
     onBackNavigation: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
     promotionRegistrationViewModel: PromotionRegistrationViewModel = hiltViewModel()
 ) {
     val formState by promotionRegistrationViewModel.promotionFormState.collectAsState()
     val isValid by promotionRegistrationViewModel.isValid.collectAsState()
-
+    val state by promotionRegistrationViewModel.uiState.collectAsState()
     var selectedCategory by remember { mutableStateOf("") }
 
-    val state by promotionRegistrationViewModel.uiState.collectAsState()
-
-    if (state.showSessionExpired) {
-        AlertDialog(
-            onDismissRequest = {},
-            confirmButton = {
-                Button(onClick = {}) {
-                    Text("OK")
-                }
-            },
-            text = { Text("Sua sessão expirou. Faça login novamente.") }
-        )
-    }
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
@@ -60,7 +49,9 @@ fun PromotionRegistrationScreen(
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
-
+    if (state.showSessionExpired) {
+        SessionExpiredAlertDialog(onNavigateToLogin)
+    }
 
     Scaffold(
         topBar = {
@@ -92,14 +83,7 @@ fun PromotionRegistrationScreen(
                 )
             }
             item{
-                DurationSelector {
-                    promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
-                }
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider()
-            }
-            item{
-                PromotionAppliesToSelector(
+                AppliesToCategorySelector(
                     options = listOf(
                         "Todos os produtos",
                         "Bebidas",
@@ -113,6 +97,13 @@ fun PromotionRegistrationScreen(
                         selectedCategory = it
                     }
                 )
+            }
+            item{
+                DurationSelector {
+                    promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
+                }
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider()
             }
             item{
                 PromotionBannerSection(
@@ -277,73 +268,6 @@ private fun EmptyBannerState(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PromotionAppliesToSelector(
-    title: String = "Onde essa promoção vale",
-    subtitle: String = "Selecione a categoria de produtos",
-    options: List<String>,
-    selectedOption: String?,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        Spacer(Modifier.height(4.dp))
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                value = selectedOption ?: "",
-                onValueChange = {},
-                readOnly = true,
-                placeholder = {
-                    Text("Escolha uma categoria")
-                },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            onOptionSelected(option)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
 
 
 @Preview(showBackground = true)

@@ -20,23 +20,25 @@ class CouponRegistrationViewModel @Inject constructor(
     private val validateCouponUseCase: ValidateCouponUseCase,
 ) : ViewModel() {
 
+    private val _couponFormState = MutableStateFlow(Coupon())
+    val couponFormState = _couponFormState.asStateFlow()
+
     private val _uiState = MutableStateFlow(SessionUserErrors())
     val uiState = _uiState.asStateFlow()
 
-    private val isValid = MutableStateFlow(false)
-    val _isValid = isValid.asStateFlow()
+    private val _isValid = MutableStateFlow(false)
+    val isValid = _isValid.asStateFlow()
 
-    private val _couponFormState = MutableStateFlow(Coupon())
-    val couponFormState = _couponFormState.asStateFlow()
     fun onEvent(field: AddCouponField) {
         when (field) {
             is AddCouponField.CouponCodeField -> _couponFormState.update { it.copy(couponCode = field.value) }
             is AddCouponField.DiscountTypeField -> _couponFormState.update {it.copy(discountType = field.value) }
             is AddCouponField.DiscountValueField -> _couponFormState.update { it.copy(discountValue = field.value) }
             is AddCouponField.DurationField -> _couponFormState.update { it.copy(expirationOffer = field.value) }
+            is AddCouponField.CategoryField -> _couponFormState.update { it.copy(category = field.value) }
         }
 
-        isValid.update { validateCouponUseCase(_couponFormState.value) }
+        _isValid.update { validateCouponUseCase(_couponFormState.value) }
     }
 
     fun createCoupon(coupon: Coupon) {
@@ -48,5 +50,9 @@ class CouponRegistrationViewModel @Inject constructor(
                 else -> {}
             }
         }
+    }
+
+    fun signOut() {
+        couponRepository.signOut()
     }
 }

@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
@@ -23,39 +24,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.AddPromotionField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductRegistrationScreen(
     onBackNavigation: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
     productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
 ) {
-    val scrollState = rememberScrollState()
-    var isAvailable by remember { mutableStateOf(true) }
 
-    val formState by productRegistrationViewModel._productFormState.collectAsState()
-    val isValidToSave by productRegistrationViewModel._isValid.collectAsState()
-
+    val formState by productRegistrationViewModel.productFormState.collectAsState()
+    val isValidToSave by productRegistrationViewModel.isValid.collectAsState()
     val state by productRegistrationViewModel.uiState.collectAsState()
-
-    if (state.showSessionExpired) {
-        AlertDialog(
-            onDismissRequest = {},
-            confirmButton = {
-                Button(onClick = {}) {
-                    Text("OK")
-                }
-            },
-            text = { Text("Sua sessão expirou. Faça login novamente.") }
-        )
-    }
+    var selectedCategory by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
         if (state.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+    if (state.showSessionExpired) {
+        SessionExpiredAlertDialog{
+            productRegistrationViewModel.signOut()
+            onNavigateToLogin()
         }
     }
 
@@ -75,113 +72,137 @@ fun ProductRegistrationScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text("Foto do Produto", style = MaterialTheme.typography.titleSmall)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { /* Abrir Galeria */ },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.AddAPhoto,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Adicionar imagem", color = MaterialTheme.colorScheme.primary)
+            item {
+                Text("Foto do Produto", style = MaterialTheme.typography.titleSmall)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable { /* Abrir Galeria */ },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.AddAPhoto,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text("Adicionar imagem", color = MaterialTheme.colorScheme.primary)
+                    }
                 }
             }
 
-            OutlinedTextField(
-                value = formState.productName,
-                onValueChange = { productRegistrationViewModel.onEvent(AddProductField.NameField(it)) },
-                label = { Text("Nome do Produto*") },
-                placeholder = { Text("Ex: Hambúrguer Artesanal") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = formState.productDescription,
-                onValueChange = { productRegistrationViewModel.onEvent(AddProductField.ProductDescriptionField(it)) },
-                label = { Text("Descrição detalhada*") },
-                placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                shape = RoundedCornerShape(12.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            item {
                 OutlinedTextField(
-                    value = formState.productPrice,
-                    onValueChange = { productRegistrationViewModel.onEvent(AddProductField.PriceField(it)) },
-                    label = { Text("Preço*") },
-                    prefix = { Text("R$ ") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f),
+                    value = formState.productName,
+                    onValueChange = {
+                        productRegistrationViewModel.onEvent(
+                            AddProductField.NameField(
+                                it
+                            )
+                        )
+                    },
+                    label = { Text("Nome do Produto*") },
+                    placeholder = { Text("Ex: Hambúrguer Artesanal") },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                CategoryDropdown(
-                    modifier = Modifier.weight(1.2f),
-                    onCategorySelected = {  }
-                )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Disponível para venda", style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        "O produto aparecerá imediatamente no app",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            item {
+                OutlinedTextField(
+                    value = formState.productDescription,
+                    onValueChange = {
+                        productRegistrationViewModel.onEvent(
+                            AddProductField.ProductDescriptionField(
+                                it
+                            )
+                        )
+                    },
+                    label = { Text("Descrição detalhada*") },
+                    placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = formState.productPrice,
+                        onValueChange = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.PriceField(
+                                    it
+                                )
+                            )
+                        },
+                        label = { Text("Preço*") },
+                        prefix = { Text("R$ ") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    AppliesToCategorySelector(
+                        options = listOf(
+                            "Todos os produtos",
+                            "Bebidas",
+                            "Combos",
+                            "Lanches",
+                            "Porções",
+                            "Sobremesas"
+                        ),
+                        selectedOption = selectedCategory,
+                        onOptionSelected = {
+                            productRegistrationViewModel.onEvent(AddProductField.CategoryField(it))
+                            selectedCategory = it
+                        }
                     )
                 }
-                Switch(
-                    checked = isAvailable,
-                    onCheckedChange = { isAvailable = it }
+            }
+            item {
+                PromotionSection(
+                    originalPrice = formState.promotionalPrice,
+                    onPriceChange = {
+                        productRegistrationViewModel.onEvent(
+                            AddProductField.PromotionalPriceField(it)
+                        )
+                    }
                 )
             }
-            PromotionSection(originalPrice = formState.promotionalPrice, onPriceChange = { productRegistrationViewModel.onEvent(AddProductField.PromotionalPriceField(it)) })
-
-            Spacer(Modifier.height(16.dp))
-
-            DietaryTagsSection(selectedTags = setOf("carne", "Lactício"), onTagToggle = { /* lógica de toggle */ })
-
-            Spacer(Modifier.height(16.dp))
-
-            InventorySection(sku = "Sodoku", onSkuChange = {}, quantity = "8*", onQuantityChange = {})
-
-            Spacer(Modifier.height(16.dp))
-
-            LimpOnRegistrationButton(
-                text = "Salvar Produto",
-                isValid = isValidToSave
-            ) {
-                productRegistrationViewModel.registerProduct(formState)
+            item {
+                DietaryTagsSection(
+                    selectedTags = setOf("carne", "Lactício"),
+                    onTagToggle = { /* lógica de toggle */ })
             }
-        }
+            item {
+                InventorySection(
+                    sku = "Sodoku",
+                    onSkuChange = {},
+                    quantity = "8*",
+                    onQuantityChange = {})
+            }
+            item {
+                LimpOnRegistrationButton(
+                    text = "Salvar Produto",
+                    isValid = isValidToSave
+                ) {
+                    productRegistrationViewModel.registerProduct(formState)
+                }
+            }        }
     }
 }
 
@@ -281,48 +302,6 @@ fun InventorySection(
         )
     }
 }
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CategoryDropdown(modifier: Modifier, onCategorySelected: (String) -> Unit) {
-    val categories = listOf("Lanches", "Bebidas", "Sobremesas", "Porções")
-    var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier = modifier
-    ) {
-        OutlinedTextField(
-            value = selectedText,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Categoria") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor(),
-            shape = RoundedCornerShape(12.dp)
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            categories.forEach { category ->
-                DropdownMenuItem(
-                    text = { Text(category) },
-                    onClick = {
-                        selectedText = category
-                        expanded = false
-                        onCategorySelected(category)
-                    }
-                )
-            }
-        }
-    }
-}
-
-
 
 
 @Preview(showBackground = true, showSystemUi = true)

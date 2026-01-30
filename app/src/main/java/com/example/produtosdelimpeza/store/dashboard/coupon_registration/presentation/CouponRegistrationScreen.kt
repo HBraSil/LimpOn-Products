@@ -6,7 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -25,37 +25,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.AddPromotionField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CouponRegistrationScreen(
     onBackNavigation: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
     couponRegistrationViewModel: CouponRegistrationViewModel = hiltViewModel()
 ) {
     val formState by couponRegistrationViewModel.couponFormState.collectAsState()
-    val isValid by couponRegistrationViewModel._isValid.collectAsState()
-
+    val isValid by couponRegistrationViewModel.isValid.collectAsState()
     val state by couponRegistrationViewModel.uiState.collectAsState()
 
-    if (state.showSessionExpired) {
-        AlertDialog(
-            onDismissRequest = {},
-            confirmButton = {
-                Button(onClick = {}) {
-                    Text("OK")
-                }
-            },
-            text = { Text("Sua sessão expirou. Faça login novamente.") }
-        )
-    }
+    var selectedCategory by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
         if (state.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+    if (state.showSessionExpired) {
+        SessionExpiredAlertDialog {
+            couponRegistrationViewModel.signOut()
+            onNavigateToLogin()
         }
     }
 
@@ -110,6 +109,22 @@ fun CouponRegistrationScreen(
                     onDiscountTypeAndValueChange = { discountType, discountValue ->
                         couponRegistrationViewModel.onEvent(AddCouponField.DiscountTypeField(discountType))
                         couponRegistrationViewModel.onEvent(AddCouponField.DiscountValueField(discountValue))
+                    }
+                )
+            }
+            item{
+                AppliesToCategorySelector(
+                    options = listOf(
+                        "Todos os produtos",
+                        "Bebidas",
+                        "Combos",
+                        "Lanches",
+                        "Sobremesas"
+                    ),
+                    selectedOption = selectedCategory,
+                    onOptionSelected = {
+                        couponRegistrationViewModel.onEvent(AddCouponField.CategoryField(it))
+                        selectedCategory = it
                     }
                 )
             }

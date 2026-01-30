@@ -118,7 +118,6 @@ object AddressDataSource {
 fun AddressesScreen() {
 
     var selectedAddressId by remember { mutableIntStateOf(1) }
-    // Estado Local da Lista de Endereços
     val addresses = remember {
         mutableStateListOf<Address>().apply { addAll(AddressDataSource.sampleAddresses) }
     }
@@ -129,7 +128,6 @@ fun AddressesScreen() {
 
     var addressToDelete by remember { mutableStateOf<Address?>(null) }
 
-    // Lógica de manipulação de endereços
     val handleSaveAddress: (Address) -> Unit = { newAddress ->
         if (newAddress.isDefault) {
             addresses.forEach { it.isDefault = false }
@@ -221,7 +219,6 @@ fun AddressesScreen() {
     }
 
 
-    // Modal Sheet para Formulário
     if (showFormSheet) {
         AddressFormSheet(
             addressToEdit = addressToEdit,

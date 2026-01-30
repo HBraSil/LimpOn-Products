@@ -201,6 +201,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             CouponRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(NavGraph.AUTH.route)
                 }
             )
         }
@@ -209,6 +212,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             PromotionRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(NavGraph.AUTH.route)
                 }
             )
         }
@@ -217,6 +223,9 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             ProductRegistrationScreen(
                 onBackNavigation = {
                     navController.navigateUp()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(NavGraph.AUTH.route)
                 }
             )
         }

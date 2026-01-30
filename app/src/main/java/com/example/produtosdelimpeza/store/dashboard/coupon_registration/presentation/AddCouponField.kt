@@ -8,4 +8,5 @@ sealed class AddCouponField {
     data class DiscountTypeField(val value: DiscountType) : AddCouponField()
     data class DiscountValueField(val value: String) : AddCouponField()
     data class DurationField(val value: ExpirationOffer) : AddCouponField()
+    data class CategoryField(val value: String) : AddCouponField()
 }

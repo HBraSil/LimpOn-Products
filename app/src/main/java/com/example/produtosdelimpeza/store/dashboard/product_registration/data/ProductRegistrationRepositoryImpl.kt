@@ -38,4 +38,10 @@ class ProductRegistrationRepositoryImpl @Inject constructor(
             AppResult.Error.Unknown(e.message)
         }
     }
+
+    override fun signOut() {
+        firebaseAuth.signOut()
+    }
+
+
 }

@@ -9,5 +9,6 @@ data class Coupon(
     val couponCode: String = "",
     val discountType: DiscountType = DiscountType.NONE,
     val discountValue: String = "",
-    val expirationOffer: ExpirationOffer = ExpirationOffer.NONE
+    val expirationOffer: ExpirationOffer = ExpirationOffer.NONE,
+    val category: String = ""
 )

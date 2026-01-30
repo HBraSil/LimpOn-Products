@@ -18,43 +18,48 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductRegistrationViewModel @Inject constructor(
     private val validateProductUseCase: ValidateProductUseCase,
-    private val repository: ProductRegistrationRepository
+    private val productRepository: ProductRegistrationRepository
 ) : ViewModel() {
 
-    private var productFormState = MutableStateFlow(Product())
-    val _productFormState = productFormState.asStateFlow()
+    private var _productFormState = MutableStateFlow(Product())
+    val productFormState = _productFormState.asStateFlow()
 
     private val _uiState = MutableStateFlow(SessionUserErrors())
     val uiState = _uiState.asStateFlow()
 
-    private var isValid = MutableStateFlow(false)
-    val _isValid = isValid.asStateFlow()
+    private var _isValid = MutableStateFlow(false)
+    val isValid = _isValid.asStateFlow()
 
 
 
     fun onEvent(field: AddProductField) {
         when (field) {
-            is AddProductField.NameField -> productFormState.update {it.copy(productName = field.value) }
-            is AddProductField.ProductDescriptionField -> productFormState.update { it.copy(productDescription = field.value) }
-            is AddProductField.PriceField -> productFormState.update { it.copy(productPrice = field.value) }
-            is AddProductField.PromotionalPriceField -> productFormState.update { it.copy(promotionalPrice = field.value) }
-            is AddProductField.StockField -> productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
-            is AddProductField.CategoryField -> productFormState.update { it.copy(productCategory = field.value) }
+            is AddProductField.NameField -> _productFormState.update {it.copy(productName = field.value) }
+            is AddProductField.ProductDescriptionField -> _productFormState.update { it.copy(productDescription = field.value) }
+            is AddProductField.PriceField -> _productFormState.update { it.copy(productPrice = field.value) }
+            is AddProductField.PromotionalPriceField -> _productFormState.update { it.copy(promotionalPrice = field.value) }
+            is AddProductField.StockField -> _productFormState.update { it.copy(stockCount = field.value.toIntOrNull() ?: 0) }
+            is AddProductField.CategoryField -> _productFormState.update { it.copy(productCategory = field.value) }
         }
 
-        isValid.update { validateProductUseCase(productFormState.value) }
+        _isValid.update { validateProductUseCase(_productFormState.value) }
     }
 
 
     fun registerProduct(product: Product) {
         viewModelScope.launch {
-            when (repository.registerProduct(product)) {
+            when (productRepository.registerProduct(product)) {
                 is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
                 is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
                 is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
                 else -> {}
             }
         }
+    }
+
+
+    fun signOut() {
+        productRepository.signOut()
     }
 }
 
