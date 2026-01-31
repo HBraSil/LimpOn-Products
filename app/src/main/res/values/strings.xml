@@ -76,5 +76,7 @@
     <string name="fifteen_days">15 dias</string>
     <string name="thirty_days">30 dias</string>
     <string name="custom">Personalizado</string>
+    <string name="cupon_created">Cupon criado com sucesso!</string>
+    <string name="promotion_created">Promoção criada com sucesso!</string>
 
 </resources>

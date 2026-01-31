@@ -6,15 +6,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -25,12 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.core.component.OperationResultOverlay
 import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.AddPromotionField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +45,7 @@ fun CouponRegistrationScreen(
     val state by couponRegistrationViewModel.uiState.collectAsState()
 
     var selectedCategory by remember { mutableStateOf("") }
+    var showSuccess by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
@@ -58,92 +60,110 @@ fun CouponRegistrationScreen(
         }
     }
 
+    Box {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackNavigation) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
+                                contentDescription = stringResource(R.string.icon_navigate_back)
+                            )
+                        }
+                    },
+                    title = {
+                        Column {
+                            Text("Criar cupom")
+                            Text(
+                                "Atraia mais clientes com desconto",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
+                )
+            }
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(horizontal = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item { CouponInsightCard() }
+                item {
+                    CouponTextField(
+                        label = "Código do cupom",
+                        placeholder = "EX: PRIMEIRA10",
+                        supporting = "O cliente digitará esse código no checkout",
+                        currentCouponCode = formState.couponCode
+                    ) {
+                        couponRegistrationViewModel.onEvent(AddCouponField.CouponCodeField(it))
+                    }
+                }
+                item {
+                    DiscountTypeSection(
+                        currentDiscountValue = formState.discountValue,
+                        onDiscountTypeAndValueChange = { discountType, discountValue ->
+                            couponRegistrationViewModel.onEvent(
+                                AddCouponField.DiscountTypeField(
+                                    discountType
+                                )
+                            )
+                            couponRegistrationViewModel.onEvent(
+                                AddCouponField.DiscountValueField(
+                                    discountValue
+                                )
+                            )
+                        }
+                    )
+                }
+                item {
+                    AppliesToCategorySelector(
+                        options = listOf(
+                            "Todos os produtos",
+                            "Bebidas",
+                            "Combos",
+                            "Lanches",
+                            "Sobremesas"
+                        ),
+                        selectedOption = selectedCategory,
+                        onOptionSelected = {
+                            couponRegistrationViewModel.onEvent(AddCouponField.CategoryField(it))
+                            selectedCategory = it
+                        }
+                    )
+                }
+                item {
+                    DurationSelector {
+                        couponRegistrationViewModel.onEvent(AddCouponField.DurationField(it))
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider()
+                }
+                //item { SuccessToast(visible = showToast, onComplete = { showToast = false }) }
+                item { CouponPreviewSection() }
+                item {
+                    LimpOnRegistrationButton(
+                        text = "Criar cupom",
+                        isValid = isValid
+                    ) {
+                        couponRegistrationViewModel.createCoupon(formState)
+                        showSuccess = true
+                    }
+                }
+            }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackNavigation) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
-                            contentDescription = stringResource(R.string.icon_navigate_back)
-                        )
-                    }
-                },
-                title = {
-                    Column {
-                        Text("Criar cupom")
-                        Text(
-                            "Atraia mais clientes com desconto",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
         }
-    ) { padding ->
-        LazyColumn (
-            modifier = Modifier
-                .padding(padding)
-                .padding(horizontal = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item{ CouponInsightCard() }
-            item{
-                CouponTextField(
-                    label = "Código do cupom",
-                    placeholder = "EX: PRIMEIRA10",
-                    supporting = "O cliente digitará esse código no checkout",
-                    currentCouponCode = formState.couponCode
-                ) {
-                    couponRegistrationViewModel.onEvent(AddCouponField.CouponCodeField(it))
-                }
-            }
-            item{
-                DiscountTypeSection(
-                    currentDiscountValue = formState.discountValue,
-                    onDiscountTypeAndValueChange = { discountType, discountValue ->
-                        couponRegistrationViewModel.onEvent(AddCouponField.DiscountTypeField(discountType))
-                        couponRegistrationViewModel.onEvent(AddCouponField.DiscountValueField(discountValue))
-                    }
-                )
-            }
-            item{
-                AppliesToCategorySelector(
-                    options = listOf(
-                        "Todos os produtos",
-                        "Bebidas",
-                        "Combos",
-                        "Lanches",
-                        "Sobremesas"
-                    ),
-                    selectedOption = selectedCategory,
-                    onOptionSelected = {
-                        couponRegistrationViewModel.onEvent(AddCouponField.CategoryField(it))
-                        selectedCategory = it
-                    }
-                )
-            }
-            item{
-                DurationSelector {
-                    couponRegistrationViewModel.onEvent(AddCouponField.DurationField(it))
-                }
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider()
-            }
-            item{ CouponPreviewSection() }
-            item{
-                LimpOnRegistrationButton(
-                    text = "Criar cupom",
-                    isValid = isValid
-                ) {
-                    couponRegistrationViewModel.createCoupon(formState)
-                }
-            }
+        if (showSuccess) {
+            OperationResultOverlay(
+                message = stringResource(R.string.cupon_created),
+                onDismiss = { showSuccess = false }
+            )
         }
     }
 }

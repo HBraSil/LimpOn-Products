@@ -16,8 +16,7 @@ import javax.inject.Inject
 class SigninWithGoogleApi @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    suspend fun signInWithGoogle(): AuthCredential? {
-
+    suspend fun firebaseAuthCredential(): AuthCredential? {
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId("401816894466-b142p7vdsg4v1c0chkbfec89j28g0spg.apps.googleusercontent.com")
@@ -46,9 +45,7 @@ class SigninWithGoogleApi @Inject constructor(
     }
 
 
-    private fun generateNonce(
-        size: Int = 32
-    ): String {
+    private fun generateNonce(size: Int = 32): String {
         require(size in 16..500) {
             "Nonce size must be between 16 and 500 characters"
         }

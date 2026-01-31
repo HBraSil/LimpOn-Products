@@ -10,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,7 +24,6 @@ class AuthRepositoryImpl @Inject constructor(
     private val signInWithGoogleApi: SigninWithGoogleApi
 ) : AuthRepository {
     data class RegistrationException(override var message: String) : Exception(message)
-
 
     override suspend fun registerUser(name: String, lastName: String, email: String, password: String) {
         try {
@@ -74,14 +75,18 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signInWithGoogle(): LoginResponse {
-        val firebaseCredential = signInWithGoogleApi.signInWithGoogle()
-        return if (firebaseCredential != null) {
+
+    override suspend fun signInWithGoogle(): Flow<LoginResponse> = flow{
+        val firebaseCredential = signInWithGoogleApi.firebaseAuthCredential()
+
+        if (firebaseCredential != null) {
+            emit(LoginResponse.Loading)
             val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-            if (signinResult.user?.isEmailVerified != null) LoginResponse.Success
-            else LoginResponse.Error("Login não foi bem sucedido")
+
+            if (signinResult.user?.isEmailVerified != null) emit(LoginResponse.Success)
+            else emit(LoginResponse.Error("Login não foi bem sucedido"))
         } else {
-            LoginResponse.Error("Login não foi bem sucedido")
+            emit(LoginResponse.Error("Login não foi bem sucedido"))
         }
     }
 

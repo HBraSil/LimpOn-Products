@@ -18,15 +18,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.OperationResultOverlay
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
 
 
@@ -40,7 +43,9 @@ fun PromotionRegistrationScreen(
     val formState by promotionRegistrationViewModel.promotionFormState.collectAsState()
     val isValid by promotionRegistrationViewModel.isValid.collectAsState()
     val state by promotionRegistrationViewModel.uiState.collectAsState()
+
     var selectedCategory by remember { mutableStateOf("") }
+    var showSuccess by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -52,73 +57,94 @@ fun PromotionRegistrationScreen(
     if (state.showSessionExpired) {
         SessionExpiredAlertDialog(onNavigateToLogin)
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackNavigation) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBackIos, null)
+    Box {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackNavigation) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBackIos, null)
+                        }
+                    },
+                    title = { Text("Criar Promoção") },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .padding(10.dp),
+                contentPadding = paddingValues,
+                verticalArrangement = Arrangement.spacedBy(30.dp)
+            ) {
+                item { ImpactHeader() }
+                item {
+                    DiscountTypeSection(
+                        currentDiscountValue = formState.discountValue,
+                        onDiscountTypeAndValueChange = { discountType, discountValue ->
+                            promotionRegistrationViewModel.onEvent(
+                                AddPromotionField.DiscountTypeField(
+                                    discountType
+                                )
+                            )
+                            promotionRegistrationViewModel.onEvent(
+                                AddPromotionField.DiscountValueField(
+                                    discountValue
+                                )
+                            )
+                        }
+                    )
+                }
+                item {
+                    AppliesToCategorySelector(
+                        options = listOf(
+                            "Todos os produtos",
+                            "Bebidas",
+                            "Combos",
+                            "Lanches",
+                            "Sobremesas"
+                        ),
+                        selectedOption = selectedCategory,
+                        onOptionSelected = {
+                            promotionRegistrationViewModel.onEvent(
+                                AddPromotionField.CategoryField(
+                                    it
+                                )
+                            )
+                            selectedCategory = it
+                        }
+                    )
+                }
+                item {
+                    DurationSelector {
+                        promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
                     }
-                },
-                title = { Text("Criar Promoção") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-            )
+                    Spacer(Modifier.height(10.dp))
+                    HorizontalDivider()
+                }
+                item {
+                    PromotionBannerSection(
+                        bannerBitmap = null,
+                        onPickBannerClick = {}
+                    )
+                }
+                item {
+                    LimpOnRegistrationButton(
+                        text = "Criar promoção",
+                        isValid = isValid
+                    ) {
+                        promotionRegistrationViewModel.createPromotion(formState)
+                        showSuccess = true
+                    }
+                }
+            }
         }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(10.dp),
-            contentPadding = paddingValues,
-            verticalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-            item{ ImpactHeader() }
-            item{
-                DiscountTypeSection(
-                    currentDiscountValue = formState.discountValue,
-                    onDiscountTypeAndValueChange = { discountType, discountValue ->
-                        promotionRegistrationViewModel.onEvent(AddPromotionField.DiscountTypeField(discountType))
-                        promotionRegistrationViewModel.onEvent(AddPromotionField.DiscountValueField(discountValue))
-                    }
-                )
-            }
-            item{
-                AppliesToCategorySelector(
-                    options = listOf(
-                        "Todos os produtos",
-                        "Bebidas",
-                        "Combos",
-                        "Lanches",
-                        "Sobremesas"
-                    ),
-                    selectedOption = selectedCategory,
-                    onOptionSelected = {
-                        promotionRegistrationViewModel.onEvent(AddPromotionField.CategoryField(it))
-                        selectedCategory = it
-                    }
-                )
-            }
-            item{
-                DurationSelector {
-                    promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
-                }
-                Spacer(Modifier.height(10.dp))
-                HorizontalDivider()
-            }
-            item{
-                PromotionBannerSection(
-                    bannerBitmap = null,
-                    onPickBannerClick = {}
-                )
-            }
-            item{
-                LimpOnRegistrationButton(
-                    text = "Criar promoção",
-                    isValid = isValid
-                ){
-                    promotionRegistrationViewModel.createPromotion(formState)
-                }
-            }
+
+        if (showSuccess) {
+            OperationResultOverlay(
+                message = stringResource(R.string.promotion_created),
+                onDismiss = { showSuccess = false }
+            )
         }
     }
 }

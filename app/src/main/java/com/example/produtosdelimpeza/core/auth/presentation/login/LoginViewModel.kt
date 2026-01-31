@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,13 +33,8 @@ class LoginViewModel @Inject constructor(
     private var _passwordHidden = MutableStateFlow(true)
     var passwordHidden: StateFlow<Boolean> = _passwordHidden.asStateFlow()
 
-
     private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState = _loginUiState.asStateFlow()
-
- /*   fun reset() {
-        _loginUiState.update { LoginUiState() }
-    }*/
 
 
     private val callbackManager = CallbackManager.Factory.create()
@@ -69,7 +63,6 @@ class LoginViewModel @Inject constructor(
             }
         )
 
-        // 2️⃣ dispara login (equivale ao click no LoginButton)
         LoginManager.getInstance().logInWithReadPermissions(
             activity,
             listOf("public_profile", "email")
@@ -98,12 +91,6 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    fun updateRememberMe(rememberMe: Boolean) {
-        loginFormState = loginFormState.copy(
-            rememberMe = rememberMe
-        )
-    }
-
     fun changePasswordVisibility() {
         _passwordHidden.value = !_passwordHidden.value
     }
@@ -113,28 +100,29 @@ class LoginViewModel @Inject constructor(
         _loginUiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
-            // 1. Chama o Repositório
             val result = authRepository.signInWithEmailAndPassword(loginFormState.email.field, loginFormState.password.field)
 
             when(result) {
-                is LoginResponse.Success -> {
-                    _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
-                }
-                is LoginResponse.Error -> {
-                    _loginUiState.value = LoginUiState(error = result.error)
-                }
+                is LoginResponse.Success -> _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
+                is LoginResponse.Error -> _loginUiState.value = LoginUiState(error = result.error)
+                else -> {}
             }
         }
     }
 
     fun signInWithGoogle() {
         viewModelScope.launch {
-            when(val result = authRepository.signInWithGoogle()) {
-                is LoginResponse.Success -> {
-                    _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
-                }
-                is LoginResponse.Error -> {
-                    _loginUiState.value = LoginUiState(error = result.error)
+            authRepository.signInWithGoogle().collect { result ->
+                when(result) {
+                    is LoginResponse.Loading -> {
+                        _loginUiState.update { it.copy(isLoading = true) }
+                    }
+                    is LoginResponse.Success -> {
+                        _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
+                    }
+                    is LoginResponse.Error -> {
+                        _loginUiState.value = LoginUiState(error = result.error)
+                    }
                 }
             }
         }
