@@ -251,10 +251,7 @@ fun PromotionSection(
                     .padding(bottom = 32.dp),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                SuccessSnackbar(
-                    message = "Cupom criado com sucesso!",
-                    onDismiss = { showMessage = false }
-                )
+                SuccessSnackbar(message = "Cupom criado com sucesso!")
             }
         }
     }
@@ -325,7 +322,7 @@ fun InventorySection(
 
 
 @Composable
-fun SuccessSnackbar(message: String, onDismiss: () -> Unit) {
+fun SuccessSnackbar(message: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
