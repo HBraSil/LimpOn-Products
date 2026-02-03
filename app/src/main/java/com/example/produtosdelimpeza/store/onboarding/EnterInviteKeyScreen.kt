@@ -36,7 +36,6 @@ fun EnterInviteKeyScreen(
     val focusRequesters = List(6) { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var inviteKey by remember { mutableStateOf("") }
-    val isKeyValid = inviteKey.length >= 6 // Exemplo de validação simples
 
     Column(
         modifier = Modifier
@@ -44,14 +43,12 @@ fun EnterInviteKeyScreen(
             .background(Color(0xFFFDFBFF))
             .padding(24.dp)
     ) {
-        // Botão Voltar
         IconButton(onClick = onBackNavigation, modifier = Modifier.offset(x = (-12).dp)) {
             Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Voltar")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Cabeçalho
         Text(
             text = "Digite seu convite",
             style = MaterialTheme.typography.headlineMedium,

@@ -57,7 +57,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
-import com.example.produtosdelimpeza.core.component.LimpOnTxtField
+import com.example.produtosdelimpeza.core.component.LimpOnTextField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
 
@@ -165,10 +165,10 @@ fun ContentLoginScreen(
     }
 
 
-    LimpOnTxtField(
-        modifier = Modifier.padding(top = 10.dp),
+    LimpOnTextField(
         value = loginViewModel.loginFormState.email.field,
         onValueChange = { loginViewModel.updateEmail(it) },
+        modifier = Modifier.padding(top = 10.dp,start = 20.dp, end = 20.dp),
         label = R.string.email,
         placeholder = R.string.hint_email,
         errorMessage = loginViewModel.loginFormState.email.error,
@@ -181,9 +181,10 @@ fun ContentLoginScreen(
         },
     )
 
-    LimpOnTxtField(
+    LimpOnTextField(
         value = loginViewModel.loginFormState.password.field,
         onValueChange = { loginViewModel.updatePassword(it) },
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp),
         label = R.string.password,
         placeholder = R.string.hint_password,
         obfuscate = passwordHidden,

@@ -2,6 +2,8 @@ package com.example.produtosdelimpeza.core.navigation
 
 import SellerEntryPointScreen
 import android.util.Log
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -67,6 +69,10 @@ import com.example.produtosdelimpeza.store.dashboard.PRODUCT
 import com.example.produtosdelimpeza.store.dashboard.PROMOTION
 import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.ProductRegistrationScreen
+import com.example.produtosdelimpeza.store.onboarding.AutonomousRequestScreen
+import com.example.produtosdelimpeza.store.onboarding.PartnerRequestEntryScreen
+import com.example.produtosdelimpeza.store.onboarding.SellerType
+import com.example.produtosdelimpeza.store.onboarding.StoreRequestScreen
 
 
 @Composable
@@ -261,6 +267,42 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             ProductDetailScreen(
                 onBackNavigation = {navController.navigateUp()}
             )
+        }
+
+        composable(
+            route = StoreScreen.PARTNER_REQUEST.route,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) }
+        ) {
+            PartnerRequestEntryScreen(
+                onContinue = { type ->
+                    navController.navigate(
+                        if (type == SellerType.AUTONOMOUS) StoreScreen.AUTONOMOUS_REQUEST.route else StoreScreen.STORE_REQUEST.route
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = StoreScreen.AUTONOMOUS_REQUEST.route,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) }
+        ) {
+            AutonomousRequestScreen(onSubmit = { /* enviar */ })
+        }
+
+        composable(
+            route = StoreScreen.STORE_REQUEST.route,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(300)) },
+            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) }
+        ) {
+            StoreRequestScreen(onSubmit = {}, onBackNavigation = { navController.navigateUp() })
         }
     }
 }
@@ -516,7 +558,7 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
         composable(route = StoreScreen.SELLER_ENTRY_POINT.route) {
             SellerEntryPointScreen(
                 onHaveInvite = { navController.navigate(StoreScreen.ENTER_INVITE_KEY.route) },
-                onRequestInvite = { /*navController.navigate(CustomerScreen.SIGNUP_STORE.route)*/ },
+                onRequestInvite = { navController.navigate(StoreScreen.PARTNER_REQUEST.route) },
                 onBackNavigation = { navController.navigateUp() }
             )
         }

@@ -68,7 +68,7 @@ fun SellerEntryPointScreen(
             title = "Quero solicitar um convite",
             description = "Ainda não faz parte? Envie seus dados para análise.",
             icon = Icons.Default.Storefront,
-            containerColor = Color(0xFF6750A4), // Roxo principal da sua imagem
+            containerColor = Color(0xFF6750A4),
             contentColor = Color.White,
             iconColor = Color.White,
             onClick = onRequestInvite

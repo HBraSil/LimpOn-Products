@@ -2,7 +2,6 @@ package com.example.produtosdelimpeza.core.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
@@ -19,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LimpOnTxtField(
+fun LimpOnTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
@@ -36,10 +35,8 @@ fun LimpOnTxtField(
         onValueChange = onValueChange,
         label = {Text(text = stringResource(label)) /*color = MaterialTheme.colorScheme.secondary)*/},
         placeholder = {Text(text = stringResource(placeholder))},
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 30.dp, end = 30.dp),
-        shape = RoundedCornerShape(15.dp),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         textStyle = TextStyle(
             fontSize = 19.sp,
             fontWeight = Normal,

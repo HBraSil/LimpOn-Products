@@ -15,6 +15,9 @@ enum class StoreScreen(val route: String, val showBottomBar: Boolean = false) {
     ANALYTICS("analytics"),
     STORE_EDIT_PROFILE("store_edit_profile"),
     LOGISTIC("logistic"),
+    AUTONOMOUS_REQUEST("autonomous_request"),
+    PARTNER_REQUEST("partner_request"),
+    STORE_REQUEST("store_request"),
 
 
 

@@ -76,7 +76,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun signInWithGoogle(): Flow<LoginResponse> = flow{
+    override suspend fun signInWithGoogle(): Flow<LoginResponse> = flow {
         val firebaseCredential = signInWithGoogleApi.firebaseAuthCredential()
 
         if (firebaseCredential != null) {

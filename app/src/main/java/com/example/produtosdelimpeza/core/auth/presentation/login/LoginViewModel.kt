@@ -114,7 +114,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.signInWithGoogle().collect { result ->
                 when(result) {
-                    is LoginResponse.Loading -> {
+                    is LoginResponse.Loading -> {  
                         _loginUiState.update { it.copy(isLoading = true) }
                     }
                     is LoginResponse.Success -> {

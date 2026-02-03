@@ -77,5 +77,19 @@
     <string name="custom">Personalizado</string>
     <string name="cupon_created">Cupon criado com sucesso!</string>
     <string name="promotion_created">Promoção criada com sucesso!</string>
+    <string name="contact_email">Email para contato</string>
+    <string name="full_name">Digite seu nome completo</string>
+    <string name="name_example">Ex: João Silva</string>
+    <string name="business_whatsapp">Whatsapp Comercial</string>
+    <string name="cellphone_example">(00) 00000–0000</string>
+    <string name="city_address">Endereço Cidade / Região de Atuação</string>
+    <string name="city_address_example">Ex: São Paulo - SP</string>
+    <string name="email_icon">Ícone de email</string>
+    <string name="person_icon">Ícone de pessoa</string>
+    <string name="cellphone_icon">Ícone de celular</string>
+    <string name="location_icon">Ícone de localização</string>
+    <string name="owner_name">Nome do Proprietário</string>
+    <string name="business_name">Nome da Loja (Fantasia)</string>
+    <string name="business_name_example">Ex: Limpeza Total Ltda</string>
 
 </resources>

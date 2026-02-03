@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
-import com.example.produtosdelimpeza.core.component.LimpOnTxtField
+import com.example.produtosdelimpeza.core.component.LimpOnTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,7 +166,7 @@ fun SignupScreen(
                     )
                 }
 
-                LimpOnTxtField(
+                LimpOnTextField(
                     value = signUpViewModel.formState.email.field,
                     onValueChange = { signUpViewModel.updateEmail(it)},
                     label = R.string.email,
@@ -184,7 +184,7 @@ fun SignupScreen(
                     },
                 )
 
-                LimpOnTxtField(
+                LimpOnTextField(
                     value = signUpViewModel.formState.password.field,
                     onValueChange = {
                         signUpViewModel.updatePassword(it)
@@ -227,7 +227,7 @@ fun SignupScreen(
                     }
                 )
 
-                LimpOnTxtField(
+                LimpOnTextField(
                     value = signUpViewModel.formState.confirmPassword.field,
                     onValueChange = { signUpViewModel.updatePasswordConfirm(signUpViewModel.formState.password.field, it) },
                     label = R.string.confirm_password,
