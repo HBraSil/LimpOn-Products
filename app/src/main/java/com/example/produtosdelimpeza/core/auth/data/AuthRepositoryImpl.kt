@@ -5,10 +5,12 @@ import androidx.core.net.toUri
 import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
+import com.example.produtosdelimpeza.core.data.UserLocalDataSource
 import com.example.produtosdelimpeza.core.domain.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -21,7 +23,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val networkChecker: NetworkChecker,
-    private val signInWithGoogleApi: SigninWithGoogleApi
+    private val signInWithGoogleApi: SigninWithGoogleApi,
+    private val userLocalDataSource: UserLocalDataSource
 ) : AuthRepository {
     data class RegistrationException(override var message: String) : Exception(message)
 
@@ -32,7 +35,7 @@ class AuthRepositoryImpl @Inject constructor(
             val uid = firebaseUser?.uid ?: throw RegistrationException("Erro")
 
 
-            val user = User(uid = uid, name = name, lastName = lastName, email = email)
+            val user = User(uid = uid, name = name, email = email)
             firestore.collection("users")
                 .document(uid)
                 .set(user)
@@ -81,9 +84,23 @@ class AuthRepositoryImpl @Inject constructor(
 
         if (firebaseCredential != null) {
             emit(LoginResponse.Loading)
-            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
 
-            if (signinResult.user?.isEmailVerified != null) emit(LoginResponse.Success)
+            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            if (signinResult.user?.isEmailVerified != null) {
+                FirebaseAuth.getInstance().currentUser?.let {
+                    val userProperties = with(it) {
+                        User(
+                            uid = uid,
+                            name = displayName ?: "",
+                            email = email ?: ""
+                        )
+                    }
+                    saveUserInRoom(userProperties)
+                    saveUserInFirestore(userProperties, it)
+                }
+
+                emit(LoginResponse.Success)
+            }
             else emit(LoginResponse.Error("Login não foi bem sucedido"))
         } else {
             emit(LoginResponse.Error("Login não foi bem sucedido"))
@@ -108,5 +125,16 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun saveUserInFirestore(userProperties: User, currUser: FirebaseUser) {
+        firestore.collection("users")
+            .document(currUser.uid)
+            .set(userProperties)
+            .await()
+    }
+
+    suspend fun saveUserInRoom(userProperties: User) {
+        userLocalDataSource.saveUser(userProperties)
     }
 }

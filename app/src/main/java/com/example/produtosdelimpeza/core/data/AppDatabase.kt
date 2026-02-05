@@ -5,14 +5,21 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.produtosdelimpeza.core.data.dao.UserDao
 import com.example.produtosdelimpeza.core.data.local.Converters
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.UserEntity
 
 @TypeConverters(Converters::class)
-@Database(entities = [ProductEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [ProductEntity::class, UserEntity::class],
+    version = 2,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartProductsDao(): CartProductsDAO
+    abstract fun userDao(): UserDao
 
     companion object{
         @Volatile

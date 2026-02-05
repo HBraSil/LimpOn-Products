@@ -7,8 +7,11 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.data.AppDatabase
+import com.example.produtosdelimpeza.core.data.dao.UserDao
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
 import dagger.Module
 import dagger.Provides
@@ -20,6 +23,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS user (
+                uid TEXT NOT NULL PRIMARY KEY,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                createdAt INTEGER NOT NULL
+            )
+        """
+            )
+        }
+    }
 
     @Provides
     @Singleton
@@ -28,7 +45,9 @@ object DatabaseModule {
             application,
             AppDatabase::class.java,
             "app_database"
-        ).build()
+            )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     @Provides
@@ -36,18 +55,23 @@ object DatabaseModule {
         return database.cartProductsDao()
     }
 
+    @Provides
+    fun provideUserDao(database: AppDatabase): UserDao {
+        return database.userDao()
+    }
+
 
     @Provides
     @Singleton
     fun provideNetworkChecker(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): NetworkChecker = NetworkChecker(context)
 
 
     @Provides
     @Singleton
     fun providePreferencesDataStore(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             produceFile = {

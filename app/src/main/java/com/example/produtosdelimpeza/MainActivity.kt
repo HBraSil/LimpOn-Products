@@ -25,6 +25,7 @@ import com.example.produtosdelimpeza.core.navigation.route.NavGraph
 import com.example.produtosdelimpeza.core.presentation.DeepLinkViewModel
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
+import com.example.produtosdelimpeza.customer.home.presentation.HomeViewModel
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.CouponRegistrationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

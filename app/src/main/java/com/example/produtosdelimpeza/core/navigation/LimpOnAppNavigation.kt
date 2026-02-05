@@ -28,7 +28,7 @@ import com.example.produtosdelimpeza.customer.order.OrderListScreen
 import com.example.produtosdelimpeza.customer.order.OrderDetailsScreen
 import com.example.produtosdelimpeza.customer.about.AboutScreen
 import com.example.produtosdelimpeza.customer.highlights.HighlightsScreen
-import com.example.produtosdelimpeza.customer.home.HomeScreen
+import com.example.produtosdelimpeza.customer.home.presentation.HomeScreen
 import com.example.produtosdelimpeza.core.auth.presentation.login.LoginScreen
 import com.example.produtosdelimpeza.customer.notifications.ManagementNotificationScreen
 import com.example.produtosdelimpeza.customer.search.presentation.SearchScreen

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.home
+package com.example.produtosdelimpeza.customer.home.presentation
 
 import SwipeableCardOne
 import androidx.compose.animation.AnimatedVisibility
@@ -94,20 +94,21 @@ import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeVie
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 data class ItemInitialCard(
-        val id: Int,
-        val name: String,
-        val image: Int,
-        val city: String,
-        val isPhysicalStore: Boolean,
-        val sellerPassesByYourCity: Boolean = false
-    )
+    val id: Int,
+    val name: String,
+    val image: Int,
+    val city: String,
+    val isPhysicalStore: Boolean,
+    val sellerPassesByYourCity: Boolean = false,
+)
 
-    data class Category(
-        val id: Int,
-        val label: String,
-        val icon: Int,
-        val color: Color,
-    )
+
+data class Category(
+    val id: Int,
+    val label: String,
+    val icon: Int,
+    val color: Color,
+)
 
 
 // --- Sample data ---
@@ -125,7 +126,7 @@ data class AddressItem(
     val fullAddress: String,
     val isDefault: Boolean = false,
     val eta: String? = null, // e.g., "25-35 min"
-    val distance: String? = null // e.g., "1.2 km"
+    val distance: String? = null, // e.g., "1.2 km"
 )
 
 private val itemsLista = listOf(
@@ -167,16 +168,20 @@ private val sampleProductEntities = listOf(
 fun HomeScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel(),
     navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
     onSeeAllClick: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
 
     var expandedCard by remember { mutableStateOf(false) } // Assumindo que expanded é uma variável de estado
     var shortcutSelected by remember { mutableStateOf("1") }
+
+    val user by homeViewModel.user.collectAsState()
+
 
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Customer)
@@ -194,81 +199,82 @@ fun HomeScreen(
             }
         },
     ) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    //.verticalScroll(rememberScrollState())
-                    .padding(paddingValues),
-            ) {
-                item {
-                    Box {
-                        Column(
-                            modifier = Modifier
-                                .padding(top = 100.dp)
-                        ) {
-                            BannerDeOfertas(modifier = Modifier.fillMaxWidth())
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
+            item {
+                Box {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 100.dp)
+                    ) {
+                        BannerDeOfertas(modifier = Modifier.fillMaxWidth())
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
-
-                        CardDeLocalizacao(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.TopCenter),
-                            address = AddressItem(
-                                id = shortcutSelected,
+                    CardDeLocalizacao(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter),
+                        address = AddressItem(
+                            id = shortcutSelected,
+                            name = "Casa",
+                            fullAddress = "Rua Arsenio Da Silva 1",
+                            eta = "25-35 min",
+                            distance = "1.2 km"
+                        ),
+                        savedAddresses = listOf(
+                            AddressItem(
+                                id = "1",
                                 name = "Casa",
-                                fullAddress = "Rua Arsenio Da Silva 1",
-                                eta = "25-35 min",
-                                distance = "1.2 km"
+                                fullAddress = "Rua Arsenio Da Silva 1"
                             ),
-                            savedAddresses = listOf(
-                                AddressItem(
-                                    id = "1",
-                                    name = "Casa",
-                                    fullAddress = "Rua Arsenio Da Silva 1"
-                                ),
-                                AddressItem(
-                                    id = "2",
-                                    name = "Trabalho",
-                                    fullAddress = "Rua Arsenio Da Silva 2"
-                                )
-                            ),
-                            isExpanded = expandedCard,
-                            onSelectShortcut = { shortcutSelected = it },
-                            onNavigateToNotifications = onNavigateToNotifications
-                        ) { expandedCard = !expandedCard } // Fixa no topo
-
+                            AddressItem(
+                                id = "2",
+                                name = "Trabalho",
+                                fullAddress = "Rua Arsenio Da Silva 2"
+                            )
+                        ),
+                        userName = user.name,
+                        isExpanded = expandedCard,
+                        onSelectShortcut = { shortcutSelected = it },
+                        onNavigateToNotifications = onNavigateToNotifications
+                    ) {
+                        expandedCard = !expandedCard
                     }
                 }
+            }
 
-                item { Spacer(modifier = Modifier.height(10.dp)) }
+            item { Spacer(modifier = Modifier.height(10.dp)) }
 
-                item { SectionHeader(title = "Categorias") { } }
-                item { CategoriesRow(categories = sampleCategories, onClick = {}) }
+            item { SectionHeader(title = "Categorias") { } }
+            item { CategoriesRow(categories = sampleCategories, onClick = {}) }
 
-                item { Spacer(modifier = Modifier.height(30.dp)) }
+            item { Spacer(modifier = Modifier.height(30.dp)) }
 
-                item { SectionHeader(
+            item {
+                SectionHeader(
                     title = "Destaques para você",
                     actionLabel = "Ver todos",
                     onAction = onSeeAllClick,
                     textColor = MaterialTheme.colorScheme.secondary.copy(blue = 1.5f)
-                ) }
-                item { FeaturedProductsRow(productEntities = sampleProductEntities, onAdd = {}) }
+                )
+            }
+            item { FeaturedProductsRow(productEntities = sampleProductEntities, onAdd = {}) }
 
-                item { Spacer(modifier = Modifier.height(30.dp)) }
+            item { Spacer(modifier = Modifier.height(30.dp)) }
 
+            item { SectionHeader(title = "Vendedores", actionLabel = "") { } }
 
-                item { SectionHeader(title = "Vendedores", actionLabel = "") { } }
-
-                items(itemsLista) {item ->
-                    ItemCard(seller = item) {
-                        onCardSellerClick(item.name)
-                    }
-
-                    Spacer(Modifier.height(16.dp))
+            items(itemsLista) { item ->
+                ItemCard(seller = item) {
+                    onCardSellerClick(item.name)
                 }
+
+                Spacer(Modifier.height(16.dp))
+            }
         }
     }
 
@@ -294,7 +300,7 @@ fun FeaturedProductsRow(productEntities: List<ProductEntity>, onAdd: (ProductEnt
 fun SampleFeaturedProducts(
     modifier: Modifier = Modifier,
     productEntityCart: ProductEntity,
-    onAdd: (ProductEntity) -> Unit
+    onAdd: (ProductEntity) -> Unit,
 ) {
     Card(
         modifier = modifier.width(160.dp),
@@ -355,7 +361,12 @@ fun SampleFeaturedProducts(
 
 // --- Section header (title + action) ---
 @Composable
-fun SectionHeader(title: String, actionLabel: String = "", textColor: Color = MaterialTheme.colorScheme.onSurface, onAction: () -> Unit) {
+fun SectionHeader(
+    title: String,
+    actionLabel: String = "",
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    onAction: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -382,6 +393,7 @@ fun SectionHeader(title: String, actionLabel: String = "", textColor: Color = Ma
 @Composable
 fun CardDeLocalizacao(
     modifier: Modifier = Modifier,
+    userName: String,
     address: AddressItem? = null,
     savedAddresses: List<AddressItem> = emptyList(),
     isExpanded: Boolean,
@@ -391,11 +403,10 @@ fun CardDeLocalizacao(
     onNavigateToNotifications: () -> Unit,
     onToggleExpand: () -> Unit,
 ) {
-
     val roundedCornerShapeONne = RoundedCornerShape(
         topStart = 0.dp,
         topEnd = 0.dp,
-        bottomStart = 16.dp, // Use a forma desejada para o card superior
+        bottomStart = 16.dp,
         bottomEnd = 16.dp
     )
     val titleSaved = "Endereço salvo"
@@ -409,7 +420,7 @@ fun CardDeLocalizacao(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .zIndex(1f) // Aplica o Z-Index animado
+            .zIndex(1f)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -443,7 +454,7 @@ fun CardDeLocalizacao(
                 Spacer(Modifier.width(16.dp))
 
                 Text(
-                    text = "Olá, Hilquias!",
+                    text = "Olá, $userName!",
                     modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground
@@ -494,7 +505,10 @@ fun CardDeLocalizacao(
                 visible = isExpanded,
                 enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                 // Transição de Saída (Ao Retrair)
-                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top, animationSpec = tween(500)) // Efeito de retração
+                exit = fadeOut() + shrinkVertically(
+                    shrinkTowards = Alignment.Top,
+                    animationSpec = tween(500)
+                ) // Efeito de retração
             ) {
                 Card(
                     modifier = Modifier
@@ -627,7 +641,10 @@ fun CardDeLocalizacao(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.Start
                                 ) {
-                                    Text(text = "Nenhum endereço salvo", style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        text = "Nenhum endereço salvo",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = "Adicione um endereço para ver informações de entrega, ETA e selecionar rapidamente em futuras compras.",
@@ -661,17 +678,19 @@ fun CardDeLocalizacao(
 }
 
 
-
 @Composable
 private fun MapThumbnail(
     modifier: Modifier = Modifier,
     contentDescription: String,
-    hasAddress: Boolean
+    hasAddress: Boolean,
 ) {
     Box(
         modifier = modifier
             .then(Modifier)
-            .background(MaterialTheme.colorScheme.surface.copy(0.6f), shape = RoundedCornerShape(8.dp))
+            .background(
+                MaterialTheme.colorScheme.surface.copy(0.6f),
+                shape = RoundedCornerShape(8.dp)
+            )
             .semantics { this.contentDescription = contentDescription }
     ) {
         if (hasAddress) {
@@ -728,12 +747,19 @@ private fun MapThumbnail(
 private fun AddressShortcutChip(
     name: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val tonalColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+    val tonalColor =
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
     AssistChip(
         onClick = onClick,
-        label = { Text(text = name, style = MaterialTheme.typography.bodyMedium, color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background) },
+        label = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background
+            )
+        },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.LocationOn,
@@ -751,7 +777,7 @@ private fun AddressShortcutChip(
 private fun AddressActions(
     onEdit: () -> Unit,
     onChange: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -766,9 +792,18 @@ private fun AddressActions(
                 containerColor = MaterialTheme.colorScheme.surface.copy(0.2f)
             )
         ) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar endereço", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onBackground)
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Editar endereço",
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onBackground
+            )
             Spacer(Modifier.width(8.dp))
-            Text(text = "Editar", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                text = "Editar",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -865,7 +900,7 @@ fun CategoryCards(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-     Card(
+    Card(
         modifier = modifier
             .width(120.dp)
             .clickable(onClick = onClick),
@@ -878,8 +913,10 @@ fun CategoryCards(
                 .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {
-            Column(modifier = Modifier.padding(vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
@@ -903,7 +940,7 @@ fun CategoryCards(
                 )
             }
         }
-     }
+    }
 }
 
 
@@ -1004,6 +1041,7 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
         }
     }
 }
+
 @Composable
 private fun FavoriteButton() {
 
