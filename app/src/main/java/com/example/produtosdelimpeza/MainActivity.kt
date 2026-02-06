@@ -31,9 +31,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val deepLinkViewModel: DeepLinkViewModel by viewModels()
     private val sessionViewModel: NavigationLastUserModeViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
                     LimpOnAppNavigation(startDestination)
                 }
 
-
                 val activity = LocalActivity.current as ComponentActivity
                 val statusBarColor = Color.Transparent.toArgb()
 
@@ -68,7 +67,6 @@ class MainActivity : ComponentActivity() {
 
                     activity.enableEdgeToEdge(
                         statusBarStyle = statusBarStyle,
-
                         navigationBarStyle = SystemBarStyle.light(
                             Color.Transparent.toArgb(),
                             Color.Transparent.toArgb()
@@ -91,6 +89,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

@@ -28,9 +28,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.domain.model.User
 import kotlinx.coroutines.launch
 
-// --- Dados de Exemplo (Mock Data) ---
+
 data class UserProfileSample(
     val name: String = "Ana Carolina Silva",
     val email: String = "ana.carolina@exemplo.com",
@@ -43,7 +45,9 @@ data class UserProfileSample(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserProfileScreen(
-    initialUser: UserProfileSample = UserProfileSample()
+    initialUser: UserProfileSample = UserProfileSample(),
+    editUserProfileScreenViewModel: EditUserProfileScreenViewModel = hiltViewModel(),
+    onBackNavigation: () -> Unit = {}
 ) {
     var user by remember { mutableStateOf(initialUser) }
     val hasChanges = user != initialUser
@@ -52,13 +56,14 @@ fun EditUserProfileScreen(
     val scope = rememberCoroutineScope()
     var showEditPasswordModal by remember { mutableStateOf(false) }
     var showEditEmailModal by remember { mutableStateOf(false) }
+    val currUser by editUserProfileScreenViewModel.user.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { /* Ação de Voltar */ }) {
+                    IconButton(onClick = onBackNavigation) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Voltar")
                     }
                 },
@@ -74,9 +79,8 @@ fun EditUserProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            ProfileHeader(user = user)
+            ProfileHeader(user = currUser)
 
-            // Card para informações de contato
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,7 +204,7 @@ fun EditUserProfileScreen(
 // --- Componentes Reutilizáveis ---
 
 @Composable
-fun ProfileHeader(user: UserProfileSample) {
+fun ProfileHeader(user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -232,7 +236,7 @@ fun ProfileHeader(user: UserProfileSample) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = user.otherInfo,
+            text = user.email,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

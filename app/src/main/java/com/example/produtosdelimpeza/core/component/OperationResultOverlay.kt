@@ -35,7 +35,6 @@ fun OperationResultOverlay(
     message: String,
     onDismiss: () -> Unit
 ) {
-
     LaunchedEffect(Unit) {
         delay(2500)
         onDismiss()
@@ -44,11 +43,11 @@ fun OperationResultOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.35f)) // fundo escurecido elegante
+            .background(Color.Black.copy(alpha = 0.35f))
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
-            ) { onDismiss() }, // toca fora pra fechar
+            ) { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
         Card(

@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,11 +58,11 @@ fun ProfileScreen(
     onSwitchProfileClick: (String) -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
 ) {
-    // Usando Scaffold para a estrutura básica da tela, incluindo a barra de navegação inferior
+
+    val user by profileViewModel.user.collectAsState()
+
+
     Scaffold(
-        bottomBar = {
-            //MainBottomNavigation(navController!!)
-        },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
@@ -73,7 +74,7 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             HeaderSection(
-                userName = "Hilquias Brasil",
+                userName = user.name,
                 userInitials = "HB",
                 onClickEditUserProfile = onEditUserProfileScreenClick
             )
