@@ -38,6 +38,16 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+            ALTER TABLE user ADD COLUMN phone TEXT NOT NULL DEFAULT ''
+            """
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(application: Application): AppDatabase {
@@ -46,7 +56,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "app_database"
             )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 

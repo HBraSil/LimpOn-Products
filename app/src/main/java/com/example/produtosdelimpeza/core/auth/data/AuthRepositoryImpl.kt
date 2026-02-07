@@ -82,23 +82,27 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signInWithGoogle(): Flow<LoginResponse> = flow {
         val firebaseCredential = signInWithGoogleApi.firebaseAuthCredential()
 
+
         if (firebaseCredential != null) {
             emit(LoginResponse.Loading)
-
             val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-            if (signinResult.user?.isEmailVerified != null) {
-                FirebaseAuth.getInstance().currentUser?.let {
-                    val userProperties = with(it) {
-                        User(
-                            uid = uid,
-                            name = displayName ?: "",
-                            email = email ?: ""
-                        )
-                    }
-                    saveUserInRoom(userProperties)
-                    saveUserInFirestore(userProperties, it)
-                }
+            val userUid = signinResult.user?.uid ?: return@flow
 
+            if (signinResult.user?.isEmailVerified != null) {
+                val existingUser = userLocalDataSource.getUserById(userUid)
+                if (existingUser == null) {
+                    FirebaseAuth.getInstance().currentUser?.let {
+                        val userProperties = with(it) {
+                            User(
+                                uid = uid,
+                                name = displayName ?: "",
+                                email = email ?: ""
+                            )
+                        }
+                        saveUserInRoom(userProperties)
+                        saveUserInFirestore(userProperties, it)
+                    }
+                }
                 emit(LoginResponse.Success)
             }
             else emit(LoginResponse.Error("Login não foi bem sucedido"))
@@ -106,7 +110,6 @@ class AuthRepositoryImpl @Inject constructor(
             emit(LoginResponse.Error("Login não foi bem sucedido"))
         }
     }
-
 
     suspend fun processEmailVerificationDeepLink(deepLinkUrl: String): Result<Boolean> {
         val uri = deepLinkUrl.toUri()

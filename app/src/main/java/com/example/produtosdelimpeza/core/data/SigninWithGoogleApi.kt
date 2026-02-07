@@ -5,6 +5,9 @@ import android.util.Base64
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import com.example.produtosdelimpeza.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.AuthCredential
@@ -28,6 +31,7 @@ class SigninWithGoogleApi @Inject constructor(
             .addCredentialOption(googleIdOption)
             .build()
 
+
         val credentialManager = CredentialManager.create(context)
         val result = credentialManager.getCredential(context, request)
         val credential = result.credential
@@ -42,6 +46,16 @@ class SigninWithGoogleApi @Inject constructor(
         }
 
         return null
+    }
+
+    fun singOut() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+        googleSignInClient.signOut()
     }
 
 

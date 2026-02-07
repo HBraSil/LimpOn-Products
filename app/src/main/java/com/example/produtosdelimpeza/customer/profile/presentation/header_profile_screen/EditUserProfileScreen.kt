@@ -33,30 +33,23 @@ import com.example.produtosdelimpeza.core.domain.model.User
 import kotlinx.coroutines.launch
 
 
-data class UserProfileSample(
-    val name: String = "Ana Carolina Silva",
-    val email: String = "ana.carolina@exemplo.com",
-    val phone: String = "(11) 98765-4321",
-    val otherInfo: String = "Membro desde 2023"
-)
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserProfileScreen(
-    initialUser: UserProfileSample = UserProfileSample(),
     editUserProfileScreenViewModel: EditUserProfileScreenViewModel = hiltViewModel(),
     onBackNavigation: () -> Unit = {}
 ) {
-    var user by remember { mutableStateOf(initialUser) }
-    val hasChanges = user != initialUser
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+
     var showEditPasswordModal by remember { mutableStateOf(false) }
     var showEditEmailModal by remember { mutableStateOf(false) }
-    val currUser by editUserProfileScreenViewModel.user.collectAsState()
+
+    val currUser by editUserProfileScreenViewModel.originalUser.collectAsState()
+    val currForm by editUserProfileScreenViewModel.formState.collectAsState()
+    val hasChanges by editUserProfileScreenViewModel.hasChanges.collectAsState()
+
+
 
     Scaffold(
         topBar = {
@@ -90,7 +83,6 @@ fun EditUserProfileScreen(
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Column {
-                    // Título para a seção de edição direta
                     Text(
                         text = "Informações Pessoais",
                         style = MaterialTheme.typography.titleMedium,
@@ -103,16 +95,16 @@ fun EditUserProfileScreen(
                     EditableProfileField(
                         icon = Icons.Default.Person,
                         label = "Nome Completo",
-                        value = user.name,
-                        onValueChange = { user = user.copy(name = it) }
+                        value = currForm.name,
+                        onValueChange = { editUserProfileScreenViewModel.onNameChanged(it) }
                     )
 
                     // Telefone (Edição Direta)
                     EditableProfileField(
                         icon = Icons.Default.Phone,
                         label = "Telefone",
-                        value = user.phone,
-                        onValueChange = { user = user.copy(phone = it) },
+                        value = currForm.phone,
+                        onValueChange = { editUserProfileScreenViewModel.onPhoneChanged(it) },
                         keyboardType = KeyboardType.Phone
                     )
 
@@ -127,8 +119,8 @@ fun EditUserProfileScreen(
                     ActionItem(
                         icon = Icons.Default.Email,
                         title = "E-mail",
-                        subtitle = user.email,
-                        onClick = { showEditEmailModal = true }
+                        subtitle = currForm.email,
+                        onClick = { editUserProfileScreenViewModel.onEmailChanged(currForm.email) }
                     )
 
                     // Senha (Ação Complexa)
@@ -144,8 +136,7 @@ fun EditUserProfileScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         ElevatedButton(
                             onClick = {
-                                // Mock: Simula o salvamento
-                                // initialUser = user // Em um cenário real, isso seria feito após a confirmação do backend
+                                editUserProfileScreenViewModel.saveUser(currForm)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -187,7 +178,7 @@ fun EditUserProfileScreen(
             sheetState = sheetState
         ) {
             EditEmailModal(
-                userEmail = user.email,
+                userEmail = currForm.email,
                 onDismiss = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {

@@ -13,6 +13,10 @@ class UserLocalDataSource @Inject constructor(
 ) {
     fun observeUser(uid: String): Flow<User?> = userDao.observeUser(uid).map { it?.toDomain() }
 
+    suspend fun getUserById(uid: String): User? {
+        return userDao.getUserById(uid)?.toDomain()
+    }
+
     suspend fun saveUser(user: User) {
         userDao.insertOrUpdate(user.toEntity())
     }
