@@ -32,32 +32,44 @@ import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
+import com.example.produtosdelimpeza.core.component.LimpOnTextField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupStoreScreen(
     onBackNavigation: () -> Unit,
-    onSuccess: () -> Unit,
     signUpStoreViewModel: SignUpStoreViewModel = hiltViewModel()
 ) {
-    var storeName by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
 
     val formState = signUpStoreViewModel.formState
+    val isConfirmationButtonValid by signUpStoreViewModel.isButtonValid.collectAsState()
+
+
+    val categories = listOf(
+        "Restaurante",
+        "Mercado",
+        "Padaria",
+        "Loja de roupas",
+        "Loja de eletrônicos",
+        "Farmácia",
+        "Outro"
+    )
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -79,7 +91,7 @@ fun SignupStoreScreen(
                 .fillMaxSize()
                 .padding(padding),
             contentPadding = PaddingValues(24.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp),
+            verticalArrangement = Arrangement.spacedBy(30.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -91,74 +103,104 @@ fun SignupStoreScreen(
             // IDENTIDADE
             item {
                 Section(title = "Identidade da loja") {
-                    ModernTextField(
+                    LimpOnTextField(
                         value = formState.storeName.field,
                         onValueChange = {
                             signUpStoreViewModel.updateName(it)
                         },
-                        label = "Nome da loja",
-                        icon = Icons.Default.Storefront
+                        errorMessage = formState.storeName.error,
+                        label = R.string.business_name,
+                        placeholder = R.string.business_name_example,
+                        leadingIcon = { Icon(Icons.Default.Store, null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                     )
                     Spacer(Modifier.height(8.dp))
-                    ModernTextField(
-                        value = category,
-                        onValueChange = { category = it },
-                        label = "Categoria",
-                        icon = Icons.Default.Category
-                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedCategory,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Tipo de estabelecimento") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                            },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            categories.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(it) },
+                                    onClick = {
+                                        selectedCategory = it
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             // DESCRIÇÃO
             item {
                 Section(title = "Sobre a loja") {
-                    LimpOnDescriptionTextField(description = description) {
-                         description = it
+                    LimpOnDescriptionTextField(formState.description.field) {
+                        signUpStoreViewModel.updateDescription(it)
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "${description.length}/150",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.End,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
                 }
             }
 
             // CONTATO
             item {
                 Section(title = "Contato") {
-                    ModernTextField(
+                    LimpOnTextField(
                         value = formState.email.field,
                         onValueChange = {
                             signUpStoreViewModel.updateEmail(it)
                         },
-                        label = "E-mail",
-                        icon = Icons.Default.Email,
-                        keyboardType = KeyboardType.Email
+                        label = R.string.email,
+                        placeholder = R.string.hint_email,
+                        errorMessage = formState.email.error,
+                        leadingIcon = { Icon(Icons.Default.Email, null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = true,
-                            onCheckedChange = { /* Handle checkbox state change */ }
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().offset(y = (-20).dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(Modifier.weight(1f))
                         Text(
                             text = "Usar o mesmo email desta conta",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.surface
+                        )
+                        Checkbox(
+                            checked = true,
+                            onCheckedChange = {},
+                            modifier = Modifier.align(Alignment.Top)
                         )
                     }
-                    Spacer(Modifier.height(14.dp))
-                    ModernTextField(
+                    Spacer(Modifier.height(20.dp))
+                    LimpOnTextField(
                         value = formState.phone.field,
                         onValueChange = {
                             signUpStoreViewModel.updatePhone(it)
                         },
                         errorMessage = formState.phone.error,
-                        label = "WhatsApp",
-                        icon = Icons.Default.Phone,
-                        keyboardType = KeyboardType.Phone
+                        label = R.string.whatsapp,
+                        leadingIcon = { Icon(Icons.Default.Phone, null) },
+                        placeholder = R.string.cellphone_example,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
                 }
             }
@@ -166,11 +208,12 @@ fun SignupStoreScreen(
             // CTA
             item {
                 Button(
-                    onClick = onSuccess,
+                    onClick = { signUpStoreViewModel.createStore() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(18.dp),
+                    enabled = isConfirmationButtonValid,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.background
@@ -234,48 +277,11 @@ fun Section(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
         content()
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ModernTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    errorMessage: String? = null,
-    icon: ImageVector,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    singleLine: Boolean = true,
-    minLines: Int = 1
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(label) },
-        leadingIcon = {
-            Icon(icon, contentDescription = null)
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = singleLine,
-        minLines = minLines,
-        isError = errorMessage != null,
-        supportingText = {
-            errorMessage?.let { msg ->
-                Text(msg)
-            }
-        },
-        shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        )
-    )
 }
 
 
@@ -283,6 +289,6 @@ fun ModernTextField(
 @Composable
 fun RequestInvitePreview() {
     MaterialTheme {
-        SignupStoreScreen(onBackNavigation = {}, onSuccess = {})
+        SignupStoreScreen(onBackNavigation = {})
     }
 }

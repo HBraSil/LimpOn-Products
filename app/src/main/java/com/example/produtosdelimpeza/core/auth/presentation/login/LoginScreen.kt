@@ -233,7 +233,6 @@ fun ContentLoginScreen(
 
     LimpOnAuthButton(
         text = R.string.start,
-        loading = state.isLoading,
         modifier = Modifier.padding(top = 30.dp, bottom = 30.dp),
     ){
         if (

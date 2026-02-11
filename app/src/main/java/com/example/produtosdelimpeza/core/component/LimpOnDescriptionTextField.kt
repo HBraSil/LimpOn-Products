@@ -12,8 +12,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LimpOnDescriptionTextField(
-    maxChars: Int = 200,
     description: String,
+    maxChars: Int = 200,
     onDescriptionChange: (String) -> Unit
 ) {
     OutlinedTextField(

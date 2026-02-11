@@ -91,5 +91,6 @@
     <string name="owner_name">Nome do Proprietário</string>
     <string name="business_name">Nome da Loja (Fantasia)</string>
     <string name="business_name_example">Ex: Limpeza Total Ltda</string>
+    <string name="whatsapp">WhatsApp</string>
 
 </resources>

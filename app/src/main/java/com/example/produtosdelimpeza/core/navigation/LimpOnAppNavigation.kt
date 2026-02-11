@@ -573,7 +573,6 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
         composable(route = StoreScreen.SIGNUP_STORE.route) {
             SignupStoreScreen(
                 onBackNavigation = { navController.navigateUp() },
-                onSuccess = {}
             )
         }
 

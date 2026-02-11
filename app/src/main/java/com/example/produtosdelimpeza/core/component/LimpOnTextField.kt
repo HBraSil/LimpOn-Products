@@ -33,7 +33,7 @@ fun LimpOnTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = {Text(text = stringResource(label)) /*color = MaterialTheme.colorScheme.secondary)*/},
+        label = {Text(text = stringResource(label))},
         placeholder = {Text(text = stringResource(placeholder))},
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),

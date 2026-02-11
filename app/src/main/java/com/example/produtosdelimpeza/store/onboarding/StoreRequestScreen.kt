@@ -39,6 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Business
@@ -119,7 +120,7 @@ fun StoreRequestScreen(onBackNavigation: () -> Unit, onSubmit: () -> Unit) {
                     onValueChange = { nomeLoja = it },
                     label = R.string.business_name,
                     placeholder = R.string.business_name_example,
-                    leadingIcon = { Icon(Icons.Rounded.Label, contentDescription = null) }
+                    leadingIcon = { Icon(Icons.AutoMirrored.Rounded.Label, contentDescription = null) }
                 )
                 LimpOnTextField(
                     value = proprietario,

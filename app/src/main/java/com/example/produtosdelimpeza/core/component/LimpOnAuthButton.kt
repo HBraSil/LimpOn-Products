@@ -38,7 +38,7 @@ fun LimpOnAuthButton(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(start = 100.dp, end = 100.dp),
-            enabled = enabled && !loading,
+            enabled = enabled,
             colors = ButtonDefaults.buttonColors(
                 containerColor = containerColor,
                 contentColor = contentColor

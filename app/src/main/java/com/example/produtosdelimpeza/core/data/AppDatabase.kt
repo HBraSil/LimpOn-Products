@@ -16,7 +16,7 @@ import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
 @TypeConverters(Converters::class)
 @Database(
     entities = [ProductEntity::class, UserEntity::class, StoreEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
