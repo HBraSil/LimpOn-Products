@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.dashboard
+package com.example.produtosdelimpeza.store.dashboard.presentation
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -85,8 +85,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.store.dashboard.ShopStatusComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -120,8 +122,13 @@ fun DashboardScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
     onNotificationsScreenClick: () -> Unit = {},
     onNavigateToAnalyticsScreenClick: () -> Unit = {},
-    onNavigateToItemFab: (String) -> Unit = {}
+    onNavigateToItemFab: (String) -> Unit = {},
+    dashboardViewModel: DashboardViewModel = hiltViewModel()
 ) {
+
+
+    val dashboardData by dashboardViewModel.dashboardData.collectAsState()
+
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.StoreSection)
     }
@@ -151,7 +158,7 @@ fun DashboardScreen(
         ) {
             item {
                 StoreProfileCardAdvanced(
-                    storeName = "Pastelaria do Zé",
+                    storeName = dashboardData?.name ?: "Loja",
                     avatarRes = null, // could be painterResource
                     itemsActive = 24,
                     avgResponseTime = "8m",

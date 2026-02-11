@@ -63,10 +63,10 @@ import com.example.produtosdelimpeza.customer.profile.presentation.coupons.Coupo
 import com.example.produtosdelimpeza.customer.profile.presentation.header_profile_screen.EditUserProfileScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.help.HelpScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.payment_methods.PaymentMethodsScreen
-import com.example.produtosdelimpeza.store.dashboard.COUPON
-import com.example.produtosdelimpeza.store.dashboard.DashboardScreen
-import com.example.produtosdelimpeza.store.dashboard.PRODUCT
-import com.example.produtosdelimpeza.store.dashboard.PROMOTION
+import com.example.produtosdelimpeza.store.dashboard.presentation.COUPON
+import com.example.produtosdelimpeza.store.dashboard.presentation.DashboardScreen
+import com.example.produtosdelimpeza.store.dashboard.presentation.PRODUCT
+import com.example.produtosdelimpeza.store.dashboard.presentation.PROMOTION
 import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.ProductRegistrationScreen
 import com.example.produtosdelimpeza.store.onboarding.AutonomousRequestScreen
