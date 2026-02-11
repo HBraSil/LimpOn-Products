@@ -9,7 +9,6 @@ import jakarta.inject.Inject
 class AuthSessionProviderImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : AuthSessionProvider {
-
     override fun getUserId(): String? {
         Log.d("RESULT"," ${firebaseAuth.currentUser?.uid} ")
         return firebaseAuth.currentUser?.uid

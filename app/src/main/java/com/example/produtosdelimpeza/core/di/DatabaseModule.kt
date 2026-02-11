@@ -13,6 +13,7 @@ import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.data.AppDatabase
 import com.example.produtosdelimpeza.core.data.dao.UserDao
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
+import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,30 +24,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    val MIGRATION_1_2 = object : Migration(1, 2) {
-        override fun migrate(db: SupportSQLiteDatabase) {
-            db.execSQL(
-                """
-            CREATE TABLE IF NOT EXISTS user (
-                uid TEXT NOT NULL PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                createdAt INTEGER NOT NULL
-            )
-        """
-            )
-        }
-    }
-
-    val MIGRATION_2_3 = object : Migration(2, 3) {
-        override fun migrate(db: SupportSQLiteDatabase) {
-            db.execSQL(
-                """
-            ALTER TABLE user ADD COLUMN phone TEXT NOT NULL DEFAULT ''
-            """
-            )
-        }
-    }
 
     @Provides
     @Singleton
@@ -55,8 +32,8 @@ object DatabaseModule {
             application,
             AppDatabase::class.java,
             "app_database"
-            )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+        )
+            .fallbackToDestructiveMigration(false)
             .build()
     }
 
@@ -70,6 +47,10 @@ object DatabaseModule {
         return database.userDao()
     }
 
+    @Provides
+    fun provideStoreDao(database: AppDatabase): StoreDao {
+        return database.storeDao()
+    }
 
     @Provides
     @Singleton

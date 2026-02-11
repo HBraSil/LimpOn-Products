@@ -9,17 +9,21 @@ import com.example.produtosdelimpeza.core.data.dao.UserDao
 import com.example.produtosdelimpeza.core.data.local.Converters
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.data.entity.StoreEntity
 import com.example.produtosdelimpeza.core.data.entity.UserEntity
+import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
 
 @TypeConverters(Converters::class)
 @Database(
-    entities = [ProductEntity::class, UserEntity::class],
-    version = 3,
+    entities = [ProductEntity::class, UserEntity::class, StoreEntity::class],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cartProductsDao(): CartProductsDAO
     abstract fun userDao(): UserDao
+    abstract fun storeDao(): StoreDao
+
 
     companion object{
         @Volatile

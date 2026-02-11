@@ -123,7 +123,7 @@ fun DashboardScreen(
     onNavigateToItemFab: (String) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Store)
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.StoreSection)
     }
 
     val listState = rememberLazyListState()

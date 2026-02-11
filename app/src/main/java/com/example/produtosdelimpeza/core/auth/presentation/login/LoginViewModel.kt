@@ -9,7 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.auth.data.LoginResponse
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
-import com.example.produtosdelimpeza.core.auth.domain.validation.LoginValidators
+import com.example.produtosdelimpeza.core.validation.EmailValidator
+import com.example.produtosdelimpeza.core.validation.PasswordValidator
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -70,7 +71,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun updateEmail(email: String) {
-        val isEmailValidate = LoginValidators.isEmailValid(email)
+        val isEmailValidate = EmailValidator.isEmailValid(email)
         loginFormState = loginFormState.copy(
             email = loginFormState.email.copy(
                 field = email,
@@ -81,7 +82,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun updatePassword(password: String) {
-        val isEmailValidate = LoginValidators.isValidPassword(password)
+        val isEmailValidate = PasswordValidator.isValidPassword(password)
         loginFormState = loginFormState.copy(
             password = loginFormState.email.copy(
                 field = password,

@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileScreenViewModel @Inject constructor(
     private val profileRepository: ProfileScreenRepository,
-    private val userRepository: UserRepository
+    userRepository: UserRepository
 ) : ViewModel() {
 
     val user: StateFlow<User> = userRepository.getUser()

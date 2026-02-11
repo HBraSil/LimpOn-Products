@@ -1,10 +1,6 @@
 package com.example.produtosdelimpeza.core.auth.presentation.signup
 
-data class FieldState(
-    val field: String = "",
-    val error: String? = null,
-    val isValid: Boolean = false
-)
+import com.example.produtosdelimpeza.core.presentation.FieldState
 
 data class UserFormState(
     val name: FieldState = FieldState(),

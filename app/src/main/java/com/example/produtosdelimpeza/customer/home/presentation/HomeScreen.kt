@@ -156,11 +156,11 @@ private val itemsLista = listOf(
 )
 
 private val sampleProductEntities = listOf(
-    ProductEntity(1, "Detergente Líquido", 62.71),
-    ProductEntity(2, "Sabao Líquido", 6.49),
-    ProductEntity(2, "Kiboa", 2.39),
-    ProductEntity(2, "Brilho", 1.69),
-    ProductEntity(2, "Amaciante Líquidp", 10.00),
+    ProductEntity(1, "Detergente Líquido"),
+    ProductEntity(2, "Sabao Líquido"),
+    ProductEntity(2, "Kiboa"),
+    ProductEntity(2, "Brilho"),
+    ProductEntity(2, "Amaciante Líquidp"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -184,7 +184,7 @@ fun HomeScreen(
 
 
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.Customer)
+        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.CustomerSection)
     }
 
 

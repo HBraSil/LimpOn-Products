@@ -282,11 +282,3 @@ fun SignupScreen(
         }
     }
 }
-
-
-
-@Preview
-@Composable
-private fun SignupScreenPreview() {
-    SignupScreen()
-}

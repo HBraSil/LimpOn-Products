@@ -69,7 +69,6 @@ fun SignupStoreScreen(
             )
         }
     ) { padding ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -93,7 +92,7 @@ fun SignupStoreScreen(
                         label = "Nome da loja",
                         icon = Icons.Default.Storefront
                     )
-
+                    Spacer(Modifier.height(8.dp))
                     ModernTextField(
                         value = category,
                         onValueChange = { category = it },
@@ -114,7 +113,7 @@ fun SignupStoreScreen(
                         singleLine = false,
                         minLines = 3
                     )
-
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = "${description.length}/150",
                         modifier = Modifier.fillMaxWidth(),
@@ -136,6 +135,21 @@ fun SignupStoreScreen(
                         keyboardType = KeyboardType.Email
                     )
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = true,
+                            onCheckedChange = { /* Handle checkbox state change */ }
+                        )
+
+                        Text(
+                            text = "Usar o mesmo email desta conta",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(Modifier.height(14.dp))
                     ModernTextField(
                         value = phone,
                         onValueChange = { phone = it },
@@ -153,7 +167,11 @@ fun SignupStoreScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
                 ) {
                     Text(
                         "Finalizar cadastro",
@@ -210,10 +228,7 @@ fun Section(
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,

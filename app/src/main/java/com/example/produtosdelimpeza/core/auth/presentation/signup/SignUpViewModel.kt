@@ -7,7 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
-import com.example.produtosdelimpeza.core.auth.domain.validation.SignUpValidators
+import com.example.produtosdelimpeza.core.presentation.FieldState
+import com.example.produtosdelimpeza.core.validation.EmailValidator
+import com.example.produtosdelimpeza.core.validation.NameValidator
+import com.example.produtosdelimpeza.core.validation.PasswordValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +22,6 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
@@ -28,7 +30,7 @@ class SignUpViewModel @Inject constructor(
 
 
     fun updateName(name: String){
-        val isNameValid = SignUpValidators.isNameValid(name)
+        val isNameValid = NameValidator.isNameValid(name)
         formState = formState.copy(
             name = FieldState(
                 field = name,
@@ -41,7 +43,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun updateLastName(lastName: String){
-        val isLastNameValid = SignUpValidators.isLastNameValid(lastName)
+        val isLastNameValid = NameValidator.isLastNameValid(lastName)
         formState = formState.copy(
             lastName = FieldState(
                 field = lastName,
@@ -54,7 +56,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun updateEmail(email: String){
-        val isEmailValid = SignUpValidators.isEmailValid(email)
+        val isEmailValid = EmailValidator.isEmailValid(email)
         formState = formState.copy(
             email = FieldState(
                 field = email,
@@ -66,7 +68,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun updatePassword(password: String){
-        val isPasswordValid = SignUpValidators.isValidPassword(password)
+        val isPasswordValid = PasswordValidator.isValidPassword(password)
         formState = formState.copy(password = FieldState(
             field = password,
             error = if (!isPasswordValid) "Senha muito pequena" else null,
@@ -78,7 +80,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun updatePasswordConfirm(password: String, confirmPassword: String){
-        val isConfirmPasswordValid = SignUpValidators.isConfirmPasswordValid(password, confirmPassword)
+        val isConfirmPasswordValid = PasswordValidator.isConfirmPasswordValid(password, confirmPassword)
         formState = formState.copy(confirmPassword = FieldState(
             field = confirmPassword,
             error = if (!isConfirmPasswordValid) "Senha precisa ser igual a anterior" else null,
