@@ -40,19 +40,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupStoreScreen(
     onBackNavigation: () -> Unit,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
+    signUpStoreViewModel: SignUpStoreViewModel = hiltViewModel()
 ) {
     var storeName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+
+    val formState = signUpStoreViewModel.formState
 
     Scaffold(
         topBar = {
@@ -87,8 +92,10 @@ fun SignupStoreScreen(
             item {
                 Section(title = "Identidade da loja") {
                     ModernTextField(
-                        value = storeName,
-                        onValueChange = { storeName = it },
+                        value = formState.storeName.field,
+                        onValueChange = {
+                            signUpStoreViewModel.updateName(it)
+                        },
                         label = "Nome da loja",
                         icon = Icons.Default.Storefront
                     )
@@ -105,14 +112,9 @@ fun SignupStoreScreen(
             // DESCRIÇÃO
             item {
                 Section(title = "Sobre a loja") {
-                    ModernTextField(
-                        value = description,
-                        onValueChange = { if (it.length <= 150) description = it },
-                        label = "Descrição",
-                        icon = Icons.Default.Notes,
-                        singleLine = false,
-                        minLines = 3
-                    )
+                    LimpOnDescriptionTextField(description = description) {
+                         description = it
+                    }
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = "${description.length}/150",
@@ -128,21 +130,19 @@ fun SignupStoreScreen(
             item {
                 Section(title = "Contato") {
                     ModernTextField(
-                        value = email,
-                        onValueChange = { email = it },
+                        value = formState.email.field,
+                        onValueChange = {
+                            signUpStoreViewModel.updateEmail(it)
+                        },
                         label = "E-mail",
                         icon = Icons.Default.Email,
                         keyboardType = KeyboardType.Email
                     )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = true,
                             onCheckedChange = { /* Handle checkbox state change */ }
                         )
-
                         Text(
                             text = "Usar o mesmo email desta conta",
                             style = MaterialTheme.typography.labelMedium,
@@ -151,8 +151,11 @@ fun SignupStoreScreen(
                     }
                     Spacer(Modifier.height(14.dp))
                     ModernTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
+                        value = formState.phone.field,
+                        onValueChange = {
+                            signUpStoreViewModel.updatePhone(it)
+                        },
+                        errorMessage = formState.phone.error,
                         label = "WhatsApp",
                         icon = Icons.Default.Phone,
                         keyboardType = KeyboardType.Phone
@@ -244,6 +247,7 @@ fun ModernTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    errorMessage: String? = null,
     icon: ImageVector,
     keyboardType: KeyboardType = KeyboardType.Text,
     singleLine: Boolean = true,
@@ -260,6 +264,12 @@ fun ModernTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         minLines = minLines,
+        isError = errorMessage != null,
+        supportingText = {
+            errorMessage?.let { msg ->
+                Text(msg)
+            }
+        },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,

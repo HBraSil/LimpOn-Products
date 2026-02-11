@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -234,8 +235,6 @@ fun StoreDescriptionOutlinedCard(
     description: String,
     onDescriptionChange: (String) -> Unit
 ) {
-    val maxChars = 200
-
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -258,26 +257,9 @@ fun StoreDescriptionOutlinedCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = {
-                    if (it.length <= maxChars) {
-                        onDescriptionChange(it)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 120.dp),
-                placeholder = {
-                    Text("Ex: Hamburgueria artesanal com foco em qualidade e rapidez")
-                },
-                supportingText = {
-                    Text("${description.length}/$maxChars")
-                },
-                singleLine = false,
-                maxLines = 6,
-                shape = RoundedCornerShape(16.dp)
-            )
+            LimpOnDescriptionTextField(description = description){
+                onDescriptionChange(it)
+            }
         }
     }
 }
