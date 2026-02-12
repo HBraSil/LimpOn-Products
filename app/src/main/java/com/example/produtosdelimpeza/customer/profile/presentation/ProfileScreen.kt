@@ -34,8 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.produtosdelimpeza.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.domain.model.Store
+import com.example.produtosdelimpeza.core.domain.model.User
 import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
-import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 // Definição de cores personalizadas para o tema (minimalista)
 val LightGrayBackground = Color(0xFFF5F5F5)
@@ -55,11 +56,12 @@ fun ProfileScreen(
     onHelpScreenClick: () -> Unit = {},
     onOrderScreenClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    onSwitchProfileClick: (String) -> Unit = {},
+    onSwitchProfileClick: () -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
 ) {
 
     val user by profileViewModel.user.collectAsState()
+    val profiles by profileViewModel.allStores.collectAsState()
 
 
     Scaffold(
@@ -70,7 +72,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()) // Torna o conteúdo scrollável
+                .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             HeaderSection(
@@ -172,9 +174,16 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            AccountFooterSection(profileViewModel, onSignOutClick) { profileMode ->
-                onSwitchProfileClick(profileMode)
-            }
+            AccountFooterSection(
+                user = user,
+                userProfiles = profiles,
+                onSignOutClick = onSignOutClick,
+                signOut = { profileViewModel.signOut() },
+                onSwitchProfileClick = {
+                    onSwitchProfileClick()
+                    profileViewModel.saveLastUserMode(it)
+                }
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -184,12 +193,14 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFooterSection(
-    profileViewModel: ProfileScreenViewModel,
+    user: User,
+    userProfiles: List<Store>,
+    signOut: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
     onSwitchProfileClick: (String) -> Unit = {}
 ) {
+    //val profiles by mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.DASHBOARD.route to "Doceria")
 
-    val profiles = mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.DASHBOARD.route to "Doceria")
     var isSheetOpen by remember { mutableStateOf(false) }
     var signOutClickAlertDialog by remember { mutableStateOf(false) }
 
@@ -203,39 +214,41 @@ fun AccountFooterSection(
             shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
         ) {
 
-            // Header
-            Text(
-                text = "Escolher perfil",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .padding(horizontal = 24.dp)
-            )
-
-            // Lista de perfis
-            profiles.forEach { profile ->
-                ListItem(
-                    headlineContent = {
-                        Text(profile.value)
-                    },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = null
-                        )
-                    },
+            if (!userProfiles.isEmpty()) {
+                Text(
+                    text = "Escolher perfil",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier
-                        .clickable {
-                            if (profile.key != CustomerScreen.CUSTOMER_HOME.route) onSwitchProfileClick(profile.key) // DEPOIS TEREI Q MUDAR ESSA LÓGICA
-                            isSheetOpen = false
-                        }
-                        .padding(horizontal = 8.dp)
+                        .padding(vertical = 8.dp)
+                        .padding(horizontal = 24.dp)
+                )
+
+
+                userProfiles.forEach { profile ->
+                    ListItem(
+                        headlineContent = {
+                            Text(profile.name)
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .clickable {
+                                onSwitchProfileClick(profile.id)
+                                isSheetOpen = false
+                            }
+                            .padding(horizontal = 8.dp)
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    thickness = 2.dp, color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                thickness = 2.dp, color = MaterialTheme.colorScheme.outlineVariant
-            )
 
             // Botão de Logout em destaque
             ListItem(
@@ -336,7 +349,7 @@ fun AccountFooterSection(
                         TextButton(
                             onClick = {
                                 onSignOutClick()
-                                profileViewModel.signOut()
+                                signOut()
                                 signOutClickAlertDialog = false
                             },
                             colors = ButtonDefaults.textButtonColors(

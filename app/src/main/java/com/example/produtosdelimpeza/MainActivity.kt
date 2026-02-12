@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                 val startProfile by sessionViewModel.lastUserMode.collectAsState()
                 startProfile?.let { profileMode ->
                     val startDestination = when (profileMode) {
-                        ProfileMode.LoggedIn.StoreSection -> NavGraph.SELLER_MAIN.route
+                        is ProfileMode.LoggedIn.StoreSection -> NavGraph.SELLER_MAIN.route
                         ProfileMode.LoggedIn.CustomerSection -> NavGraph.USER_MAIN.route
                         ProfileMode.LoggedOut -> NavGraph.AUTH.route
                     }

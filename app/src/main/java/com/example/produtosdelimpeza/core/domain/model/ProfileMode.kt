@@ -4,7 +4,9 @@ sealed class ProfileMode {
 
     sealed class LoggedIn : ProfileMode() {
         object CustomerSection : LoggedIn()
-        object StoreSection : LoggedIn()
+        data class StoreSection(
+            val storeId: String
+        ) : LoggedIn()
     }
 }
 

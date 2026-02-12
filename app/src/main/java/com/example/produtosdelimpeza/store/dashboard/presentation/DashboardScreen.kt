@@ -119,19 +119,12 @@ const val PRODUCT = "Criar produto"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    navigationLastUserModeViewModel: NavigationLastUserModeViewModel,
     onNotificationsScreenClick: () -> Unit = {},
     onNavigateToAnalyticsScreenClick: () -> Unit = {},
     onNavigateToItemFab: (String) -> Unit = {},
     dashboardViewModel: DashboardViewModel = hiltViewModel()
 ) {
-
-
     val dashboardData by dashboardViewModel.dashboardData.collectAsState()
-
-    LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.StoreSection)
-    }
 
     val listState = rememberLazyListState()
     Scaffold(

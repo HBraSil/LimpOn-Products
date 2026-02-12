@@ -6,6 +6,7 @@ import com.example.produtosdelimpeza.store.dashboard.data.StoreDto
 import com.google.firebase.firestore.FirebaseFirestore
 import jakarta.inject.Inject
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.cancellation.CancellationException
 
 class StoreRemoteDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -15,7 +16,11 @@ class StoreRemoteDataSource @Inject constructor(
         return try {
             val uid = session.getUserId() ?: error("Usuário não autenticado")
 
-            firestore.collection("stores").document(uid).set(store).await()
+            val storeWithOwner = store.copy(ownerId = uid)
+
+            firestore.collection("stores")
+                .add(storeWithOwner)
+                .await()
 
             Result.success(true)
         } catch (e: Exception) {
@@ -23,13 +28,11 @@ class StoreRemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun getStoreRemote(): Result<StoreDto> {
+    suspend fun getStoreRemote(storeId: String): Result<StoreDto> {
         return runCatching {
-            val uid = session.getUserId()!!
-
             val snapshot = firestore
                 .collection("stores")
-                .document(uid)
+                .document(storeId)
                 .get()
                 .await()
 
@@ -41,6 +44,37 @@ class StoreRemoteDataSource @Inject constructor(
                 ?: error("Erro ao converter dados da loja")
 
             dto
+        }
+    }
+
+    suspend fun getAllStoresNames(): List<StoreDto> {
+        return try {
+            val uid = session.getUserId() ?: error("Usuário não logado")
+
+            val snapshot = firestore.collection("stores")
+                .whereEqualTo("ownerId", uid)
+                .get()
+                .await()
+
+//            snapshot.documents.mapNotNull { it.getString("name") }
+            snapshot.documents.mapNotNull { document ->
+                val name = document.getString("name")
+                val id = document.id
+
+                if (name != null) {
+                    StoreDto(
+                        id = id,
+                        name = name
+                    )
+                } else {
+                    null
+                }
+            }
+
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw e
         }
     }
 }

@@ -9,8 +9,8 @@ import javax.inject.Inject
 class DashboardRepositoryImpl @Inject constructor(
     private val dashboardRemoteDataSource: StoreRemoteDataSource
 ): DashboardRepository {
-    override suspend fun getDashboardData(): Store? {
-        val result = dashboardRemoteDataSource.getStoreRemote()
+    override suspend fun getDashboardData(storeId: String): Store? {
+        val result = dashboardRemoteDataSource.getStoreRemote(storeId)
         return if (result.isSuccess) {
             val storeDto = result.getOrNull() ?: error("Erro ao obter dados da loja")
             storeDto.toDomain()

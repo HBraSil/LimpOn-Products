@@ -134,7 +134,6 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
-                navigationLastUserModeViewModel,
                 onNotificationsScreenClick = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
                 },
@@ -501,17 +500,10 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onOrderScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
-                onSwitchProfileClick = { profile ->
-                    if (profile == StoreScreen.DASHBOARD.route) {
-                        navController.navigate(NavGraph.SELLER_MAIN.route) {
-                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    } else {
-                        navController.navigate(NavGraph.USER_MAIN.route) {
-                            popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
-                            launchSingleTop = true
-                        }
+                onSwitchProfileClick = {
+                    navController.navigate(NavGraph.SELLER_MAIN.route) {
+                        popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onSignOutClick = {
@@ -573,6 +565,13 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
         composable(route = StoreScreen.SIGNUP_STORE.route) {
             SignupStoreScreen(
                 onBackNavigation = { navController.navigateUp() },
+                onBackToProfile = { navController.navigate(CustomerScreen.CUSTOMER_PROFILE.route) },
+                onNavigateToStore = {
+                    navController.navigate(NavGraph.SELLER_MAIN.route) {
+                        popUpTo(NavGraph.AUTH.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 

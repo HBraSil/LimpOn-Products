@@ -71,7 +71,7 @@ fun LoginScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
 ) {
     val verticalScrollState = rememberScrollState()
-    val passwordHidden = loginViewModel.passwordHidden.collectAsState().value
+    val passwordHidden by loginViewModel.passwordHidden.collectAsState()
     val uiState by loginViewModel.loginUiState.collectAsState()
 
 
