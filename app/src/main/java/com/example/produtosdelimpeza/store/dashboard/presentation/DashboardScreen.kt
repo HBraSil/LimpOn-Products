@@ -34,9 +34,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -72,6 +75,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -86,8 +90,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.produtosdelimpeza.core.domain.model.ProfileMode
-import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.store.dashboard.ShopStatusComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -125,71 +127,114 @@ fun DashboardScreen(
     dashboardViewModel: DashboardViewModel = hiltViewModel()
 ) {
     val dashboardData by dashboardViewModel.dashboardData.collectAsState()
+    val dashboardState by dashboardViewModel.dashboardUiState.collectAsState()
+
 
     val listState = rememberLazyListState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            PremiumTopBar(
-                goToNotificationsScreen = onNotificationsScreenClick
-            )
+                PremiumTopBar(
+                    goToNotificationsScreen = onNotificationsScreenClick,
+                    dashboardState = dashboardState
+                )
         },
         floatingActionButton = {
-            MultiFloatingButton{
-                onNavigateToItemFab(it)
+            if (!dashboardState) {
+                MultiFloatingButton {
+                    onNavigateToItemFab(it)
+                }
             }
         },
     ) { paddingValues ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(Color.White),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 90.dp, top = 12.dp)
-        ) {
-            item {
-                StoreProfileCardAdvanced(
-                    storeName = dashboardData?.name ?: "Loja",
-                    avatarRes = null, // could be painterResource
-                    itemsActive = 24,
-                    avgResponseTime = "8m",
-                    recentFeedbackCount = 7,
-                    onClick = {  }
-                )
+        if (dashboardState) {
+            val infiniteTransition = rememberInfiniteTransition(label = "")
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    repeat(3) { index ->
+
+                        val alpha by infiniteTransition.animateFloat(
+                            initialValue = 0.1f,
+                            targetValue = 1f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(
+                                    durationMillis = 600,
+                                    delayMillis = index * 300
+                                ),
+                                repeatMode = RepeatMode.Reverse
+                            )
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .alpha(alpha)
+                                .background(
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    shape = CircleShape
+                                )
+                        )
+                    }
+                }
             }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .background(Color.White),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 90.dp, top = 12.dp)
+            ) {
+                item {
+                    StoreProfileCardAdvanced(
+                        storeName = dashboardData?.name ?: "Loja",
+                        avatarRes = null,
+                        itemsActive = 24,
+                        avgResponseTime = "8m",
+                        recentFeedbackCount = 7,
+                        onClick = { }
+                    )
+                }
 
-            item {
-                // Top KPI row - always visible
-                KPIHeroRow(
-                    activeOrders = activeOrdersMock,
-                    onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
-                )
-            }
+                item {
+                    KPIHeroRow(
+                        activeOrders = activeOrdersMock,
+                        onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+                    )
+                }
 
 
-            item {
-                Spacer(Modifier.height(16.dp))
-                SectionHeader(title = "Pedidos Recentes", actionText = "Ver tudo") { /* go to orders */ }
-            }
+                item {
+                    Spacer(Modifier.height(16.dp))
+                    SectionHeader(
+                        title = "Pedidos Recentes",
+                        actionText = "Ver tudo"
+                    ) { /* go to orders */ }
+                }
 
-            // Mock list of recent orders (light)
-            items(5) { idx ->
-                OrderCompactCard(idx + 1)
-            }
+                items(5) { idx ->
+                    OrderCompactCard(idx + 1)
+                }
 
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }
 }
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PremiumTopBar(goToNotificationsScreen: () -> Unit = {}) {
+fun PremiumTopBar(dashboardState: Boolean, goToNotificationsScreen: () -> Unit = {}) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(
@@ -199,14 +244,23 @@ fun PremiumTopBar(goToNotificationsScreen: () -> Unit = {}) {
             )
         },
         title = {
-            ShopStatusComponent()
+            if (!dashboardState) {
+                ShopStatusComponent()
+            }
         },
         actions = {
-            BadgedBox(
-                badge = { Badge { Text("3") } },
-                modifier = Modifier.padding(end = 12.dp)
-            ) {
-                IconButton(onClick = goToNotificationsScreen) { Icon(Icons.Default.Notifications, contentDescription = "Notificações") }
+            if (!dashboardState) {
+                BadgedBox(
+                    badge = { Badge { Text("3") } },
+                    modifier = Modifier.padding(end = 12.dp)
+                ) {
+                    IconButton(onClick = goToNotificationsScreen) {
+                        Icon(
+                            Icons.Default.Notifications,
+                            contentDescription = "Notificações"
+                        )
+                    }
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -723,7 +777,6 @@ fun BarChart7Days(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (!fitsAbove) {
-                            // pointer ACIMA do tooltip (apontando para baixo)
                             Canvas(
                                 modifier = Modifier
                                     .fillMaxWidth()

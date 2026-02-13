@@ -1,10 +1,8 @@
 package com.example.produtosdelimpeza.store.dashboard.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.data.LastUserModeLocalStorage
-import com.example.produtosdelimpeza.core.data.mapper.toProfileModeKey
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.store.dashboard.domain.DashboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +19,11 @@ class DashboardViewModel @Inject constructor(
     private val userSession: LastUserModeLocalStorage
 ) : ViewModel() {
 
+    private val _dashboardUiState = MutableStateFlow(true)
+    val dashboardUiState = _dashboardUiState.asStateFlow()
+
+
+
     private val _dashboardData = MutableStateFlow<Store?>(null)
     val dashboardData: StateFlow<Store?> = _dashboardData.asStateFlow()
 
@@ -34,10 +37,9 @@ class DashboardViewModel @Inject constructor(
     fun getDashboardData() {
         viewModelScope.launch {
             userSession.storeId.collect { storeId ->
-                if (storeId != null) {
+                storeId?.let { storeId ->
                     _dashboardData.value = dashboardRepository.getDashboardData(storeId)
-                } else {
-                    _dashboardData.value = null
+                    _dashboardUiState.value = false
                 }
             }
         }
