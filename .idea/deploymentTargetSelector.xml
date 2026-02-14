@@ -13,9 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="SuccessSnackbarPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="SuccessSnackbarPreview (1)">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -36,6 +33,17 @@
       <SelectionState runConfigName="Teste3">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-02-02T14:22:29.553291400Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=0077004562" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="RequestInvitePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-02-13T16:29:12.212749700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=0077004562" />

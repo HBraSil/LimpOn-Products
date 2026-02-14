@@ -634,7 +634,6 @@ fun BarChart7Days(
 
     if (days.isEmpty()) return
 
-    // estados do gráfico
     var barRects by remember { mutableStateOf<List<Rect>>(emptyList()) }
     var canvasSize by remember { mutableStateOf(Size.Zero) }
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
@@ -643,7 +642,6 @@ fun BarChart7Days(
 
     val maxRevenue = days.maxOfOrNull { it.revenue }.let { if (it == 0f) 1f else it } ?: 1f
 
-    // animações das barras
     val animList = remember(days) { days.map { Animatable(0f) } }
     LaunchedEffect(days, maxRevenue) {
         animList.forEachIndexed { i, anim ->
@@ -655,7 +653,6 @@ fun BarChart7Days(
         }
     }
 
-    // dimensões estáveis do tooltip (usadas para decidir cima/baixo sem toggle)
     val tooltipWidthDp = 110.dp
     val tooltipHeightDp = 56.dp
     val pointerHeightDp = 6.dp
@@ -751,7 +748,6 @@ fun BarChart7Days(
 
                 val fitsAbove = preferredYPxAbove >= 0f
 
-                // yPx local final (px)
                 val yPx = if (fitsAbove) {
                     preferredYPxAbove.coerceAtLeast(0f)
                 } else {
@@ -760,7 +756,6 @@ fun BarChart7Days(
 
                 val pointerXInTooltip = (anchorX - xPx).coerceIn(pointerHeightPx, tooltipWidthPxStable - pointerHeightPx)
 
-                // converte para Dp (offset do tooltip dentro do Box/Canvas)
                 val offsetXDp = with(density) { xPx.toDp() }
                 val offsetYDp = with(density) { yPx.toDp() }
 
@@ -786,9 +781,9 @@ fun BarChart7Days(
                                 val triH = 12f
 
                                 val path = Path().apply {
-                                    moveTo(pointerXInTooltip, 0f)                     // topo do canvas (ponta para baixo)
-                                    lineTo(pointerXInTooltip - triW / 2f, triH)       // base esquerda
-                                    lineTo(pointerXInTooltip + triW / 2f, triH)       // base direita
+                                    moveTo(pointerXInTooltip, 0f)
+                                    lineTo(pointerXInTooltip - triW / 2f, triH)
+                                    lineTo(pointerXInTooltip + triW / 2f, triH)
                                     close()
                                 }
 

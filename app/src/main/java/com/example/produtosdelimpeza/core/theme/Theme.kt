@@ -35,6 +35,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = Color(0xFFB4248B)
 )
 
+
 @Composable
 fun ProdutosDeLimpezaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

@@ -40,7 +40,6 @@ fun LimpOnTextField(
         textStyle = TextStyle(
             fontSize = 19.sp,
             fontWeight = Normal,
-            //color = Black
         ),
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
@@ -52,15 +51,6 @@ fun LimpOnTextField(
         },
         singleLine = true,
         keyboardOptions = keyboardOptions,
-        colors = OutlinedTextFieldDefaults.colors(
-            /*focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-            focusedLabelColor = White,
-            unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedContainerColor = White,
-            focusedTextColor = White*/
-        ),
         visualTransformation = if (obfuscate)
             PasswordVisualTransformation()
         else
