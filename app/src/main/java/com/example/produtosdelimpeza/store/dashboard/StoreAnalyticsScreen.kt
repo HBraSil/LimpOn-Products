@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +60,7 @@ fun StoreAnalyticsScreen(
                         IconButton(onClick = onBackNavigation) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                                contentDescription = stringResource(R.string.icon_navigate_back)
+                                contentDescription = stringResource(R.string.icon_navigation_back)
                             )
                         }
                         Text(
@@ -260,10 +261,10 @@ fun DailyRevenueSection() {
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     // Linha de Meta (Tracejada ou Opaca)
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-                        color = Color(0xFFF1F5F9),
-                        thickness = 2.dp
+                        thickness = 2.dp,
+                        color = Color(0xFFF1F5F9)
                     )
 
                     Row(
@@ -380,7 +381,7 @@ private fun BehaviorAnalysisSection() {
                     accentColor = Color(0xFFF59E0B) // amber
                 )
 
-                Divider(
+                HorizontalDivider(
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 )
 

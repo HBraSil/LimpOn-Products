@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.material.TabRowDefaults.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -239,47 +239,7 @@ fun ConfirmStatusChangeDialog(
     )
 }
 
-@Composable
-fun ActionCard(
-    status: OrderStatus,
-    onNextStep: () -> Unit,
-    onCancelClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            // Botão de Fluxo Rápido (Próximo Passo)
-            status.let { actionLabel ->
-                Button(
-                    onClick = onNextStep,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = when(status) {
-                            OrderStatus.RECEIVED -> Color(0xFF4CAF50)
-                            OrderStatus.PREPARING -> Color(0xFF2196F3)
-                            else -> MaterialTheme.colorScheme.primary
-                        }
-                    )
-                ) {
-                    Text(actionLabel.name, fontWeight = FontWeight.Bold)
-                }
-                Spacer(Modifier.height(8.dp))
-            }
 
-
-            TextButton(
-                onClick = onCancelClick,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text("Problemas com o pedido?", color = Color.Red, style = MaterialTheme.typography.labelMedium)
-            }
-        }
-    }
-}
 
 @Composable
 fun StatusUpdateDialog(
@@ -342,7 +302,7 @@ fun OrderHeader(orderId: String, status: OrderStatus, onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.icon_navigate_back)
+                    contentDescription = stringResource(R.string.icon_navigation_back)
                 )
             }
         },

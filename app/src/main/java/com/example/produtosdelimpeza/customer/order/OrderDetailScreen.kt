@@ -88,7 +88,6 @@ fun OrderDetailsScreen(
     onBackNavigation: () -> Unit = {},
     onRepeat: (Order) -> Unit = {},
     onRate: (Order) -> Unit = {},
-    onSupport: (Order) -> Unit = {},
 ) {
     val order = Order(
         id = "#1234",
@@ -136,7 +135,7 @@ fun OrderDetailsScreen(
                     IconButton(onClick = onBackNavigation) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
-                            contentDescription = stringResource(R.string.icon_navigate_back)
+                            contentDescription = stringResource(R.string.icon_navigation_back)
                         )
                     }
                 },
@@ -169,7 +168,6 @@ fun OrderDetailsScreen(
                         order,
                         onRepeat,
                         onRate,
-                        onSupport,
                     )
                 }
                 item {
@@ -507,7 +505,6 @@ private fun SellerInfoCard(order: Order) {
 @Composable
 private fun ActionsSection(
     order: Order,
-    onRepeat: (Order) -> Unit,
     onRate: (Order) -> Unit,
     onSupport: (Order) -> Unit,
 ) {

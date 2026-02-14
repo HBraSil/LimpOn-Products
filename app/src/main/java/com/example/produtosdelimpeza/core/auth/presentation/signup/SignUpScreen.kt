@@ -45,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -93,7 +92,7 @@ fun SignupScreen(
                         IconButton(onClick = onBackNavigation) {
                             Icon(
                                 imageVector = Icons.Filled.ArrowBackIosNew,
-                                contentDescription = stringResource(id = R.string.icon_navigate_back),
+                                contentDescription = stringResource(id = R.string.icon_navigation_back),
                             )
                         }
                     },
@@ -179,7 +178,7 @@ fun SignupScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Email,
-                            contentDescription = stringResource(id = R.string.icon_navigate_back),
+                            contentDescription = stringResource(id = R.string.icon_navigation_back),
                         )
                     },
                 )
@@ -203,7 +202,7 @@ fun SignupScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Lock,
-                            contentDescription = stringResource(id = R.string.icon_navigate_back),
+                            contentDescription = stringResource(id = R.string.icon_navigation_back),
                         )
                     },
                     trailingIcon = {
@@ -241,7 +240,7 @@ fun SignupScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Lock,
-                            contentDescription = stringResource(id = R.string.icon_navigate_back),
+                            contentDescription = stringResource(id = R.string.icon_navigation_back),
                         )
                     },
                     trailingIcon = {

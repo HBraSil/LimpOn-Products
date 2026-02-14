@@ -66,7 +66,7 @@ fun CouponRegistrationScreen(
                         IconButton(onClick = onBackNavigation) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
-                                contentDescription = stringResource(R.string.icon_navigate_back)
+                                contentDescription = stringResource(R.string.icon_navigation_back)
                             )
                         }
                     },

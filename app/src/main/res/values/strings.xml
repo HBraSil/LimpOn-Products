@@ -2,7 +2,7 @@
     <string name="app_name">Produtos de Limpeza</string>
     <string name="is_seller">É vendedor?</string>
     <string name="click_here">Clique aqui</string>
-    <string name="icon_navigate_back">Voltar</string>
+    <string name="icon_navigation_back">Ícone de voltar</string>
     <string name="login">Login</string>
     <string name="email">E-mail</string>
     <string name="hint_email">Digite seu email</string>
@@ -94,5 +94,5 @@
     <string name="whatsapp">WhatsApp</string>
     <string name="icon_store">Ícone de loja</string>
     <string name="icon_arrow_forward">Ícone de prosseguir</string>
-
+    <string name="icon_button_share">Ícone de compartilhar</string>
 </resources>

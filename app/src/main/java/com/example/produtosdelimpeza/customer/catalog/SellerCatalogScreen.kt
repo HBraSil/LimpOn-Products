@@ -514,7 +514,7 @@ fun SellerProductsScreen(
                             .padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        sampleProductsOfSpecificSellers.forEachIndexed { index, product ->
+                        sampleProductsOfSpecificSellers.forEachIndexed { _, product ->
                             LimpOnCardProducts(
                                 modifier = Modifier
                                     .width(150.dp)
@@ -766,7 +766,7 @@ fun InformationCard(
                         ) {
                             Image(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = stringResource(R.string.icon_navigate_back),
+                                contentDescription = stringResource(R.string.icon_navigation_back),
                                 modifier = Modifier.size(60.dp)
                             )
                         }
