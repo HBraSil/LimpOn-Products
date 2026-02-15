@@ -122,4 +122,8 @@ dependencies {
     implementation(libs.facebook.android.sdk)
     implementation(libs.facebook.login)
     implementation(libs.facebook.core)
+
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

@@ -275,7 +275,6 @@ fun SellerProductsScreen(
             modifier = Modifier.statusBarsPadding(),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
-
             FilterBottomSheetContent(
                 onApply = { isSheetFilterOpen = false },
                 onClear = { /* callback if needed */ },
