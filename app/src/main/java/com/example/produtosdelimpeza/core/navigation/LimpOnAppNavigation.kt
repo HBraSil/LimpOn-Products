@@ -23,6 +23,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.notifications.NotificationsScreen
+import com.example.produtosdelimpeza.autonomous.dashboard.presentation.AutonomousDashboardScreen
+import com.example.produtosdelimpeza.autonomous.service_settings.presentation.ServiceSettingsScreen
 import com.example.produtosdelimpeza.core.navigation.route.NavGraph
 import com.example.produtosdelimpeza.customer.order.OrderListScreen
 import com.example.produtosdelimpeza.customer.order.OrderDetailsScreen
@@ -35,6 +37,7 @@ import com.example.produtosdelimpeza.customer.search.presentation.SearchScreen
 import com.example.produtosdelimpeza.customer.catalog.SellerProductsScreen
 import com.example.produtosdelimpeza.customer.catalog.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
+import com.example.produtosdelimpeza.core.navigation.bottom_nav.AutonomousBottomNavConfig
 import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.store.onboarding.SignupStoreScreen
 import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.CouponRegistrationScreen
@@ -51,10 +54,10 @@ import com.example.produtosdelimpeza.store.dashboard.promotion_registration.pres
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.CustomerBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.StoreBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.route.AuthScreen
+import com.example.produtosdelimpeza.core.navigation.route.AutonomousScreen
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
 import com.example.produtosdelimpeza.core.presentation.DeepLinkViewModel
-import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.customer.cart.presentation.CartScreen
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 import com.example.produtosdelimpeza.customer.profile.presentation.ProfileScreen
@@ -74,12 +77,10 @@ import com.example.produtosdelimpeza.store.onboarding.PartnerRequestEntryScreen
 import com.example.produtosdelimpeza.store.onboarding.SellerType
 import com.example.produtosdelimpeza.store.onboarding.StoreRequestScreen
 
-
 @Composable
 fun LimpOnAppNavigation(
     startDestination: String,
     cartViewModel: CartViewModel = hiltViewModel(),
-    navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
     DeepLinkObserver(
@@ -93,7 +94,6 @@ fun LimpOnAppNavigation(
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-
             val shouldShowStoreBottomBar =
                 StoreScreen.entries.firstOrNull { it.route == currentRoute }?.showBottomBar == true
             if (shouldShowStoreBottomBar) {
@@ -103,11 +103,19 @@ fun LimpOnAppNavigation(
                 )
             }
 
-
             val shouldShowCustomerBottomBar =
                 CustomerScreen.entries.firstOrNull { it.route == currentRoute }?.showBottomBar == true
             if (shouldShowCustomerBottomBar) {
                 CustomerBottomNavConfig.CustomerBottomNavigation(
+                    navController = navController,
+                    currentRoute = currentRoute
+                )
+            }
+
+            val shouldShowAutonomousBottomBar =
+                AutonomousScreen.entries.firstOrNull { it.route == currentRoute }?.showBottomBar == true
+            if (shouldShowAutonomousBottomBar) {
+                AutonomousBottomNavConfig.AutonomousBottomNavigation(
                     navController = navController,
                     currentRoute = currentRoute
                 )
@@ -120,16 +128,17 @@ fun LimpOnAppNavigation(
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             authGraph(navController)
-            customerMainGraph(navController, cartViewModel, navigationLastUserModeViewModel)
-            storeMainGraph(navController, navigationLastUserModeViewModel)
+            customerMainGraph(navController, cartViewModel)
+            storeMainGraph(navController)
+            autonomousMainGraph(navController)
         }
     }
 }
 
 
-private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, navigationLastUserModeViewModel: NavigationLastUserModeViewModel) {
+private fun NavGraphBuilder.storeMainGraph(navController: NavHostController) {
     navigation(
-        route = NavGraph.SELLER_MAIN.route,
+        route = NavGraph.STORE_MAIN.route,
         startDestination = StoreScreen.DASHBOARD.route
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
@@ -166,7 +175,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController, nav
             StoreProfileScreen(
                 onNavigateToOtherUser = { screen ->
                     if (screen == StoreScreen.DASHBOARD.route) {
-                        navController.navigate(NavGraph.SELLER_MAIN.route) {
+                        navController.navigate(NavGraph.STORE_MAIN.route) {
                             popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                             launchSingleTop = true
                         }
@@ -342,22 +351,21 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
 fun NavGraphBuilder.customerMainGraph(
     navController: NavHostController,
     cartViewModel: CartViewModel,
-    appLayoutViewModel: NavigationLastUserModeViewModel
 ) {
     navigation(
         route = NavGraph.USER_MAIN.route,
         startDestination = NavGraph.HOME.route
     ) {
-        sharedGraph(navController)
+        sharedGraph()
 
         homeGraph(navController, cartViewModel)
-        searchGraph(navController)
+        searchGraph()
         ordersGraph(navController)
         profileGraph(navController)
     }
 }
 
-private fun NavGraphBuilder.sharedGraph(controller: NavHostController) {
+private fun NavGraphBuilder.sharedGraph() {
     navigation(
         route = NavGraph.SHRARED_GRAPH.route,
         startDestination = CustomerScreen.CART.route
@@ -435,7 +443,7 @@ fun NavGraphBuilder.homeGraph(
 }
 
 
-fun NavGraphBuilder.searchGraph(navController: NavHostController) {
+fun NavGraphBuilder.searchGraph() {
     navigation(
         route = NavGraph.SEARCH.route,
         startDestination = CustomerScreen.CUSTOMER_SEARCH.route
@@ -501,7 +509,7 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = {
-                    navController.navigate(NavGraph.SELLER_MAIN.route) {
+                    navController.navigate(NavGraph.AUTONOMOUS_MAIN.route) {
                         popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -567,7 +575,7 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onBackNavigation = { navController.navigateUp() },
                 onBackToProfile = { navController.navigate(CustomerScreen.CUSTOMER_PROFILE.route) },
                 onNavigateToStore = {
-                    navController.navigate(NavGraph.SELLER_MAIN.route) {
+                    navController.navigate(NavGraph.STORE_MAIN.route) {
                         popUpTo(NavGraph.AUTH.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -578,7 +586,25 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
     }
 }
 
+fun NavGraphBuilder.autonomousMainGraph(navController: NavHostController) {
+    navigation(
+        route = NavGraph.AUTONOMOUS_MAIN.route,
+        startDestination = AutonomousScreen.AUTONOMOUS_DASHBOARD.route
+    ) {
+        composable(route = AutonomousScreen.AUTONOMOUS_DASHBOARD.route) {
+            AutonomousDashboardScreen(
+                onNavigateToServiceSettings = {
+                    navController.navigate(AutonomousScreen.SERVICE_SETTINGS.route)
+                }
+            )
+        }
 
+
+        composable(route = AutonomousScreen.SERVICE_SETTINGS.route) {
+            ServiceSettingsScreen()
+        }
+    }
+}
 @Composable
 fun DeepLinkObserver(onEmailVerified: () -> Unit = {}) {
     val deepLinkViewModel: DeepLinkViewModel = hiltViewModel()

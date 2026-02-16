@@ -3,7 +3,8 @@ package com.example.produtosdelimpeza.core.navigation.route
 enum class NavGraph(val route: String) {
     AUTH("auth"),
     USER_MAIN("user_main"),
-    SELLER_MAIN("seller_main"),
+    STORE_MAIN("store_main"),
+    AUTONOMOUS_MAIN("autonomous_main"),
 
 
     HOME("nav_graph_home"),

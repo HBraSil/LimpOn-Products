@@ -95,4 +95,6 @@
     <string name="icon_store">Ícone de loja</string>
     <string name="icon_arrow_forward">Ícone de prosseguir</string>
     <string name="icon_button_share">Ícone de compartilhar</string>
+    <string name="autonomous_profile">Perfil</string>
+    <string name="service_center">Central de serviços</string>
 </resources>

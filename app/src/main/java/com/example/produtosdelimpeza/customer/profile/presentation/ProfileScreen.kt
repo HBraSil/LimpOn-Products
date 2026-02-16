@@ -35,11 +35,8 @@ import com.example.produtosdelimpeza.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.core.domain.model.Store
-import com.example.produtosdelimpeza.core.domain.model.User
-import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
 
 // Definição de cores personalizadas para o tema (minimalista)
-val LightGrayBackground = Color(0xFFF5F5F5)
 val DarkText = Color(0xFF1E1E1E)
 val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 
@@ -175,13 +172,12 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             AccountFooterSection(
-                user = user,
                 userProfiles = profiles,
                 onSignOutClick = onSignOutClick,
                 signOut = { profileViewModel.signOut() },
                 onSwitchProfileClick = {
                     onSwitchProfileClick()
-                    profileViewModel.saveLastUserMode(it)
+                    //profileViewModel.saveLastUserMode(it)
                 }
             )
 
@@ -193,13 +189,12 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountFooterSection(
-    user: User,
     userProfiles: List<Store>,
     signOut: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
     onSwitchProfileClick: (String) -> Unit = {}
 ) {
-    //val profiles by mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.DASHBOARD.route to "Doceria")
+    //val profiles by mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.AUTONOMOUS_DASHBOARD.route to "Doceria")
 
     var isSheetOpen by remember { mutableStateOf(false) }
     var signOutClickAlertDialog by remember { mutableStateOf(false) }
