@@ -46,7 +46,7 @@ enum class SellerType {
 }
 
 @Composable
-fun PartnerRequestEntryScreen(
+fun ChoicePartnerScreen(
     onContinue: (SellerType) -> Unit
 ) {
     var selectedType by remember { mutableStateOf<SellerType?>(null) }
@@ -130,7 +130,7 @@ fun PartnerRequestEntryScreen(
                     label = "buttonAlpha"
                 )
 
-                FilledTonalButton(
+                ElevatedButton(
                     onClick = { selectedType?.let { onContinue(it) } },
                     enabled = enabled,
                     modifier = Modifier
@@ -141,9 +141,16 @@ fun PartnerRequestEntryScreen(
                             scaleY = buttonScale
                             alpha = buttonAlpha
                         },
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
                 ) {
-                    Text("Continuar")
+                    Text(
+                        text = "Continuar",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
 
 
@@ -176,9 +183,9 @@ fun SellerTypeOptionTile(
 
     val containerColor by animateColorAsState(
         targetValue = if (selected)
-            MaterialTheme.colorScheme.secondaryContainer
+            MaterialTheme.colorScheme.onSecondaryContainer.copy(blue = 0.6f)
         else
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+            MaterialTheme.colorScheme.onSecondaryContainer.copy(0.9f, blue = 0.3f),
         label = "cardColor"
     )
 
@@ -201,19 +208,23 @@ fun SellerTypeOptionTile(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(28.dp)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.background
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.background
                 )
             }
 
@@ -221,7 +232,7 @@ fun SellerTypeOptionTile(
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -233,5 +244,5 @@ fun SellerTypeOptionTile(
 @Preview
 @Composable
 fun Teste2() {
-    PartnerRequestEntryScreen{}
+    ChoicePartnerScreen{}
 }

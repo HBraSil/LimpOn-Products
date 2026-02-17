@@ -27,10 +27,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Business
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Handshake
 import androidx.compose.material.icons.rounded.LocationOn
@@ -48,10 +50,6 @@ fun AutonomousRequestScreen(
     onSubmit: () -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var service by remember { mutableStateOf("") }
 
     val professions = listOf(
         "Cozinheiro(a)",
@@ -69,30 +67,15 @@ fun AutonomousRequestScreen(
     var selectedProfession by remember { mutableStateOf("") }
     var serviceDescription by remember { mutableStateOf("") }
 
-    Scaffold(
-        bottomBar = {
-            Surface(shadowElevation = 8.dp) {
-                FilledTonalButton(
-                    onClick = onSubmit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Text("Enviar solicitação")
-                }
-            }
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            contentPadding = paddingValues,
+    Scaffold { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 10.dp),
+                .padding(paddingValues)
+                .padding(horizontal = 10.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            item {
                 Column(
                     modifier = Modifier.padding(top = 28.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -115,10 +98,8 @@ fun AutonomousRequestScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            }
 
 
-            item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
                         text = "Seus dados",
@@ -126,7 +107,7 @@ fun AutonomousRequestScreen(
                     )
 
                     Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                        color = Color.Transparent,
                         shape = RoundedCornerShape(24.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -197,9 +178,7 @@ fun AutonomousRequestScreen(
                         }
                     }
                 }
-            }
 
-            item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
                     Text(
@@ -243,7 +222,6 @@ fun AutonomousRequestScreen(
                         }
                     }
 
-                    // 👇 Campo extra aparece SOMENTE se escolher "Outro"
                     AnimatedVisibility(
                         visible = selectedProfession == "Outro",
                         enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
@@ -259,7 +237,6 @@ fun AutonomousRequestScreen(
                             )
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 OutlinedTextField(
@@ -272,8 +249,9 @@ fun AutonomousRequestScreen(
                                         .heightIn(min = 120.dp),
                                     shape = RoundedCornerShape(20.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        unfocusedBorderColor = Color.Transparent,
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        focusedContainerColor = MaterialTheme.colorScheme.background,
+                                        unfocusedContainerColor = Color.Transparent,
                                     )
                                 )
                             }
@@ -281,9 +259,29 @@ fun AutonomousRequestScreen(
                     }
                 }
 
-            }
+                Spacer(modifier = Modifier.height(24.dp))
+                ElevatedButton(
+                    onClick = onSubmit,
+                    modifier = Modifier.fillMaxWidth().padding(24.dp).height(58.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
+                    Text(
+                        text = "Enviar Cadastro Comercial",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Icon(
+                        Icons.Rounded.Business,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
+             Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

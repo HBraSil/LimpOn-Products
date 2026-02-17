@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,13 +41,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
-import androidx.compose.material.icons.rounded.Business
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.Label
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.Store
@@ -82,25 +80,20 @@ fun StoreRequestScreen(onBackNavigation: () -> Unit, onSubmit: () -> Unit) {
 
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = { Text("Parceria para\nLojas e Empresas", fontWeight = FontWeight.Bold) },
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Solicitar convite para lojas",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackNavigation) { Icon(Icons.Rounded.ArrowBackIosNew, null) }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
-        },
-        bottomBar = {
-            Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
-                Button(
-                    onClick = onSubmit,
-                    modifier = Modifier.fillMaxWidth().padding(24.dp).height(58.dp),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Text("Enviar Cadastro Comercial")
-                    Spacer(Modifier.width(8.dp))
-                    Icon(Icons.Rounded.Business, contentDescription = null, modifier = Modifier.size(20.dp))
-                }
-            }
         }
     ) { padding ->
         Column(
@@ -227,11 +220,32 @@ fun StoreRequestScreen(onBackNavigation: () -> Unit, onSubmit: () -> Unit) {
                     // ... dentro da Column do Scaffold ...
 
                     PhotoSection(
-                        onAddPhoto = { /* Abre o seletor de galeria do Android */ },
-                        onRemovePhoto = { uri -> /* Remove da lista */ }
+                        onAddPhoto = {},
+                        onRemovePhoto = {}
                     )
 
                 }
+            }
+
+            ElevatedButton(
+                onClick = onSubmit,
+                modifier = Modifier.fillMaxWidth().padding(24.dp).height(58.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Text(
+                    text = "Enviar Cadastro Comercial",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Rounded.PersonAdd,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.notifications.NotificationsScreen
 import com.example.produtosdelimpeza.autonomous.dashboard.presentation.AutonomousDashboardScreen
+import com.example.produtosdelimpeza.autonomous.profile.presentation.AutonomousProfileScreen
 import com.example.produtosdelimpeza.autonomous.service_settings.presentation.ServiceSettingsScreen
 import com.example.produtosdelimpeza.core.navigation.route.NavGraph
 import com.example.produtosdelimpeza.customer.order.OrderListScreen
@@ -73,7 +74,7 @@ import com.example.produtosdelimpeza.store.dashboard.presentation.PROMOTION
 import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.ProductRegistrationScreen
 import com.example.produtosdelimpeza.store.onboarding.AutonomousRequestScreen
-import com.example.produtosdelimpeza.store.onboarding.PartnerRequestEntryScreen
+import com.example.produtosdelimpeza.store.onboarding.ChoicePartnerScreen
 import com.example.produtosdelimpeza.store.onboarding.SellerType
 import com.example.produtosdelimpeza.store.onboarding.StoreRequestScreen
 
@@ -284,7 +285,7 @@ private fun NavGraphBuilder.storeMainGraph(navController: NavHostController) {
             popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) },
             popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(300)) }
         ) {
-            PartnerRequestEntryScreen(
+            ChoicePartnerScreen(
                 onContinue = { type ->
                     navController.navigate(
                         if (type == SellerType.AUTONOMOUS) StoreScreen.AUTONOMOUS_REQUEST.route else StoreScreen.STORE_REQUEST.route
@@ -602,6 +603,14 @@ fun NavGraphBuilder.autonomousMainGraph(navController: NavHostController) {
 
         composable(route = AutonomousScreen.SERVICE_SETTINGS.route) {
             ServiceSettingsScreen()
+        }
+
+        composable(route = AutonomousScreen.AUTONOMOUS_PROFILE.route) {
+            AutonomousProfileScreen(
+                onNavigateToOtherUser = { screen ->
+                    navController.navigate(screen)
+                }
+            )
         }
     }
 }
