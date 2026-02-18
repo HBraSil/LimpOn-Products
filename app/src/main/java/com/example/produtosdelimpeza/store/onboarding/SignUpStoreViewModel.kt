@@ -1,10 +1,13 @@
 package com.example.produtosdelimpeza.store.onboarding
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.domain.model.BusinessHours
+import com.example.produtosdelimpeza.core.domain.model.DayOfWeek
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
@@ -25,16 +28,76 @@ import kotlinx.coroutines.launch
 class SignUpStoreViewModel @Inject constructor(
     private val signupStoreRepository: SignupStoreRepository,
 ) : ViewModel() {
+
+    private var _weeklySchedule = MutableStateFlow(
+        DayOfWeek.entries.associateWith {
+            BusinessHours(
+                openTime = "",
+                closeTime = "",
+            )
+        }
+    )
+    val weeklySchedule = _weeklySchedule.asStateFlow()
+
+
     private val _uiState = MutableStateFlow(SignUpStoreUiState())
     val uiState: StateFlow<SignUpStoreUiState> = _uiState.asStateFlow()
 
     var formState by mutableStateOf(SignUpStoreFormState())
+
     private val _isButtonValid = MutableStateFlow(false)
     val isButtonValid = _isButtonValid.asStateFlow()
+
+    private val _isScheduleValid = MutableStateFlow(false)
+    val isScheduleValid = _isScheduleValid.asStateFlow()
+
+
+    fun updateDaySchedule(day: DayOfWeek, hours: BusinessHours) {
+        _weeklySchedule.update { currentMap ->
+            currentMap.toMutableMap().apply {
+                this[day] = hours
+            }
+        }
+
+        validateSchedule()
+    }
+
+
+    fun updateAllDaysSchedule(hours: BusinessHours) {
+        _weeklySchedule.update { currentMap ->
+            currentMap.mapValues { entry ->
+                entry.value.copy(
+                    openTime = hours.openTime,
+                    closeTime = hours.closeTime
+                )
+            }
+        }
+        _weeklySchedule.update { currentMap ->
+            currentMap.mapValues {
+                hours.copy(
+                    openTime = hours.openTime,
+                    closeTime = hours.closeTime
+                )
+            }
+        }
+
+        Log.d("vald", "kljndf: ${_weeklySchedule.value.values}")
+        validateSchedule()
+    }
+
+    fun validateSchedule() {
+        _isScheduleValid.update { _weeklySchedule.value.all { it.value.openTime.isNotBlank() && it.value.closeTime.isNotBlank() } }
+    }
+
+
+    fun save() {
+        Log.d("TEste", "chegou aqui vuew")
+    }
 
 
     fun updateName(name: String) {
         val isNameValid = NameValidator.isNameValid(name)
+
         formState = formState.copy(
                 storeName = FieldState(
                     field = name,
@@ -101,11 +164,11 @@ class SignUpStoreViewModel @Inject constructor(
         val isButtonValid = with(formState) {
             storeName.isValid
             && email.isValid
-            && phone.isValid
         }
 
         _isButtonValid.value = isButtonValid
     }
+
 
 
     fun createStore() {
@@ -116,6 +179,8 @@ class SignUpStoreViewModel @Inject constructor(
             name = formState.storeName.field,
             email = formState.email.field,
             phone = formState.phone.field,
+            address = "Rua dos Bobos, 0",
+            storeOperationTime = _weeklySchedule.value.mapKeys { it.key.name },
             description = formState.description.field,
             category = formState.category.field
         )

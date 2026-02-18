@@ -1,5 +1,8 @@
 package com.example.produtosdelimpeza.store.onboarding
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -38,29 +41,35 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
 import com.example.produtosdelimpeza.core.component.LimpOnTextField
+import com.example.produtosdelimpeza.core.component.SimpleTimePicker
+import com.example.produtosdelimpeza.core.domain.model.BusinessHours
+import com.example.produtosdelimpeza.core.domain.model.DayOfWeek
+import com.example.produtosdelimpeza.store.onboarding.presentation.extension.displayName
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 data class TimeInterval(
     val id: String = UUID.randomUUID().toString(),
     val start: String,
-    val end: String
+    val end: String,
 )
 
 
@@ -76,6 +85,8 @@ fun SignupStoreScreen(
 
     val formState = signUpStoreViewModel.formState
     val isConfirmationButtonValid by signUpStoreViewModel.isButtonValid.collectAsState()
+    val isScheduleValid by signUpStoreViewModel.isScheduleValid.collectAsState()
+
 
     val categories = listOf(
         "Restaurante",
@@ -84,6 +95,7 @@ fun SignupStoreScreen(
         "Loja de roupas",
         "Loja de eletrônicos",
         "Farmácia",
+        "Produtos de Limpeza",
         "Outro"
     )
 
@@ -155,7 +167,10 @@ fun SignupStoreScreen(
                     ) {
                         OutlinedTextField(
                             value = selectedCategory,
-                            onValueChange = {},
+                            onValueChange = {
+                                selectedCategory = it
+                                signUpStoreViewModel.updateCategory(it)
+                            },
                             readOnly = true,
                             label = { Text("Tipo de estabelecimento") },
                             trailingIcon = {
@@ -250,10 +265,20 @@ fun SignupStoreScreen(
         }
     }
 
-    if (isScheduleExpanded){
-        ScheduleBottomSheet {
-            isScheduleExpanded = false
-        }
+    if (isScheduleExpanded) {
+        ScheduleBottomSheet(
+            onDismiss = { isScheduleExpanded = false },
+            isScheduleValid = isScheduleValid,
+            allDaySchedule = { time ->
+                signUpStoreViewModel.updateAllDaysSchedule(time)
+            },
+            individualDaySchedule = { day, time ->
+                signUpStoreViewModel.updateDaySchedule(day, time)
+            },
+            saveSchedule = {
+                signUpStoreViewModel.save()
+            }
+        )
     }
 
     if (showDialog) {
@@ -332,7 +357,11 @@ fun SignupStoreScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleBottomSheet(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    isScheduleValid: Boolean = false,
+    allDaySchedule: (BusinessHours) -> Unit,
+    individualDaySchedule: (DayOfWeek, BusinessHours) -> Unit,
+    saveSchedule: () -> Unit
 ) {
 
     val sheetState = rememberModalBottomSheetState(
@@ -377,12 +406,24 @@ fun ScheduleBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             AnimatedContent(targetState = applyToAllDays, label = "") { isAll ->
-
                 if (isAll) {
-                    AllDaysScheduleCard()
+                    AllDaysScheduleCard { time ->
+                        allDaySchedule(time)
+                    }
                 } else {
-                    IndividualDaysSchedule()
+                    IndividualDaysSchedule { time, day ->
+                        individualDaySchedule(time, day)
+                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ElevatedButton(
+                onClick = saveSchedule,
+                enabled = isScheduleValid,
+            ) {
+                Text(text = "Salvar")
             }
         }
     }
@@ -392,7 +433,7 @@ fun ScheduleBottomSheet(
 @Composable
 private fun SelectAllCard(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
 
     Card(
@@ -441,9 +482,11 @@ private fun SelectAllCard(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun AllDaysScheduleCard() {
-
+private fun AllDaysScheduleCard(
+    schedulingTime: (BusinessHours) -> Unit,
+) {
     var intervals by remember {
         mutableStateOf(
             listOf(TimeInterval(start = "08:00", end = "18:00"))
@@ -472,8 +515,9 @@ private fun AllDaysScheduleCard() {
             Spacer(modifier = Modifier.height(16.dp))
 
             intervals.forEach { _ ->
-
-                IntervalRow()
+                IntervalRow { time ->
+                    schedulingTime(time)
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -492,29 +536,11 @@ private fun AllDaysScheduleCard() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun IndividualDaysSchedule() {
-
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
-        ScheduleDayCard(day = "Segunda-feira", enabled = true)
-        ScheduleDayCard(day = "Terça-feira", enabled = true)
-        ScheduleDayCard(day = "Quarta-feira", enabled = false)
-        ScheduleDayCard(day = "Quinta-feira", enabled = true)
-        ScheduleDayCard(day = "Sexta-feira", enabled = true)
-        ScheduleDayCard(day = "Sábado", enabled = false)
-        ScheduleDayCard(day = "Domingo", enabled = false)
-    }
-}
-
-
-@Composable
-private fun ScheduleDayCard(
-    day: String,
-    enabled: Boolean
+private fun IndividualDaysSchedule(
+    schedulingTime: (DayOfWeek, BusinessHours) -> Unit,
 ) {
-
-    var isEnabled by remember { mutableStateOf(enabled) }
 
     var intervals by remember {
         mutableStateOf(
@@ -522,199 +548,177 @@ private fun ScheduleDayCard(
         )
     }
 
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        ),
-        shape = RoundedCornerShape(20.dp)
-    ) {
+        DayOfWeek.entries.forEach { day ->
+            var isEnabled by remember { mutableStateOf(false) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Header
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.CalendarToday,
-                    contentDescription = null,
-                    tint = if (isEnabled) Color(0xFF4F8CFF) else Color.Gray
-                )
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            tint = if (isEnabled) Color(0xFF4F8CFF) else Color.Gray
+                        )
 
-                Text(
-                    text = day,
-                    color = if (isEnabled) MaterialTheme.colorScheme.onBackground else Color.Gray,
-                    modifier = Modifier.weight(1f)
-                )
+                        Spacer(modifier = Modifier.width(12.dp))
 
-                Switch(
-                    checked = isEnabled,
-                    onCheckedChange = { isEnabled = it },
-                    colors = SwitchDefaults.colors(
-                        uncheckedBorderColor = MaterialTheme.colorScheme.background,
+                        Text(
+                            text = day.displayName(),
+                            color = if (isEnabled) MaterialTheme.colorScheme.onBackground else Color.Gray,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                        uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                        checkedThumbColor = MaterialTheme.colorScheme.background,
+                        Switch(
+                            checked = isEnabled,
+                            onCheckedChange = { isEnabled = it },
+                            colors = SwitchDefaults.colors(
+                                uncheckedBorderColor = MaterialTheme.colorScheme.background,
 
-                        uncheckedTrackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(0.6f),
-                        checkedTrackColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                )
-            }
+                                uncheckedThumbColor = MaterialTheme.colorScheme.background,
+                                checkedThumbColor = MaterialTheme.colorScheme.background,
 
-            AnimatedVisibility(visible = isEnabled) {
-
-                Column {
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    intervals.forEach { _ ->
-
-                        IntervalRow()
-
-                        Spacer(modifier = Modifier.height(12.dp))
+                                uncheckedTrackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                    0.6f
+                                ),
+                                checkedTrackColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+                        )
                     }
 
-                    Text(
-                        text = "+  Adicionar Intervalo",
-                        color = Color(0xFF4F8CFF),
-                        modifier = Modifier
-                            .clickable {
-                                intervals = intervals + TimeInterval(
-                                    start = "08:00",
-                                    end = "18:00"
-                                )
+                    AnimatedVisibility(visible = isEnabled) {
+
+                        Column {
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            intervals.forEach { _ ->
+                                IntervalRow { time ->
+                                    schedulingTime(day, time)
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
-                    )
+
+
+                            Text(
+                                text = "+  Adicionar Intervalo",
+                                color = Color(0xFF4F8CFF),
+                                modifier = Modifier
+                                    .clickable {
+                                        intervals = intervals + TimeInterval(
+                                            start = "08:00",
+                                            end = "18:00"
+                                        )
+                                    }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-private fun String.toTimeMask(): String {
-    return when (length) {
-        0 -> ""
-        1 -> this
-        2 -> this
-        3 -> "${take(2)}:${takeLast(1)}"
-        4 -> "${take(2)}:${takeLast(2)}"
-        else -> this
-    }
-}
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun TimeBox(
-    label: String,
-    rawTime: String,
-    onTimeChange: (String) -> Unit
+private fun IntervalRow(
+    operationTimeChange: (BusinessHours) -> Unit,
 ) {
-    var textFieldValue by remember(rawTime) {
-        mutableStateOf(
-            TextFieldValue(
-                text = rawTime.toTimeMask(),
-                selection = TextRange(rawTime.toTimeMask().length)
+    var selectedOpenTime by remember { mutableStateOf("Abre") }
+    var selectedCloseTime by remember { mutableStateOf("Fecha") }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var idButton by remember { mutableIntStateOf(0) }
+
+    val bussiness = BusinessHours()
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    LaunchedEffect(
+        selectedOpenTime,
+        selectedCloseTime
+    ) {
+        val openFilteredTime = selectedOpenTime.filter { it != ':' }.isDigitsOnly()
+        val closeFilteredTime = selectedCloseTime.filter { it != ':' }.isDigitsOnly()
+
+        if (openFilteredTime && closeFilteredTime) {
+            Log.d("teste", "chegou aqui")
+            operationTimeChange(
+                bussiness.copy(
+                    openTime = selectedOpenTime,
+                    closeTime = selectedCloseTime
+                )
             )
-        )
-    }
-    val errorMessage = validateTimeProgressive(rawTime)
-
-    OutlinedTextField(
-        value = textFieldValue,
-        onValueChange = {   newValue ->
-
-            val digits = newValue.text
-                .filter { it.isDigit() }
-                .take(4)
-
-            onTimeChange(digits)
-
-            val formatted = digits.toTimeMask()
-
-            textFieldValue = TextFieldValue(
-                text = formatted,
-                selection = TextRange(formatted.length)
-            )
-
-        },
-        singleLine = true,
-        isError = errorMessage != null,
-        supportingText = {
-            if (errorMessage != null) {
-                Text(errorMessage)
-            }
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onBackground
-        ),
-        label = {
-            Text(
-                text = label,
-                color = Color(0xFF9BA3AF),
-                style = MaterialTheme.typography.bodySmall
-            )
-        },
-        modifier = Modifier
-            .width(120.dp),
-        shape = RoundedCornerShape(16.dp),
-    )
-}
-
-private fun validateTimeProgressive(digits: String): String? {
-
-    if (digits.isEmpty()) return null
-
-    // Primeiro dígito da hora
-    if (digits.isNotEmpty()) {
-        val firstHour = digits[0].digitToInt()
-        if (firstHour > 2) {
-            return "Hora inválida"
         }
     }
 
-    // Hora completa
-    if (digits.length >= 2) {
-        val hour = digits.take(2).toInt()
-        if (hour > 23) {
-            return "Hora inválida"
-        }
-    }
-
-    // Primeiro dígito do minuto
-    if (digits.length >= 3) {
-        val firstMinute = digits[2].digitToInt()
-        if (firstMinute > 5) {
-            return "Minutagem inválida"
-        }
-    }
-
-    return null
-}
-
-
-@Composable
-private fun IntervalRow() {
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        var openingRaw by remember { mutableStateOf("") }
-        TimeBox(label = "ABR",
-            rawTime = openingRaw,
-            onTimeChange = { openingRaw = it }
-        )
+        ElevatedButton(
+            onClick = {
+                idButton = 1
+                showDialog = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (idButton == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary,
+                contentColor = MaterialTheme.colorScheme.background
+            )
+        ) {
+            Text(
+                text = selectedOpenTime
+            )
+        }
 
-        TimeBox(label = "FEC",
-            rawTime = openingRaw,
-            onTimeChange = { openingRaw = it }
+
+        ElevatedButton(
+            onClick = {
+                idButton = 2
+                if (showDialog) {
+                    showDialog = false
+                }
+                showDialog = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (idButton == 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary,
+                contentColor = MaterialTheme.colorScheme.background
+            )
+        ) {
+            Text(
+                text = selectedCloseTime
+            )
+        }
+    }
+
+
+    if (showDialog) {
+        SimpleTimePicker(
+            show = true,
+            onConfirm = {
+                if (idButton == 1) selectedOpenTime = it.format(formatter)
+                else {
+                    selectedCloseTime = it.format(formatter)
+
+                }
+                showDialog = false
+            },
+            onClose = {
+                showDialog = false
+            }
         )
     }
 }
@@ -931,7 +935,7 @@ fun Section(
 }
 
 
-
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
-fun RequestInvitePreview() {}
+fun RequestInvitePreview() {
+}

@@ -177,7 +177,7 @@ fun HomeScreen(
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
 
-    var expandedCard by remember { mutableStateOf(false) } // Assumindo que expanded é uma variável de estado
+    var expandedCard by remember { mutableStateOf(false) }
     var shortcutSelected by remember { mutableStateOf("1") }
 
     val user by homeViewModel.user.collectAsState()

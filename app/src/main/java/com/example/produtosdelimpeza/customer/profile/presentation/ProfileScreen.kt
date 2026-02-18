@@ -177,7 +177,7 @@ fun ProfileScreen(
                 signOut = { profileViewModel.signOut() },
                 onSwitchProfileClick = {
                     onSwitchProfileClick()
-                    //profileViewModel.saveLastUserMode(it)
+                    profileViewModel.saveLastUserMode(it)
                 }
             )
 

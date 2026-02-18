@@ -510,7 +510,7 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = {
-                    navController.navigate(NavGraph.AUTONOMOUS_MAIN.route) {
+                    navController.navigate(NavGraph.STORE_MAIN.route) {
                         popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                         launchSingleTop = true
                     }

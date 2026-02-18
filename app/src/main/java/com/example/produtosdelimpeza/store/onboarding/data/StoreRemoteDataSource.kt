@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.store.onboarding.data
 
 import com.example.produtosdelimpeza.core.domain.AuthSessionProvider
-import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.store.dashboard.data.StoreDto
 import com.google.firebase.firestore.FirebaseFirestore
 import jakarta.inject.Inject
