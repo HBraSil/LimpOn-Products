@@ -101,7 +101,6 @@ fun SignupStoreScreen(
 
     var isScheduleExpanded by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf("") }
 
 
 
@@ -166,11 +165,8 @@ fun SignupStoreScreen(
                         onExpandedChange = { expanded = !expanded }
                     ) {
                         OutlinedTextField(
-                            value = selectedCategory,
-                            onValueChange = {
-                                selectedCategory = it
-                                signUpStoreViewModel.updateCategory(it)
-                            },
+                            value = formState.category.field,
+                            onValueChange = {},
                             readOnly = true,
                             label = { Text("Tipo de estabelecimento") },
                             trailingIcon = {
@@ -189,7 +185,7 @@ fun SignupStoreScreen(
                                 DropdownMenuItem(
                                     text = { Text(it) },
                                     onClick = {
-                                        selectedCategory = it
+                                        signUpStoreViewModel.updateCategory(it)
                                         expanded = false
                                     }
                                 )

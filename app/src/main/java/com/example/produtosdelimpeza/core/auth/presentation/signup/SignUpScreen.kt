@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,9 @@ fun SignupScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showEmailSentSnackbar by remember { mutableStateOf(false) }
 
+    val uiState by signUpViewModel.uiState.collectAsState()
+
+
     LaunchedEffect(showEmailSentSnackbar) {
         if (showEmailSentSnackbar) {
             val result = snackbarHostState.showSnackbar(
@@ -79,6 +83,16 @@ fun SignupScreen(
                 context.startActivity(intent)
             }
             //showEmailSentSnackbar = false
+        }
+    }
+
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) showEmailSentSnackbar = true
+    }
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { errorMessage ->
+            snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
@@ -106,6 +120,7 @@ fun SignupScreen(
             Column(
                 modifier = Modifier
                     .padding(top = contentPadding.calculateTopPadding())
+                    .padding(horizontal = 10.dp)
                     .verticalScroll(rememberScrollState())
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -271,11 +286,7 @@ fun SignupScreen(
                     modifier = Modifier
                         .padding(top = 100.dp, bottom = 20.dp),
                 ) {
-                    //if (isConnected) {
-                        signUpViewModel.registerUser()
-                         showEmailSentSnackbar = true
-                        return@LimpOnAuthButton
-
+                    signUpViewModel.registerUser()
                 }
             }
         }

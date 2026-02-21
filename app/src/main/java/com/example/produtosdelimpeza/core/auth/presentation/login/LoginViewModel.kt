@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.auth.data.LoginResponse
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
+import com.example.produtosdelimpeza.core.auth.presentation.AuthUiState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
 import com.example.produtosdelimpeza.core.validation.PasswordValidator
 import com.facebook.CallbackManager
@@ -34,8 +35,8 @@ class LoginViewModel @Inject constructor(
     private var _passwordHidden = MutableStateFlow(true)
     var passwordHidden: StateFlow<Boolean> = _passwordHidden.asStateFlow()
 
-    private val _loginUiState = MutableStateFlow(LoginUiState())
-    val loginUiState = _loginUiState.asStateFlow()
+    private val _authUiState = MutableStateFlow(AuthUiState())
+    val loginUiState = _authUiState.asStateFlow()
 
 
     private val callbackManager = CallbackManager.Factory.create()
@@ -98,14 +99,14 @@ class LoginViewModel @Inject constructor(
 
 
     fun loginWithEmailAndPassword() {
-        _loginUiState.update { it.copy(isLoading = true) }
+        _authUiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
             val result = authRepository.signInWithEmailAndPassword(loginFormState.email.field, loginFormState.password.field)
 
             when(result) {
-                is LoginResponse.Success -> _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
-                is LoginResponse.Error -> _loginUiState.value = LoginUiState(error = result.error)
+                is LoginResponse.Success -> _authUiState.update { it.copy(success = true, isLoading = false) }
+                is LoginResponse.Error -> _authUiState.value = AuthUiState(error = result.error)
                 else -> {}
             }
         }
@@ -115,21 +116,15 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.signInWithGoogle().collect { result ->
                 when(result) {
-                    is LoginResponse.Loading -> {  
-                        _loginUiState.update { it.copy(isLoading = true) }
-                    }
-                    is LoginResponse.Success -> {
-                        _loginUiState.update { it.copy(goToHome = true, isLoading = false) }
-                    }
-                    is LoginResponse.Error -> {
-                        _loginUiState.value = LoginUiState(error = result.error)
-                    }
+                    is LoginResponse.Loading -> _authUiState.update { it.copy(isLoading = true) }
+                    is LoginResponse.Success -> _authUiState.update { it.copy(success = true, isLoading = false) }
+                    is LoginResponse.Error -> _authUiState.update { it.copy(error = result.error) }
                 }
             }
         }
     }
 
     fun cleanErrorMessage() {
-        _loginUiState.update { it.copy(error = null) }
+        _authUiState.update { it.copy(error = null) }
     }
 }

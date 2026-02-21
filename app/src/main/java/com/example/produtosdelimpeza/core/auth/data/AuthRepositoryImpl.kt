@@ -2,6 +2,7 @@ package com.example.produtosdelimpeza.core.auth.data
 
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.credentials.exceptions.NoCredentialException
 import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
@@ -26,13 +27,12 @@ class AuthRepositoryImpl @Inject constructor(
     private val signInWithGoogleApi: SigninWithGoogleApi,
     private val userLocalDataSource: UserLocalDataSource
 ) : AuthRepository {
-    data class RegistrationException(override var message: String) : Exception(message)
 
-    override suspend fun registerUser(name: String, lastName: String, email: String, password: String) {
-        try {
+    override suspend fun registerUser(name: String, lastName: String, email: String, password: String): LoginResponse {
+        return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user
-            val uid = firebaseUser?.uid ?: throw RegistrationException("Erro")
+            val uid = firebaseUser?.uid ?: return LoginResponse.Error("Erro ao criar usuário")
 
 
             val user = User(uid = uid, name = name, email = email)
@@ -41,19 +41,16 @@ class AuthRepositoryImpl @Inject constructor(
                 .set(user)
                 .await()
 
-            try {
-                firebaseUser.sendEmailVerification().await()
-                Log.e("EMAIL", "Email enviado com sucesso!")
-            } catch (e: Exception) {
-                Log.e("EMAIL", "Falha ao enviar email: ${e.message}")
-            }
+
+            firebaseUser.sendEmailVerification().await()
+            LoginResponse.Success
 
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            throw RegistrationException("O e-mail fornecido é inválido ou a senha é muito fraca. Por favor, verifique.")
-        } catch (e: FirebaseAuthUserCollisionException) {
-            throw RegistrationException("Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.")
+            LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
+        }  catch (e: FirebaseAuthUserCollisionException) {
+            LoginResponse.Error("Email já existe")
         } catch (e: Exception) {
-            throw RegistrationException("Falha ao registrar. Verifique sua conexão e tente novamente.")
+            LoginResponse.Error("Erro ao fazer login: senha ou email incorretos")
         }
     }
 
@@ -80,34 +77,43 @@ class AuthRepositoryImpl @Inject constructor(
 
 
     override suspend fun signInWithGoogle(): Flow<LoginResponse> = flow {
-        val firebaseCredential = signInWithGoogleApi.firebaseAuthCredential()
+        try {
+            val firebaseCredential = signInWithGoogleApi.firebaseAuthCredential()
 
-
-        if (firebaseCredential != null) {
-            emit(LoginResponse.Loading)
-            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-            val userUid = signinResult.user?.uid ?: return@flow
-
-            if (signinResult.user?.isEmailVerified != null) {
-                val existingUser = userLocalDataSource.getUserById(userUid)
-                if (existingUser == null) {
-                    FirebaseAuth.getInstance().currentUser?.let {
-                        val userProperties = with(it) {
-                            User(
-                                uid = uid,
-                                name = displayName ?: "",
-                                email = email ?: ""
-                            )
-                        }
-                        saveUserInRoom(userProperties)
-                        saveUserInFirestore(userProperties, it)
-                    }
-                }
-                emit(LoginResponse.Success)
+            if (firebaseCredential == null) {
+                emit(LoginResponse.Error("Credenciais do Google não encontradas"))
+                return@flow
             }
-            else emit(LoginResponse.Error("Login não foi bem sucedido"))
-        } else {
-            emit(LoginResponse.Error("Login não foi bem sucedido"))
+
+            emit(LoginResponse.Loading)
+
+            // 1. Tentar Autenticar no Firebase
+            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            val firebaseUser = signinResult.user ?: throw Exception("Usuário não encontrado após login")
+
+            // 2. Verificar se o usuário já existe localmente ou precisa ser criado
+            val existingUser = userLocalDataSource.getUserById(firebaseUser.uid)
+
+            if (existingUser == null) {
+                val userProperties = User(
+                    uid = firebaseUser.uid,
+                    name = firebaseUser.displayName ?: "",
+                    email = firebaseUser.email ?: ""
+                )
+
+                // Salva em ambos (Se um falhar, o catch abaixo captura)
+                saveUserInRoom(userProperties)
+                saveUserInFirestore(userProperties, firebaseUser)
+            }
+
+            emit(LoginResponse.Success)
+
+        } catch (e: NoCredentialException) {
+            Log.e("GOOGLE_AUTH", "Erro no login: ${e.message}")
+            emit(LoginResponse.Error("Nenhuma conta no dispositivo detectada"))
+        } catch (e: Exception) {
+            Log.e("GOOGLE_AUTH", "Erro no login: ${e.message}")
+            emit(LoginResponse.Error(e.message ?: "Erro desconhecido ao fazer login"))
         }
     }
 

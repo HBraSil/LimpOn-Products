@@ -6,7 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.auth.data.LoginResponse
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
+import com.example.produtosdelimpeza.core.auth.presentation.AuthUiState
 import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
 import com.example.produtosdelimpeza.core.validation.NameValidator
@@ -15,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,8 +25,8 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(SignUpUiState())
-    val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
 
     var formState by mutableStateOf(UserFormState())
@@ -107,9 +110,17 @@ class SignUpViewModel @Inject constructor(
 
 
     fun registerUser() {
+        _uiState.update { it.copy(isLoading = true) }
+
         viewModelScope.launch {
             try {
-                repository.registerUser(formState.name.field, formState.lastName.field, formState.email.field, formState.password.field)
+                val result = repository.registerUser(formState.name.field, formState.lastName.field, formState.email.field, formState.password.field)
+
+                when (result) {
+                    is LoginResponse.Success -> _uiState.update { it.copy(success = true, isLoading = false) }
+                    is LoginResponse.Error -> _uiState.update { it.copy(error = result.error) }
+                    else -> {}
+                }
             } catch (e: Exception) {
                 Log.d("ERRO", "ERRO em registerUser na ViewModel: ${e.message}")
             }

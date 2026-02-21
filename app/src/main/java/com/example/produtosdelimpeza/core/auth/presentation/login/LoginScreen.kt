@@ -71,13 +71,13 @@ fun LoginScreen(
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
 ) {
     val verticalScrollState = rememberScrollState()
-    val passwordHidden by loginViewModel.passwordHidden.collectAsState()
     val uiState by loginViewModel.loginUiState.collectAsState()
 
 
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
     }
+
 
     Box {
         Scaffold(
@@ -124,7 +124,6 @@ fun LoginScreen(
                 ContentLoginScreen(
                     loginViewModel = loginViewModel,
                     onLoginClick = onLoginClick,
-                    passwordHidden = passwordHidden
                 )
             }
         }
@@ -139,14 +138,15 @@ fun LoginScreen(
 fun ContentLoginScreen(
     loginViewModel: LoginViewModel,
     onLoginClick: () -> Unit,
-    passwordHidden: Boolean
 ) {
 
     val context = LocalContext.current
     val state by loginViewModel.loginUiState.collectAsState()
+    val passwordHidden by loginViewModel.passwordHidden.collectAsState()
+
 
     LaunchedEffect(state) {
-        if(state.goToHome) {
+        if(state.success) {
             onLoginClick()
         }
     }

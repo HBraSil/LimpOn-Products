@@ -89,18 +89,10 @@ import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
-
-data class ItemInitialCard(
-    val id: Int,
-    val name: String,
-    val image: Int,
-    val city: String,
-    val isPhysicalStore: Boolean,
-    val sellerPassesByYourCity: Boolean = false,
-)
 
 
 data class Category(
@@ -129,31 +121,6 @@ data class AddressItem(
     val distance: String? = null, // e.g., "1.2 km"
 )
 
-private val itemsLista = listOf(
-    ItemInitialCard(
-        1,
-        "Raimundo",
-        R.drawable.sabao_lava_roupa,
-        "Tuntum - MA",
-        true,
-    ),
-    ItemInitialCard(
-        2,
-        "Iran",
-        R.drawable.highlight,
-        "Barra do Corda - MA",
-        false,
-        true
-    ),
-    ItemInitialCard(
-        3,
-        "Francialdo",
-        R.drawable.highlight,
-        "Tuntum - MA",
-        false,
-        false
-    ),
-)
 
 private val sampleProductEntities = listOf(
     ProductEntity(1, "Detergente Líquido"),
@@ -176,6 +143,7 @@ fun HomeScreen(
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
+    val listOfStores by homeViewModel.listOfStores.collectAsState()
 
     var expandedCard by remember { mutableStateOf(false) }
     var shortcutSelected by remember { mutableStateOf("1") }
@@ -268,8 +236,8 @@ fun HomeScreen(
 
             item { SectionHeader(title = "Vendedores", actionLabel = "") { } }
 
-            items(itemsLista) { item ->
-                ItemCard(seller = item) {
+            items(listOfStores) { item ->
+                ItemCard(store = item) {
                     onCardSellerClick(item.name)
                 }
 
@@ -277,8 +245,8 @@ fun HomeScreen(
             }
         }
     }
-
 }
+
 
 @Composable
 fun FeaturedProductsRow(productEntities: List<ProductEntity>, onAdd: (ProductEntity) -> Unit) {
@@ -945,7 +913,11 @@ fun CategoryCards(
 
 
 @Composable
-fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: () -> Unit) {
+fun ItemCard(
+    modifier: Modifier = Modifier,
+    store: Store,
+    onClick: () -> Unit
+) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -959,7 +931,6 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(12.dp)
         ) {
-            // Avatar B1 Style
             Box(
                 modifier = Modifier
                     .size(58.dp)
@@ -968,7 +939,7 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Image(
-                    painter = painterResource(seller.image),
+                    painter = painterResource(R.drawable.drink_icon),
                     contentDescription = "Foto do vendedor",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.clip(CircleShape)
@@ -982,14 +953,14 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = seller.name,
+                    text = store.name,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
-                    text = seller.city,
+                    text = store.category,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -997,10 +968,9 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Badge de tipo do vendedor + status
                 Row(verticalAlignment = Alignment.CenterVertically) {
 
-                    val typeEmoji = if (seller.isPhysicalStore) "🏪 Loja física" else "🧍 Ambulante"
+                    /*val typeEmoji = if (store.isPhysicalStore) "🏪 Loja física" else "🧍 Ambulante"
                     Text(
                         text = typeEmoji,
                         color = MaterialTheme.colorScheme.background,
@@ -1012,25 +982,20 @@ fun ItemCard(modifier: Modifier = Modifier, seller: ItemInitialCard, onClick: ()
                             )
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     )
-
+*/
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    val passColor by animateColorAsState(
-                        if (seller.sellerPassesByYourCity) Color(0xFF0FA958)
-                        else MaterialTheme.colorScheme.onSurfaceVariant
+  /*                  val passColor by animateColorAsState(
+                        targetValue =
+                            if (store.sellerPassesByYourCity) Color(0xFF0FA958)
+                            else MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    val passText = if (seller.sellerPassesByYourCity) {
-                        "Passa na sua cidade ✅"
-                    } else if (!seller.isPhysicalStore) {
-                        "Não passa 🚫"
-                    } else {
-                        ""
-                    }
+*/
 
                     Text(
-                        text = passText,
+                        text = store.address,
                         style = MaterialTheme.typography.labelSmall,
-                        color = passColor,
+//                        color = passColor,
                         maxLines = 1
                     )
                 }
