@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.catalog.profile
+package com.example.produtosdelimpeza.customer.catalog.presentation.profile
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.catalog.profile
+package com.example.produtosdelimpeza.customer.catalog.presentation.profile
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable

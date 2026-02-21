@@ -15,11 +15,15 @@ class StoreRemoteDataSource @Inject constructor(
         return try {
             val uid = session.getUserId() ?: error("Usuário não autenticado")
 
-            val storeWithOwner = store.copy(ownerId = uid)
+            val docRef = firestore.collection("stores")
+                .document()
 
-            firestore.collection("stores")
-                .add(storeWithOwner)
-                .await()
+            val storeWithOwner = store.copy(
+                id = docRef.id,
+                ownerId = uid
+            )
+
+            docRef.set(storeWithOwner).await()
 
             Result.success(true)
         } catch (e: Exception) {

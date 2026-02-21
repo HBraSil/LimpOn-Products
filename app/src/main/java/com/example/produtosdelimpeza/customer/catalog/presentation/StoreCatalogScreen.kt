@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.catalog
+package com.example.produtosdelimpeza.customer.catalog.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -93,6 +93,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
@@ -103,16 +104,18 @@ import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun SellerProductsScreen(
+fun CatalagScreen(
     cartViewModel: CartViewModel,
-    storeName: String = "",
     onBackNavigation: () -> Unit = {},
     onCardStoreProfileClick: () -> Unit = {},
     onCartScreenClick: () -> Unit = {},
+    catalogViewModel: CatalogViewModel = hiltViewModel(),
 ) {
     val totalQuantity by cartViewModel.totalQuantity.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val store by catalogViewModel.store.collectAsState()
+
 
     val cartIdxQuantity = remember { List(10) { 0 }.toMutableStateList() }
 
@@ -160,7 +163,7 @@ fun SellerProductsScreen(
         ) {
             // Header principal
             item {
-                InformationCard(storeName, onCardStoreProfileClick, onBackNavigation)
+                InformationCard(store?.name ?: "", onCardStoreProfileClick, onBackNavigation)
             }
 
             // FAVORITOS

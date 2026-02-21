@@ -17,7 +17,7 @@ fun StoreDto.toDomain(): Store {
 }
 
 
-fun Store.toDto(ownerId: String): StoreDto {
+fun Store.toDto(): StoreDto {
     return StoreDto(
         id = id,
         name = name,

@@ -238,7 +238,7 @@ fun HomeScreen(
 
             items(listOfStores) { item ->
                 ItemCard(store = item) {
-                    onCardSellerClick(item.name)
+                    onCardSellerClick(item.id)
                 }
 
                 Spacer(Modifier.height(16.dp))

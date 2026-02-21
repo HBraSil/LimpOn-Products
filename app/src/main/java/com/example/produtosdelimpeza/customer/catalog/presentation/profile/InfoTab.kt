@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.catalog.profile
+package com.example.produtosdelimpeza.customer.catalog.presentation.profile
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -106,10 +106,10 @@ fun Address() {
 
 @Composable
 fun OpeningHours() {
-    var rememberScrollState = rememberScrollState()
+    val rememberScrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
 
-    var weekDays = listOf("Dom", "Seg", "Ter", "Quar", "Quin", "Sex", "Sáb")
+    val weekDays = listOf("Dom", "Seg", "Ter", "Quar", "Quin", "Sex", "Sáb")
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 250)

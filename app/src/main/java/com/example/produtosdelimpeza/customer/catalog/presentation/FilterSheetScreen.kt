@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.customer.catalog
+package com.example.produtosdelimpeza.customer.catalog.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState

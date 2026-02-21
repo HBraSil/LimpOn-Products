@@ -3,12 +3,9 @@ package com.example.produtosdelimpeza.customer.profile.presentation.header_profi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.domain.model.User
-import com.example.produtosdelimpeza.customer.home.data.UserRepositoryImpl
+import com.example.produtosdelimpeza.customer.home.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +16,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EditUserProfileScreenViewModel @Inject constructor(
-    private val userRepository: UserRepositoryImpl
+    private val userRepository: UserRepository
 ) : ViewModel() {
     val originalUser: StateFlow<User> = userRepository.getUser()
         .map { it ?: User() }

@@ -18,9 +18,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.notifications.NotificationsScreen
 import com.example.produtosdelimpeza.autonomous.dashboard.presentation.AutonomousDashboardScreen
@@ -35,8 +37,8 @@ import com.example.produtosdelimpeza.customer.home.presentation.HomeScreen
 import com.example.produtosdelimpeza.core.auth.presentation.login.LoginScreen
 import com.example.produtosdelimpeza.customer.notifications.ManagementNotificationScreen
 import com.example.produtosdelimpeza.customer.search.presentation.SearchScreen
-import com.example.produtosdelimpeza.customer.catalog.SellerProductsScreen
-import com.example.produtosdelimpeza.customer.catalog.profile.StoreProfileScreen
+import com.example.produtosdelimpeza.customer.catalog.presentation.CatalagScreen
+import com.example.produtosdelimpeza.customer.catalog.presentation.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.AutonomousBottomNavConfig
 import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
@@ -406,12 +408,13 @@ fun NavGraphBuilder.homeGraph(
             )
         }
 
-        composable(route = "${CustomerScreen.CUSTOMER_PRODUCTS.route}/{nameSeller}") { navBackStackEntry ->
-            val nameSeller = navBackStackEntry.arguments?.getString("nameSeller") ?: ""
+        composable(
+            route = "${CustomerScreen.CUSTOMER_PRODUCTS.route}/{sellerId}",
+            arguments = listOf(navArgument("sellerId") { type = NavType.StringType })
+            ) {
 
-            SellerProductsScreen(
+            CatalagScreen(
                 cartViewModel = cartViewModel,
-                storeName = nameSeller,
                 onBackNavigation = {
                     navController.navigateUp()
                 },

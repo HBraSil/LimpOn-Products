@@ -27,8 +27,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.example.produtosdelimpeza.customer.catalog.fractionToValue
-import com.example.produtosdelimpeza.customer.catalog.valueToFraction
+import com.example.produtosdelimpeza.customer.catalog.presentation.fractionToValue
+import com.example.produtosdelimpeza.customer.catalog.presentation.valueToFraction
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.domain.model.User
+import com.example.produtosdelimpeza.customer.home.domain.HomeRepository
 import com.example.produtosdelimpeza.customer.home.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    userRepository: UserRepository,
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
 
     val user: StateFlow<User> = userRepository.getUser()
@@ -35,7 +37,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _listOfStores.value = userRepository.getStores()
+            _listOfStores.value = homeRepository.getStores()
         }
     }
 }
