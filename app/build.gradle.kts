@@ -19,8 +19,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "X_SECRET_KEY", "\"${getSecretKey()}\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
 
     buildFeatures {
         buildConfig = true
@@ -46,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     room {
@@ -125,5 +129,9 @@ dependencies {
 
 
     // Coil
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.coil.compose)
+}
+
+fun getSecretKey(): String? {
+    return project.findProperty("x_secret_key")?.toString()
 }
