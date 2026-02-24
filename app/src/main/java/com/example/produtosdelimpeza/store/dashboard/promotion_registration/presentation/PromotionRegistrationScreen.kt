@@ -40,9 +40,11 @@ fun PromotionRegistrationScreen(
     onNavigateToLogin: () -> Unit = {},
     promotionRegistrationViewModel: PromotionRegistrationViewModel = hiltViewModel()
 ) {
-    val formState by promotionRegistrationViewModel.promotionFormState.collectAsState()
+
+    val formState = promotionRegistrationViewModel.promotionFormState
     val isValid by promotionRegistrationViewModel.isValid.collectAsState()
     val state by promotionRegistrationViewModel.uiState.collectAsState()
+
 
     var selectedCategory by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
@@ -80,18 +82,15 @@ fun PromotionRegistrationScreen(
                 item { ImpactHeader() }
                 item {
                     DiscountTypeSection(
-                        currentDiscountValue = formState.discountValue,
+                        //currentDiscountValue = formState.discountValueField.field,
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
-                            promotionRegistrationViewModel.onEvent(
-                                AddPromotionField.DiscountTypeField(
-                                    discountType
-                                )
-                            )
-                            promotionRegistrationViewModel.onEvent(
-                                AddPromotionField.DiscountValueField(
-                                    discountValue
-                                )
-                            )
+                            /*promotionRegistrationViewModel.updateDiscountType(
+                                discountType
+                            )*/
+
+                            //promotionRegistrationViewModel.updateDiscountValue(
+                                discountValue
+
                         }
                     )
                 }
@@ -106,18 +105,14 @@ fun PromotionRegistrationScreen(
                         ),
                         selectedOption = selectedCategory,
                         onOptionSelected = {
-                            promotionRegistrationViewModel.onEvent(
-                                AddPromotionField.CategoryField(
-                                    it
-                                )
-                            )
+                            //promotionRegistrationViewModel.updateCategory(it)
                             selectedCategory = it
                         }
                     )
                 }
                 item {
                     DurationSelector {
-                        promotionRegistrationViewModel.onEvent(AddPromotionField.DurationField(it))
+                        promotionRegistrationViewModel.updateDuration(it)
                     }
                     Spacer(Modifier.height(10.dp))
                     HorizontalDivider()
@@ -131,9 +126,9 @@ fun PromotionRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar promoção",
-                        isValid = isValid
+                        isValid = true
                     ) {
-                        promotionRegistrationViewModel.createPromotion(formState)
+                        //promotionRegistrationViewModel.createPromotion(formState)
                         showSuccess = true
                     }
                 }

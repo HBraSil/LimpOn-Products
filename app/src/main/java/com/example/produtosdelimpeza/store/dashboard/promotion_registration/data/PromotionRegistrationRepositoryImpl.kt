@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
-import java.util.UUID
 import javax.inject.Inject
 
 class PromotionRegistrationRepositoryImpl @Inject constructor(
@@ -24,7 +23,7 @@ class PromotionRegistrationRepositoryImpl @Inject constructor(
 
             val userUid = firebaseAuth.currentUser?.uid ?: return AppResult.Error.SessionExpired
 
-            firestore.collection("users")
+            firestore.collection("products")
                 .document(userUid)
                 .collection("promotions")
                 .document(promotion.id)

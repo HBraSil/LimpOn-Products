@@ -105,4 +105,20 @@
     <string name="friday">Sexta-feira</string>
     <string name="saturday">Sábado</string>
     <string name="sunday">Domingo</string>
+
+
+    <string name="error_discount_greater_than_100">Desconto não pode ser maior que 100%</string>
+    <string name="error_discount_invalid">Campo desconto deve ser um número</string>
+    <string name="error_discount_blank">Campo desconto não pode ser vazio</string>
+    <string name="error_password_blank">Campo senha não pode ser vazio</string>
+    <string name="error_password_invalid">Senha deve ter 8 caracteres ou mais</string>
+    <string name="error_confirm_password_invalid">Confirmar senha deve ser igual à senha</string>
+    <string name="error_email_blank">Campo e-mail não pode ser vazio</string>
+    <string name="error_email_invalid">E-mail inválido. Verifique o campo novamente</string>
+    <string name="error_name_blank">Campo nome não pode ser vazio</string>
+    <string name="error_name_invalid">Nome deve ter 3 letras ou mais</string>
+    <string name="error_last_name_blank">Campo nome não pode ser vazio</string>
+    <string name="error_category_blank">Categoria está vazia</string>
+    <string name="error_duration_blank">É preciso definir uma duração para promoção</string>
+    <string name="error_duration_less_than_one">A duração não poder ser menor do que 1</string>
 </resources>

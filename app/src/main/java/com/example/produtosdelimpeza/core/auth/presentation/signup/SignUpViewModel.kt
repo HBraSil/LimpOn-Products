@@ -37,8 +37,8 @@ class SignUpViewModel @Inject constructor(
         formState = formState.copy(
             name = FieldState(
                 field = name,
-                error = if (!isNameValid) "Nome é obrigatório" else null,
-                isValid = isNameValid
+                error = isNameValid,
+                isValid = isNameValid == null
             )
         )
 
@@ -50,8 +50,8 @@ class SignUpViewModel @Inject constructor(
         formState = formState.copy(
             lastName = FieldState(
                 field = lastName,
-                error = if (!isLastNameValid) "Sobrenome é obrigatório" else null,
-                isValid = isLastNameValid
+                error = isLastNameValid,
+                isValid = isLastNameValid == null
             )
         )
 
@@ -59,12 +59,12 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun updateEmail(email: String){
-        val isEmailValid = EmailValidator.isEmailValid(email)
+        val isEmailValid = EmailValidator.validate(email)
         formState = formState.copy(
             email = FieldState(
                 field = email,
-                error = if (!isEmailValid) "Email inválido" else null,
-                isValid = isEmailValid
+                error = isEmailValid,
+                isValid = isEmailValid == null
             )
         )
         updateButtonSignUpState()
@@ -72,22 +72,23 @@ class SignUpViewModel @Inject constructor(
 
     fun updatePassword(password: String){
         val isPasswordValid = PasswordValidator.isValidPassword(password)
-        formState = formState.copy(password = FieldState(
-            field = password,
-            error = if (!isPasswordValid) "Senha muito pequena" else null,
-            isValid = isPasswordValid
-        )
+        formState = formState.copy(
+            password = FieldState(
+                field = password,
+                error = isPasswordValid,
+                isValid = isPasswordValid == null
+            )
         )
 
         updateButtonSignUpState()
     }
 
     fun updatePasswordConfirm(password: String, confirmPassword: String){
-        val isConfirmPasswordValid = PasswordValidator.isConfirmPasswordValid(password, confirmPassword)
+        val isConfirmPasswordValid = PasswordValidator.isValidConfirmPassword(password, confirmPassword)
         formState = formState.copy(confirmPassword = FieldState(
             field = confirmPassword,
-            error = if (!isConfirmPasswordValid) "Senha precisa ser igual a anterior" else null,
-            isValid = isConfirmPasswordValid
+            error = isConfirmPasswordValid,
+            isValid = isConfirmPasswordValid == null
         )
         )
 

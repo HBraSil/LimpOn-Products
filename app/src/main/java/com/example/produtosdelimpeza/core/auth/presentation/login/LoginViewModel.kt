@@ -72,12 +72,12 @@ class LoginViewModel @Inject constructor(
     }
 
     fun updateEmail(email: String) {
-        val isEmailValidate = EmailValidator.isEmailValid(email)
+        val isEmailValidate = EmailValidator.validate(email)
         loginFormState = loginFormState.copy(
             email = loginFormState.email.copy(
                 field = email,
-                error = if (isEmailValidate) null else "Email inválido",
-                isValid = isEmailValidate
+                error = isEmailValidate,
+                isValid = isEmailValidate == null
             )
         )
     }
@@ -87,8 +87,8 @@ class LoginViewModel @Inject constructor(
         loginFormState = loginFormState.copy(
             password = loginFormState.email.copy(
                 field = password,
-                error = if (isEmailValidate) null else "Senha deve ter no mínimo 6 caracteres",
-                isValid = isEmailValidate
+                error = isEmailValidate,
+                isValid = isEmailValidate == null
             )
         )
     }

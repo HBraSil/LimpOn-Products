@@ -12,7 +12,6 @@ import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
 import com.example.produtosdelimpeza.core.validation.NameValidator
-import com.example.produtosdelimpeza.core.validation.PhoneValidator
 import com.example.produtosdelimpeza.store.onboarding.domain.SignUpStoreFormState
 import com.example.produtosdelimpeza.store.onboarding.domain.SignUpStoreUiState
 import com.example.produtosdelimpeza.store.onboarding.domain.SignupStoreRepository
@@ -101,8 +100,8 @@ class SignUpStoreViewModel @Inject constructor(
         formState = formState.copy(
                 storeName = FieldState(
                     field = name,
-                    isValid = isNameValid,
-                    error = if (!isNameValid) "Nome é obrigatório" else null
+                    error = isNameValid,
+                    isValid = isNameValid == null,
                 )
             )
 
@@ -111,12 +110,12 @@ class SignUpStoreViewModel @Inject constructor(
 
 
     fun updateEmail(email: String) {
-        val isEmailValid = EmailValidator.isEmailValid(email)
+        val isEmailValid = EmailValidator.validate(email)
         formState = formState.copy(
                 email = FieldState(
                     field = email,
-                    isValid = isEmailValid,
-                    error = if (!isEmailValid) "Email inválido" else null
+                    error = isEmailValid,
+                    isValid = isEmailValid == null
                 )
             )
 
@@ -146,6 +145,7 @@ class SignUpStoreViewModel @Inject constructor(
     }
 
 
+/*
     fun updatePhone(phone: String) {
         val isPhoneValid = PhoneValidator.isValid(phone)
         formState = formState.copy(
@@ -158,7 +158,7 @@ class SignUpStoreViewModel @Inject constructor(
 
         updateConfirmationButton()
     }
-
+*/
 
     fun updateConfirmationButton() {
         val isButtonValid = with(formState) {

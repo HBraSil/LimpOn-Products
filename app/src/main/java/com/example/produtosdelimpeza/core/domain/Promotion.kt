@@ -1,13 +1,13 @@
 package com.example.produtosdelimpeza.core.domain
 
 import com.example.produtosdelimpeza.core.domain.model.DiscountType
-import com.example.produtosdelimpeza.core.domain.model.ExpirationOffer
-import java.util.UUID
+import com.example.produtosdelimpeza.core.domain.model.Expiration
 
 data class Promotion(
-    val id: String = UUID.randomUUID().toString(),
-    val discountType: DiscountType = DiscountType.NONE,
-    val discountValue: String = "",
-    val expirationOffer: ExpirationOffer = ExpirationOffer.NONE,
+    val id: String = "",
+    val storeId: String = "",
+    val discountType: DiscountType = DiscountType.NONE, // talvez mudar isso para uma sealed class com data classes
+    val discountValue: Int = 0,
+    val expiresAt: Expiration = Expiration.NONE,
     val category: String = ""
 )

@@ -60,6 +60,7 @@ import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
 import com.example.produtosdelimpeza.core.component.LimpOnTextField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
+import com.example.produtosdelimpeza.core.ui.util.asString
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,7 +172,7 @@ fun ContentLoginScreen(
         modifier = Modifier.padding(top = 10.dp,start = 20.dp, end = 20.dp),
         label = R.string.email,
         placeholder = R.string.hint_email,
-        errorMessage = loginViewModel.loginFormState.email.error,
+        errorMessage = loginViewModel.loginFormState.email.error?.asString(),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Email,
@@ -188,7 +189,7 @@ fun ContentLoginScreen(
         label = R.string.password,
         placeholder = R.string.hint_password,
         obfuscate = passwordHidden,
-        errorMessage = loginViewModel.loginFormState.password.error,
+        errorMessage = loginViewModel.loginFormState.password.error?.asString(),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Lock,

@@ -62,6 +62,7 @@ import com.example.produtosdelimpeza.core.component.LimpOnTextField
 import com.example.produtosdelimpeza.core.component.SimpleTimePicker
 import com.example.produtosdelimpeza.core.domain.model.BusinessHours
 import com.example.produtosdelimpeza.core.domain.model.DayOfWeek
+import com.example.produtosdelimpeza.core.ui.util.asString
 import com.example.produtosdelimpeza.store.onboarding.presentation.extension.displayName
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -138,7 +139,7 @@ fun SignupStoreScreen(
                         onValueChange = {
                             signUpStoreViewModel.updateName(it)
                         },
-                        errorMessage = formState.storeName.error,
+                        errorMessage = formState.storeName.error?.asString(),
                         label = R.string.business_name,
                         placeholder = R.string.business_name_example,
                         leadingIcon = {
@@ -203,7 +204,7 @@ fun SignupStoreScreen(
                         },
                         label = R.string.email,
                         placeholder = R.string.hint_email,
-                        errorMessage = formState.email.error,
+                        errorMessage = formState.email.error?.asString(),
                         leadingIcon = { Icon(Icons.Default.Email, null) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     )

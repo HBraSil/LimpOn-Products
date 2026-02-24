@@ -52,6 +52,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
 import com.example.produtosdelimpeza.core.component.LimpOnTextField
+import com.example.produtosdelimpeza.core.ui.util.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,7 +151,7 @@ fun SignupScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         isError = signUpViewModel.formState.name.error != null,
-                        supportingText = { Text(signUpViewModel.formState.name.error ?: "") },
+                        supportingText = { Text(signUpViewModel.formState.name.error?.asString() ?: "") },
                         maxLines = 1,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
@@ -167,7 +168,7 @@ fun SignupScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         isError = signUpViewModel.formState.lastName.error != null,
-                        supportingText = { Text(signUpViewModel.formState.lastName.error ?: "") },
+                        supportingText = { Text(signUpViewModel.formState.lastName.error?.asString() ?: "") },
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
                         ),
@@ -185,7 +186,7 @@ fun SignupScreen(
                     onValueChange = { signUpViewModel.updateEmail(it)},
                     label = R.string.email,
                     placeholder = R.string.hint_email,
-                    errorMessage = signUpViewModel.formState.email.error,
+                    errorMessage = signUpViewModel.formState.email.error?.asString(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
@@ -208,7 +209,7 @@ fun SignupScreen(
                     },
                     label = R.string.password,
                     placeholder = R.string.hint_password,
-                    errorMessage = signUpViewModel.formState.password.error,
+                    errorMessage = signUpViewModel.formState.password.error?.asString(),
                     obfuscate = passwordHidden,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -246,7 +247,7 @@ fun SignupScreen(
                     onValueChange = { signUpViewModel.updatePasswordConfirm(signUpViewModel.formState.password.field, it) },
                     label = R.string.confirm_password,
                     placeholder = R.string.hint_confirm_password,
-                    errorMessage = signUpViewModel.formState.confirmPassword.error,
+                    errorMessage = signUpViewModel.formState.confirmPassword.error?.asString(),
                     obfuscate = confirmPasswordHidden,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
