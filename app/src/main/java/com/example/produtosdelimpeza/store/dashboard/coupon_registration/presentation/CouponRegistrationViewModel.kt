@@ -102,7 +102,7 @@ class CouponRegistrationViewModel @Inject constructor(
     }
 
 
-    fun updateButton() {
+    private fun updateButton() {
         val isCouponValid = with(couponFormState) {
             couponCodeField.isValid &&
             discountTypeField.isValid &&

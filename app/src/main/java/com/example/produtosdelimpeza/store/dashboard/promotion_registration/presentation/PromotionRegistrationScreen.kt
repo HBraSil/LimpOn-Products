@@ -31,6 +31,7 @@ import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.OperationResultOverlay
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+import com.example.produtosdelimpeza.core.ui.util.asString
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,8 +46,6 @@ fun PromotionRegistrationScreen(
     val formState = promotionRegistrationViewModel.promotionFormState
 
 
-
-    var selectedCategory by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
 
 
@@ -82,15 +81,12 @@ fun PromotionRegistrationScreen(
                 item { ImpactHeader() }
                 item {
                     DiscountTypeSection(
-                        //currentDiscountValue = formState.discountValueField.field,
+                        currentDiscountValue = formState.discountValueField.field,
+                        errorMessage = formState.discountValueField.error?.asString() ?: "",
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
-                            /*promotionRegistrationViewModel.updateDiscountType(
-                                discountType
-                            )*/
+                            promotionRegistrationViewModel.updateDiscountType(discountType)
 
-                            //promotionRegistrationViewModel.updateDiscountValue(
-                                discountValue
-
+                            promotionRegistrationViewModel.updateDiscountValue(discountValue)
                         }
                     )
                 }
@@ -103,10 +99,9 @@ fun PromotionRegistrationScreen(
                             "Lanches",
                             "Sobremesas"
                         ),
-                        selectedOption = selectedCategory,
+                        selectedOption = formState.categoryField.field,
                         onOptionSelected = {
-                            //promotionRegistrationViewModel.updateCategory(it)
-                            selectedCategory = it
+                            promotionRegistrationViewModel.updateCategory(it)
                         }
                     )
                 }
@@ -129,9 +124,9 @@ fun PromotionRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar promoção",
-                        isValid = true
+                        isValid = formState.formIsValid
                     ) {
-                        //promotionRegistrationViewModel.createPromotion(formState)
+                        promotionRegistrationViewModel.createPromotion()
                         showSuccess = true
                     }
                 }

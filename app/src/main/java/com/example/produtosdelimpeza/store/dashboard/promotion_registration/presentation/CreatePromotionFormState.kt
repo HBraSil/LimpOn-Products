@@ -7,5 +7,6 @@ data class CreatePromotionFormState (
     val discountTypeField: FieldState = FieldState(),
     val discountValueField: FieldState = FieldState(),
     val durationField: FieldState = FieldState(),
-    val categoryField: FieldState = FieldState()
+    val categoryField: FieldState = FieldState(),
+    val formIsValid: Boolean = false
 )
