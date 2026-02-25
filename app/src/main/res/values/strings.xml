@@ -107,8 +107,7 @@
     <string name="sunday">Domingo</string>
 
 
-    <string name="error_discount_greater_than_100">Desconto não pode ser maior que 100%</string>
-    <string name="error_discount_invalid">Campo desconto deve ser um número</string>
+    <string name="error_discount_greater_than_100">Desconto não pode ser maior que 100</string>
     <string name="error_discount_blank">Campo desconto não pode ser vazio</string>
     <string name="error_password_blank">Campo senha não pode ser vazio</string>
     <string name="error_password_invalid">Senha deve ter 8 caracteres ou mais</string>
@@ -119,6 +118,6 @@
     <string name="error_name_invalid">Nome deve ter 3 letras ou mais</string>
     <string name="error_last_name_blank">Campo nome não pode ser vazio</string>
     <string name="error_category_blank">Categoria está vazia</string>
-    <string name="error_duration_blank">É preciso definir uma duração para promoção</string>
     <string name="error_duration_less_than_one">A duração não poder ser menor do que 1</string>
+    <string name="coupon_code_empty">O código do cupom é obrigatório</string>
 </resources>

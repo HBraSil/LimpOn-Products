@@ -85,7 +85,6 @@ fun SignupStoreScreen(
     var showDialog by remember { mutableStateOf(false) }
 
     val formState = signUpStoreViewModel.formState
-    val isConfirmationButtonValid by signUpStoreViewModel.isButtonValid.collectAsState()
     val isScheduleValid by signUpStoreViewModel.isScheduleValid.collectAsState()
 
 
@@ -246,7 +245,7 @@ fun SignupStoreScreen(
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(18.dp),
-                    enabled = isConfirmationButtonValid,
+                    enabled = formState.formIsValid,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.background

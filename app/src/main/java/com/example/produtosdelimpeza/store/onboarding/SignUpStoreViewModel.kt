@@ -44,8 +44,6 @@ class SignUpStoreViewModel @Inject constructor(
 
     var formState by mutableStateOf(SignUpStoreFormState())
 
-    private val _isButtonValid = MutableStateFlow(false)
-    val isButtonValid = _isButtonValid.asStateFlow()
 
     private val _isScheduleValid = MutableStateFlow(false)
     val isScheduleValid = _isScheduleValid.asStateFlow()
@@ -166,7 +164,9 @@ class SignUpStoreViewModel @Inject constructor(
             && email.isValid
         }
 
-        _isButtonValid.value = isButtonValid
+        formState = formState.copy(
+            formIsValid = isButtonValid
+        )
     }
 
 

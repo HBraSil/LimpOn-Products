@@ -2,7 +2,6 @@ package com.example.produtosdelimpeza.store.dashboard.coupon_registration.presen
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +29,7 @@ import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+import com.example.produtosdelimpeza.core.ui.util.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,11 +38,9 @@ fun CouponRegistrationScreen(
     onNavigateToLogin: () -> Unit = {},
     couponRegistrationViewModel: CouponRegistrationViewModel = hiltViewModel()
 ) {
-    val formState by couponRegistrationViewModel.couponFormState.collectAsState()
-    val isValid by couponRegistrationViewModel.isValid.collectAsState()
+    val formState = couponRegistrationViewModel.couponFormState
     val state by couponRegistrationViewModel.uiState.collectAsState()
 
-    var selectedCategory by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -98,25 +96,19 @@ fun CouponRegistrationScreen(
                         label = "Código do cupom",
                         placeholder = "EX: PRIMEIRA10",
                         supporting = "O cliente digitará esse código no checkout",
-                        currentCouponCode = formState.couponCode
+                        error = formState.couponCodeField.error?.asString(),
+                        currentCouponCode = formState.couponCodeField.field
                     ) {
-                        couponRegistrationViewModel.onEvent(AddCouponField.CouponCodeField(it))
+                        couponRegistrationViewModel.updateCouponCode(it)
                     }
                 }
                 item {
                     DiscountTypeSection(
-                        currentDiscountValue = formState.discountValue,
+                        currentDiscountValue = formState.discountValueField.field,
+                        errorMessage = formState.discountValueField.error?.asString() ?: "",
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
-                            couponRegistrationViewModel.onEvent(
-                                AddCouponField.DiscountTypeField(
-                                    discountType
-                                )
-                            )
-                            couponRegistrationViewModel.onEvent(
-                                AddCouponField.DiscountValueField(
-                                    discountValue
-                                )
-                            )
+                            couponRegistrationViewModel.updateDiscountType(discountType)
+                            couponRegistrationViewModel.updateDiscountValue(discountValue)
                         }
                     )
                 }
@@ -129,16 +121,18 @@ fun CouponRegistrationScreen(
                             "Lanches",
                             "Sobremesas"
                         ),
-                        selectedOption = selectedCategory,
+                        selectedOption = formState.categoryField.field,
                         onOptionSelected = {
-                            couponRegistrationViewModel.onEvent(AddCouponField.CategoryField(it))
-                            selectedCategory = it
+                            couponRegistrationViewModel.updateCategory(it)
                         }
                     )
                 }
                 item {
-                    DurationSelector {
-                        couponRegistrationViewModel.onEvent(AddCouponField.DurationField(it))
+                    DurationSelector(
+                        titleSection = "Validade",
+                        selectedDuration = formState.durationField.field.toIntOrNull() ?: 7
+                    ) {
+                        couponRegistrationViewModel.updateDuration(it)
                     }
                     Spacer(Modifier.height(10.dp))
                     HorizontalDivider()
@@ -148,9 +142,9 @@ fun CouponRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar cupom",
-                        isValid = isValid
+                        isValid = formState.formIsValid
                     ) {
-                        couponRegistrationViewModel.createCoupon(formState)
+                        couponRegistrationViewModel.createCoupon()
                         showSuccess = true
                     }
                 }
@@ -206,6 +200,7 @@ fun CouponTextField(
     label: String,
     placeholder: String,
     supporting: String,
+    error: String? = null,
     currentCouponCode: String = "",
     onCouponCodeChange: (String) -> Unit
 ) {
@@ -216,38 +211,10 @@ fun CouponTextField(
         label = { Text(label) },
         placeholder = { Text(placeholder) },
         supportingText = { Text(supporting) },
+        isError = error != null,
         singleLine = true,
         shape = RoundedCornerShape(14.dp)
     )
-}
-
-
-@Composable
-fun DateBox(
-    label: String,
-    value: String
-) {
-    Surface(
-        modifier = Modifier
-            .clickable { /* Abrir DatePicker futuramente */ },
-        shape = RoundedCornerShape(14.dp),
-        tonalElevation = 2.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = value,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
 }
 
 

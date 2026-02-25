@@ -8,7 +8,6 @@ import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.core.presentation.SessionUserErrors
 import com.example.produtosdelimpeza.core.validation.CategoryValidator
 import com.example.produtosdelimpeza.core.validation.DiscountValidator
-import com.example.produtosdelimpeza.core.validation.DurationValidator
 import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.PromotionRegistrationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ class PromotionRegistrationViewModel @Inject constructor(
     private val promotionRepository: PromotionRegistrationRepository
 ) : ViewModel() {
 
-    var promotionFormState by mutableStateOf(AddPromotionFormState())
+    var promotionFormState by mutableStateOf(CreatePromotionFormState())
 
     private val _isValid = MutableStateFlow(false)
     val isValid = _isValid.asStateFlow()
@@ -55,14 +54,12 @@ class PromotionRegistrationViewModel @Inject constructor(
         )
     }
 
-    fun updateDuration(field: Int?) {
-        val isDurationValid = DurationValidator.isValid(field)
-
+    fun updateDuration(field: Int) {
         promotionFormState = promotionFormState.copy(
             durationField = FieldState(
                 field = field.toString(),
-                isValid = isDurationValid == null,
-                error = isDurationValid
+                isValid = true,
+                error = null
             )
         )
     }

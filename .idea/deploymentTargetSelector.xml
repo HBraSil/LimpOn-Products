@@ -4,17 +4,14 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-02-20T14:56:17.767880300Z">
+        <DropdownSelection timestamp="2026-02-25T03:03:18.428658400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Windows\.android\avd\Pixel_4a.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Windows\.android\avd\New_Device.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="SimpleProfileScreen">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="TimePickerCustomPreview">
         <option name="selectionMode" value="DROPDOWN" />
@@ -37,6 +34,9 @@
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="Test">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

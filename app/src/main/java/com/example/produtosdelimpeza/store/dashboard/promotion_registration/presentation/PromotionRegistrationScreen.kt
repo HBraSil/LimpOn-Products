@@ -41,9 +41,9 @@ fun PromotionRegistrationScreen(
     promotionRegistrationViewModel: PromotionRegistrationViewModel = hiltViewModel()
 ) {
 
-    val formState = promotionRegistrationViewModel.promotionFormState
-    val isValid by promotionRegistrationViewModel.isValid.collectAsState()
     val state by promotionRegistrationViewModel.uiState.collectAsState()
+    val formState = promotionRegistrationViewModel.promotionFormState
+
 
 
     var selectedCategory by remember { mutableStateOf("") }
@@ -111,7 +111,10 @@ fun PromotionRegistrationScreen(
                     )
                 }
                 item {
-                    DurationSelector {
+                    DurationSelector(
+                        titleSection = "Validade",
+                        selectedDuration = formState.durationField.field.toIntOrNull() ?: 7
+                    ) {
                         promotionRegistrationViewModel.updateDuration(it)
                     }
                     Spacer(Modifier.height(10.dp))
