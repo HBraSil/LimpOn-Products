@@ -1,5 +1,7 @@
 package com.example.produtosdelimpeza.store.dashboard.presentation
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.data.LastUserModeLocalStorage
@@ -16,7 +18,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val dashboardRepository: DashboardRepository,
-    private val userSession: LastUserModeLocalStorage
+    private val userSession: LastUserModeLocalStorage, // talvez essa propriedade deva estar no repositoy e n aqui
 ) : ViewModel() {
 
     private val _dashboardUiState = MutableStateFlow(true)

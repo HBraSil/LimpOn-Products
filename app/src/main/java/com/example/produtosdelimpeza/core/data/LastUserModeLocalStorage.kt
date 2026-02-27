@@ -38,7 +38,6 @@ class LastUserModeLocalStorage @Inject constructor(@ApplicationContext context: 
 
     val storeId: Flow<String?> = navigationDataStore.data.map { preferences ->
         preferences[LAST_ACTIVE_STORE_ID]
-
     }
 
     suspend fun saveLastUserMode(profileMode: ProfileMode) {
@@ -49,7 +48,6 @@ class LastUserModeLocalStorage @Inject constructor(@ApplicationContext context: 
             when (profileMode) {
                 is ProfileMode.LoggedIn.StoreSection -> {
                     prefs[LAST_ACTIVE_STORE_ID] = profileMode.storeId
-                    Log.d("LastUserModeLocalStorage", "Store ID saved: ${profileMode.storeId}")
                 }
 
                 else -> {

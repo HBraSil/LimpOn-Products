@@ -1,44 +1,50 @@
-package com.example.produtosdelimpeza.store.dashboard.promotion_registration.data
+package com.example.produtosdelimpeza.store.dashboard.coupon_registration.data
 
 import com.example.produtosdelimpeza.core.data.LastUserModeLocalStorage
 import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.domain.FirebaseResult
-import com.example.produtosdelimpeza.core.domain.Promotion
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.domain.PromotionRegistrationRepository
+import com.example.produtosdelimpeza.core.domain.Coupon
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRegistrationRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import javax.inject.Inject
 
-class PromotionRegistrationRepositoryImpl @Inject constructor(
+class CouponRegistrationRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth,
     private val networkChecker: NetworkChecker,
     private val userSession: LastUserModeLocalStorage
-) : PromotionRegistrationRepository {
-    override suspend fun createPromotion(promotion: Promotion): FirebaseResult {
+): CouponRegistrationRepository {
+    override suspend fun createCoupon(coupon: Coupon): FirebaseResult {
         return try {
             if (!networkChecker.isInternetAvailable()) {
                 return FirebaseResult.Error.Network("No internet connection")
             }
 
             val storeId = userSession.storeId.first() ?: return FirebaseResult.Error.Unknown("Store ID not found")
-            val docRef = firestore.collection("promotions").document()
+
+            val docRef = firestore.collection("coupons").document()
             val id = docRef.id
 
-            val promotionWithStoreId = promotion.copy(
+            val couponWithStoreId = coupon.copy(
                 id = id,
                 storeId = storeId
             )
 
-            docRef.set(promotionWithStoreId).await()
+            docRef.set(couponWithStoreId).await()
 
             FirebaseResult.Success(true)
         } catch (e: IOException) {
-            FirebaseResult.Error.Network(e.message ?: "Network error")
-        }  catch (e: Exception) {
+            FirebaseResult.Error.Network(e.message ?: "No internet connection")
+        } catch (e: Exception) {
             FirebaseResult.Error.Unknown(e.message ?: "Unknown error")
         }
     }
 
+    override fun signOut() {
+        firebaseAuth.signOut()
+    }
 }

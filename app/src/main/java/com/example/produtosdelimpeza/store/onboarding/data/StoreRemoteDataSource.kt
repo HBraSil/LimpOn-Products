@@ -1,19 +1,22 @@
 package com.example.produtosdelimpeza.store.onboarding.data
 
-import com.example.produtosdelimpeza.core.domain.AuthSessionProvider
+
 import com.example.produtosdelimpeza.store.dashboard.data.StoreDto
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import jakarta.inject.Inject
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
 class StoreRemoteDataSource @Inject constructor(
+    private val firebase: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val session: AuthSessionProvider
 ) {
     suspend fun saveStoreRemote(store: StoreDto): Result<Boolean> {
         return try {
-            val uid = session.getUserId() ?: error("Usuário não autenticado")
+
+            val userUid = firebase.currentUser?.uid
+            val uid = userUid ?: error("Usuário não autenticado")
 
             val docRef = firestore.collection("stores")
                 .document()
@@ -52,7 +55,8 @@ class StoreRemoteDataSource @Inject constructor(
 
     suspend fun getAllStoresNames(): List<StoreDto> {
         return try {
-            val uid = session.getUserId() ?: error("Usuário não logado")
+            val userUid = firebase.currentUser?.uid
+            val uid = userUid ?: error("Usuário não logado")
 
             val snapshot = firestore.collection("stores")
                 .whereEqualTo("ownerId", uid)

@@ -1,7 +1,7 @@
 package com.example.produtosdelimpeza.store.dashboard.coupon_registration.di
 
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.data.CouponRepositoryImpl
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRepository
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.data.CouponRegistrationRepositoryImpl
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRegistrationRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,6 +14,6 @@ abstract class CouponRegistrationModule {
     @Binds
     @Singleton
     abstract fun bindCouponRepository(
-        couponRepositoryImpl: CouponRepositoryImpl
-    ): CouponRepository
+        couponRegistrationRepositoryImpl: CouponRegistrationRepositoryImpl
+    ): CouponRegistrationRepository
 }

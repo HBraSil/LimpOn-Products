@@ -2,9 +2,8 @@ package com.example.produtosdelimpeza.store.dashboard.product_registration.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.core.domain.AppResult
+import com.example.produtosdelimpeza.core.domain.FirebaseResult
 import com.example.produtosdelimpeza.core.domain.Product
-import com.example.produtosdelimpeza.core.presentation.SessionUserErrors
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ProductRegistrationRepository
 import com.example.produtosdelimpeza.store.dashboard.product_registration.domain.ValidateProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +23,7 @@ class ProductRegistrationViewModel @Inject constructor(
     private var _productFormState = MutableStateFlow(Product())
     val productFormState = _productFormState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(SessionUserErrors())
+    private val _uiState = MutableStateFlow(CreateProductUiState())
     val uiState = _uiState.asStateFlow()
 
     private var _isValid = MutableStateFlow(false)
@@ -49,9 +48,8 @@ class ProductRegistrationViewModel @Inject constructor(
     fun registerProduct(product: Product) {
         viewModelScope.launch {
             when (productRepository.registerProduct(product)) {
-                is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
-                is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
-                is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
+                is FirebaseResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
+                is FirebaseResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
                 else -> {}
             }
         }

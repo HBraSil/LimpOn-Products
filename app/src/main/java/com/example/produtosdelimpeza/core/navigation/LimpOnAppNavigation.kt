@@ -37,7 +37,7 @@ import com.example.produtosdelimpeza.customer.home.presentation.HomeScreen
 import com.example.produtosdelimpeza.core.auth.presentation.login.LoginScreen
 import com.example.produtosdelimpeza.customer.notifications.ManagementNotificationScreen
 import com.example.produtosdelimpeza.customer.search.presentation.SearchScreen
-import com.example.produtosdelimpeza.customer.catalog.presentation.CatalagScreen
+import com.example.produtosdelimpeza.customer.catalog.presentation.CatalogScreen
 import com.example.produtosdelimpeza.customer.catalog.presentation.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.AutonomousBottomNavConfig
@@ -324,12 +324,6 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
         route = NavGraph.AUTH.route,
         startDestination = AuthScreen.LOGIN.route,
     ) {
-        /*composable(route = AuthScreen.INITIAL.route) {
-            InitialScreen(
-                onStartClick = { navController.navigate(AuthScreen.LOGIN.route) },
-               //appLayoutViewModel = navigationLastUserModeViewModel
-            )
-        }*/
 
         composable(route = AuthScreen.LOGIN.route) {
             LoginScreen(
@@ -413,7 +407,7 @@ fun NavGraphBuilder.homeGraph(
             arguments = listOf(navArgument("sellerId") { type = NavType.StringType })
             ) {
 
-            CatalagScreen(
+            CatalogScreen(
                 cartViewModel = cartViewModel,
                 onBackNavigation = {
                     navController.navigateUp()
@@ -512,8 +506,8 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onOrderScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
-                onSwitchProfileClick = {
-                    navController.navigate(NavGraph.STORE_MAIN.route) {
+                onSwitchProfileClick = { storeId ->
+                    navController.navigate("${NavGraph.STORE_MAIN.route}/$storeId") {
                         popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                         launchSingleTop = true
                     }

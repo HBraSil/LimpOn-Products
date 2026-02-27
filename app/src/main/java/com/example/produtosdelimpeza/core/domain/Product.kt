@@ -1,9 +1,9 @@
 package com.example.produtosdelimpeza.core.domain
 
-import java.util.UUID
 
 data class Product(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = "",
+    val storeId: String = "",
     val productName: String = "",
     val productPrice: String = "",
     val promotionalPrice: String = "",

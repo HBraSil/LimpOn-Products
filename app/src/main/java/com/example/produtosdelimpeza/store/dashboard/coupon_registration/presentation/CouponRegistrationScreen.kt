@@ -41,20 +41,21 @@ fun CouponRegistrationScreen(
     val formState = couponRegistrationViewModel.couponFormState
     val state by couponRegistrationViewModel.uiState.collectAsState()
 
-    var showSuccess by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    LaunchedEffect(state.showNoInternet) {
-        if (state.showNoInternet) {
-            Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
-        }
-    }
     if (state.showSessionExpired) {
         SessionExpiredAlertDialog {
             couponRegistrationViewModel.signOut()
             onNavigateToLogin()
         }
     }
+
+    LaunchedEffect(state.showNoInternet) {
+        if (state.showNoInternet) {
+            Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     Box {
         Scaffold(
@@ -142,19 +143,21 @@ fun CouponRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar cupom",
+                        loading = state.isLoading,
                         isValid = formState.formIsValid
                     ) {
                         couponRegistrationViewModel.createCoupon()
-                        showSuccess = true
                     }
                 }
             }
-
         }
-        if (showSuccess) {
+
+        if (state.success) {
             OperationResultOverlay(
                 message = stringResource(R.string.cupon_created),
-                onDismiss = { showSuccess = false }
+                onDismiss = {
+                    couponRegistrationViewModel.updateDialogView()
+                }
             )
         }
     }

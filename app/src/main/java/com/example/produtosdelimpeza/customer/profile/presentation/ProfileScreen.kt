@@ -53,7 +53,7 @@ fun ProfileScreen(
     onHelpScreenClick: () -> Unit = {},
     onOrderScreenClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    onSwitchProfileClick: () -> Unit = {},
+    onSwitchProfileClick: (String) -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
 ) {
 
@@ -176,7 +176,7 @@ fun ProfileScreen(
                 onSignOutClick = onSignOutClick,
                 signOut = { profileViewModel.signOut() },
                 onSwitchProfileClick = {
-                    onSwitchProfileClick()
+                    onSwitchProfileClick(it)
                     profileViewModel.saveLastUserMode(it)
                 }
             )

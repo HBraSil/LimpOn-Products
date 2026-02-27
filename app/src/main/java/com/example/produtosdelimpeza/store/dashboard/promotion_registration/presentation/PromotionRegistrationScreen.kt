@@ -46,8 +46,11 @@ fun PromotionRegistrationScreen(
     val formState = promotionRegistrationViewModel.promotionFormState
 
 
-    var showSuccess by remember { mutableStateOf(false) }
-
+ /*   LaunchedEffect(state.unknwonError) {
+        if (state.unknwonError) {
+            showSuccess = true
+        }
+    }*/
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
@@ -124,23 +127,24 @@ fun PromotionRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar promoção",
+                        loading = state.isLoading,
                         isValid = formState.formIsValid
                     ) {
                         promotionRegistrationViewModel.createPromotion()
-                        showSuccess = true
                     }
                 }
             }
         }
 
-        if (showSuccess) {
+        if (state.success) {
             OperationResultOverlay(
                 message = stringResource(R.string.promotion_created),
-                onDismiss = { showSuccess = false }
+                onDismiss = { promotionRegistrationViewModel.updateDialogView() }
             )
         }
     }
 }
+
 
 
 @Composable

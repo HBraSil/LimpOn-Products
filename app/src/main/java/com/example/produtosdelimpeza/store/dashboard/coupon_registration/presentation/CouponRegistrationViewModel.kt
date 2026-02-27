@@ -5,15 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.core.domain.AppResult
+import com.example.produtosdelimpeza.core.domain.FirebaseResult
 import com.example.produtosdelimpeza.core.domain.Coupon
 import com.example.produtosdelimpeza.core.domain.model.DiscountType
 import com.example.produtosdelimpeza.core.presentation.FieldState
-import com.example.produtosdelimpeza.core.presentation.SessionUserErrors
 import com.example.produtosdelimpeza.core.validation.CategoryValidator
 import com.example.produtosdelimpeza.core.validation.CouponCodeValidator
 import com.example.produtosdelimpeza.core.validation.DiscountValidator
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRepository
+import com.example.produtosdelimpeza.store.dashboard.coupon_registration.domain.CouponRegistrationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,12 +22,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CouponRegistrationViewModel @Inject constructor(
-    private val couponRepository: CouponRepository,
+    private val couponRegistrationRepository: CouponRegistrationRepository,
 ) : ViewModel() {
 
     var couponFormState by mutableStateOf(CreateCouponFormState())
 
-    private val _uiState = MutableStateFlow(SessionUserErrors())
+    private val _uiState = MutableStateFlow(CreateCouponUiState())
     val uiState = _uiState.asStateFlow()
 
 
@@ -101,6 +100,11 @@ class CouponRegistrationViewModel @Inject constructor(
         updateButton()
     }
 
+    fun updateDialogView() {
+        _uiState.update { it.copy(success = false) }
+    }
+
+
 
     private fun updateButton() {
         val isCouponValid = with(couponFormState) {
@@ -117,6 +121,8 @@ class CouponRegistrationViewModel @Inject constructor(
     }
 
     fun createCoupon() {
+        _uiState.update { it.copy(isLoading = true) }
+
         viewModelScope.launch {
             val coupon = Coupon(
                 couponCode = couponFormState.couponCodeField.field,
@@ -125,16 +131,15 @@ class CouponRegistrationViewModel @Inject constructor(
                 expiration = couponFormState.durationField.field.toInt(),
                 category = couponFormState.categoryField.field
             )
-            when (couponRepository.createCoupon(coupon)) {
-                is AppResult.Error.SessionExpired -> _uiState.update { it.copy(showSessionExpired = true) }
-                is AppResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
-                is AppResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
-                else -> {}
+            when (couponRegistrationRepository.createCoupon(coupon)) {
+                is FirebaseResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
+                is FirebaseResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
+                is FirebaseResult.Success -> _uiState.update { it.copy(isLoading = false, success = true) }
             }
         }
     }
 
     fun signOut() {
-        couponRepository.signOut()
+        couponRegistrationRepository.signOut()
     }
 }

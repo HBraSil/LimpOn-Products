@@ -153,6 +153,16 @@ fun ContentLoginScreen(
     }
 
     LaunchedEffect(state.error) {
+        if (state.error != null) {
+            Toast.makeText(
+                context,
+                "state.error",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    LaunchedEffect(state.error) {
         state.error?.let { errorMessage ->
 
             Toast.makeText(
@@ -241,14 +251,6 @@ fun ContentLoginScreen(
             loginViewModel.loginFormState.password.field.isNotEmpty()
         ){
             loginViewModel.loginWithEmailAndPassword()
-        }
-
-        if (state.error != null) {
-            Toast.makeText(
-                context,
-                "state.error",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 

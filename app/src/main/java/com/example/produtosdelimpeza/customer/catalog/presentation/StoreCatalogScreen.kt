@@ -104,7 +104,7 @@ import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun CatalagScreen(
+fun CatalogScreen(
     cartViewModel: CartViewModel,
     onBackNavigation: () -> Unit = {},
     onCardStoreProfileClick: () -> Unit = {},
