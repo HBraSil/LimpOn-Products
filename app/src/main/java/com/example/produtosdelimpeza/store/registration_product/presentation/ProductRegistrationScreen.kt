@@ -1,0 +1,362 @@
+package com.example.produtosdelimpeza.store.registration_product.presentation
+
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
+import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
+import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductRegistrationScreen(
+    onBackNavigation: () -> Unit = {},
+    onNavigateToLogin: () -> Unit = {},
+    productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
+) {
+    val formState by productRegistrationViewModel.productFormState.collectAsState()
+    val isValidToSave by productRegistrationViewModel.isValid.collectAsState()
+    val state by productRegistrationViewModel.uiState.collectAsState()
+
+    var selectedCategory by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    LaunchedEffect(state.showNoInternet) {
+        if (state.showNoInternet) {
+            Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
+        }
+    }
+    if (state.showSessionExpired) {
+        SessionExpiredAlertDialog{
+            productRegistrationViewModel.signOut()
+            onNavigateToLogin()
+        }
+    }
+
+    Box {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text("Novo Produto") },
+                    navigationIcon = {
+                        IconButton(onClick = onBackNavigation) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBackIos,
+                                contentDescription = "Voltar"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    )
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item {
+                    Text("Foto do Produto", style = MaterialTheme.typography.titleSmall)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(160.dp)
+                                .width(180.dp)
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clickable { /* Abrir Galeria */ },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    Icons.Default.AddAPhoto,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(30.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text("Adicionar imagem", color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = formState.productName,
+                        onValueChange = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.NameField(
+                                    it
+                                )
+                            )
+                        },
+                        label = { Text("Nome do Produto*") },
+                        placeholder = { Text("Ex: Hambúrguer Artesanal") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
+                item {
+                    OutlinedTextField(
+                        value = formState.productDescription,
+                        onValueChange = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.ProductDescriptionField(
+                                    it
+                                )
+                            )
+                        },
+                        label = { Text("Descrição detalhada*") },
+                        placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = formState.productPrice,
+                        onValueChange = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.PriceField(
+                                    it
+                                )
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Preço") },
+                        leadingIcon = { Text("R$") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+                item {
+                    AppliesToCategorySelector(
+                        options = listOf(
+                            "Todos os produtos",
+                            "Bebidas",
+                            "Combos",
+                            "Lanches",
+                            "Porções",
+                            "Sobremesas"
+                        ),
+                        selectedOption = selectedCategory,
+                        onOptionSelected = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.CategoryField(
+                                    it
+                                )
+                            )
+                            selectedCategory = it
+                        }
+                    )
+                }
+                item {
+                    PromotionSection(
+                        originalPrice = formState.promotionalPrice,
+                        onPriceChange = {
+                            productRegistrationViewModel.onEvent(
+                                AddProductField.PromotionalPriceField(it)
+                            )
+                        }
+                    )
+                }
+                item {
+                    DietaryTagsSection(
+                        selectedTags = setOf("carne", "Lactício"),
+                        onTagToggle = { /* lógica de toggle */ })
+                }
+                item {
+                    InventorySection(
+                        sku = "Sodoku",
+                        onSkuChange = {},
+                        quantity = "8*",
+                        onQuantityChange = {})
+                }
+                item {
+                    LimpOnRegistrationButton(
+                        text = "Salvar Produto",
+                        isValid = isValidToSave
+                    ) {
+                        productRegistrationViewModel.registerProduct(formState)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PromotionSection(
+    originalPrice: String,
+    onPriceChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocalOffer, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Preço Promocional (opcional)", style = MaterialTheme.typography.titleSmall)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = originalPrice,
+                onValueChange = onPriceChange,
+                label = { Text("Valor com desconto") },
+                prefix = { Text("R$ ") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent)
+            )
+        }
+        var showMessage by remember { mutableStateOf(false) }
+        if (showMessage) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 32.dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                SuccessSnackbar(message = "Cupom criado com sucesso!")
+            }
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun DietaryTagsSection(
+    selectedTags: Set<String>,
+    onTagToggle: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tags = listOf("Vegano", "Vegetariano", "Sem Glúten", "Sem Lactose", "Zero Açúcar", "Picante")
+
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Classificação", style = MaterialTheme.typography.titleSmall)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            tags.forEach { tag ->
+                FilterChip(
+                    selected = selectedTags.contains(tag),
+                    onClick = { onTagToggle(tag) },
+                    label = { Text(tag) },
+                    leadingIcon = if (selectedTags.contains(tag)) {
+                        { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
+                    } else null
+                )
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun InventorySection(
+    sku: String,
+    onSkuChange: (String) -> Unit,
+    quantity: String,
+    onQuantityChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedTextField(
+            value = sku,
+            onValueChange = onSkuChange,
+            label = { Text("SKU / Código") },
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp)
+        )
+        OutlinedTextField(
+            value = quantity,
+            onValueChange = onQuantityChange,
+            label = { Text("Estoque") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp)
+        )
+    }
+}
+
+
+@Composable
+fun SuccessSnackbar(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp))
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .shadow(4.dp, RoundedCornerShape(12.dp))
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewProductRegistration() {
+    MaterialTheme {
+        ProductRegistrationScreen()
+    }
+}

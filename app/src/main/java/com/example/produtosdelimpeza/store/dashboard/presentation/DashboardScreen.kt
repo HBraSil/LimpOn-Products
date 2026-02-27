@@ -185,11 +185,10 @@ fun DashboardScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .padding(paddingValues)
                     .fillMaxSize()
                     .background(Color.White),
+                contentPadding = paddingValues,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 90.dp, top = 12.dp)
             ) {
                 item {
                     StoreProfileCardAdvanced(
@@ -220,10 +219,6 @@ fun DashboardScreen(
 
                 items(5) { idx ->
                     OrderCompactCard(idx + 1)
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }

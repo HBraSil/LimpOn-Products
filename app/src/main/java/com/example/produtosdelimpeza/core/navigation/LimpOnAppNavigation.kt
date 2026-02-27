@@ -43,7 +43,7 @@ import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.AutonomousBottomNavConfig
 import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
 import com.example.produtosdelimpeza.store.onboarding.SignupStoreScreen
-import com.example.produtosdelimpeza.store.dashboard.coupon_registration.presentation.CouponRegistrationScreen
+import com.example.produtosdelimpeza.store.registration_coupon.presentation.CouponRegistrationScreen
 import com.example.produtosdelimpeza.store.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScreen
 import com.example.produtosdelimpeza.store.managment.product_tab.ProductDetailScreen
@@ -53,7 +53,7 @@ import com.example.produtosdelimpeza.store.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.store.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.store.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.store.profile.logistic.OperationScreen
-import com.example.produtosdelimpeza.store.dashboard.promotion_registration.presentation.PromotionRegistrationScreen
+import com.example.produtosdelimpeza.store.registration_promotion.presentation.PromotionRegistrationScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.CustomerBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.StoreBottomNavConfig
 import com.example.produtosdelimpeza.core.navigation.route.AuthScreen
@@ -74,7 +74,7 @@ import com.example.produtosdelimpeza.store.dashboard.presentation.DashboardScree
 import com.example.produtosdelimpeza.store.dashboard.presentation.PRODUCT
 import com.example.produtosdelimpeza.store.dashboard.presentation.PROMOTION
 import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
-import com.example.produtosdelimpeza.store.dashboard.product_registration.presentation.ProductRegistrationScreen
+import com.example.produtosdelimpeza.store.registration_product.presentation.ProductRegistrationScreen
 import com.example.produtosdelimpeza.store.onboarding.AutonomousRequestScreen
 import com.example.produtosdelimpeza.store.onboarding.ChoicePartnerScreen
 import com.example.produtosdelimpeza.store.onboarding.SellerType
