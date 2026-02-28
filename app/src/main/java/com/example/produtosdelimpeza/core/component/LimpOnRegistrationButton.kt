@@ -42,7 +42,7 @@ fun LimpOnRegistrationButton(
         contentAlignment = Alignment.Center
     ) {
         Button(
-            onClick = { onRegistrationClick() },
+            onClick = onRegistrationClick ,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)

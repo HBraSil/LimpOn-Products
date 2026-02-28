@@ -97,8 +97,8 @@ fun CouponRegistrationScreen(
                         label = "Código do cupom",
                         placeholder = "EX: PRIMEIRA10",
                         supporting = "O cliente digitará esse código no checkout",
-                        error = formState.couponCodeField.error?.asString(),
-                        currentCouponCode = formState.couponCodeField.field
+                        error = formState.codeField.error?.asString(),
+                        currentCouponCode = formState.codeField.field
                     ) {
                         couponRegistrationViewModel.updateCouponCode(it)
                     }

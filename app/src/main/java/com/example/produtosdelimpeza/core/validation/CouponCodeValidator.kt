@@ -10,5 +10,4 @@ object CouponCodeValidator {
 
         return null
     }
-
 }

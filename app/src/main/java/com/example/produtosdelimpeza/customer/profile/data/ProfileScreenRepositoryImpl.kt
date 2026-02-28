@@ -1,12 +1,11 @@
 package com.example.produtosdelimpeza.customer.profile.data
 
-import android.provider.ContactsContract
 import android.util.Log
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.customer.profile.domain.ProfileScreenRepository
 import com.example.produtosdelimpeza.store.dashboard.data.toDomain
-import com.example.produtosdelimpeza.store.onboarding.data.StoreRemoteDataSource
+import com.example.produtosdelimpeza.core.data.StoreRemoteDataSource
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 import javax.inject.Singleton

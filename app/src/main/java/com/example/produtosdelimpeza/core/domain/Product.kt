@@ -4,12 +4,11 @@ package com.example.produtosdelimpeza.core.domain
 data class Product(
     val id: String = "",
     val storeId: String = "",
-    val productName: String = "",
-    val productPrice: String = "",
-    val promotionalPrice: String = "",
-    val productDescription: String = "",
+    val name: String = "",
+    val price: Double = 0.0,
+    val promotionalPrice: Double = 0.0,
+    val description: String = "",
     val classification: String = "",
-    val productCategory: String = "",
+    val category: String = "",
     val stockCount: Int = 0,
-    val inStock: Boolean = stockCount > 0
 )

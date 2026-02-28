@@ -1,5 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding.data
-
+package com.example.produtosdelimpeza.core.data
 
 import com.example.produtosdelimpeza.store.dashboard.data.StoreDto
 import com.google.firebase.auth.FirebaseAuth
@@ -30,11 +29,11 @@ class StoreRemoteDataSource @Inject constructor(
 
             Result.success(true)
         } catch (e: Exception) {
-            throw e
+            Result.failure(e)
         }
     }
 
-    suspend fun getStoreRemote(storeId: String): Result<StoreDto> {
+    suspend fun fetchStoreRemote(storeId: String): Result<StoreDto> {
         return runCatching {
             val snapshot = firestore
                 .collection("stores")

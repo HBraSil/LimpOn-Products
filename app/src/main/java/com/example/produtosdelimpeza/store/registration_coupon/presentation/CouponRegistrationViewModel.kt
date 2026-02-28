@@ -31,12 +31,11 @@ class CouponRegistrationViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
 
-
     fun updateCouponCode(field: String) {
         val isCouponCodeValid = CouponCodeValidator.isValid(field)
 
         couponFormState = couponFormState.copy(
-            couponCodeField = FieldState(
+            codeField = FieldState(
                 field = field,
                 error = isCouponCodeValid,
                 isValid = isCouponCodeValid == null,
@@ -107,8 +106,8 @@ class CouponRegistrationViewModel @Inject constructor(
 
 
     private fun updateButton() {
-        val isCouponValid = with(couponFormState) {
-            couponCodeField.isValid &&
+        val isFormValid = with(couponFormState) {
+            codeField.isValid &&
             discountTypeField.isValid &&
             discountValueField.isValid &&
             durationField.isValid &&
@@ -116,7 +115,7 @@ class CouponRegistrationViewModel @Inject constructor(
         }
 
         couponFormState = couponFormState.copy(
-            formIsValid = isCouponValid
+            formIsValid = isFormValid
         )
     }
 
@@ -125,12 +124,13 @@ class CouponRegistrationViewModel @Inject constructor(
 
         viewModelScope.launch {
             val coupon = Coupon(
-                couponCode = couponFormState.couponCodeField.field,
+                couponCode = couponFormState.codeField.field,
                 discountValue = couponFormState.discountValueField.field.toInt(),
                 discountType = couponFormState.discountTypeField.field,
                 expiration = couponFormState.durationField.field.toInt(),
                 category = couponFormState.categoryField.field
             )
+
             when (couponRegistrationRepository.createCoupon(coupon)) {
                 is FirebaseResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
                 is FirebaseResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }

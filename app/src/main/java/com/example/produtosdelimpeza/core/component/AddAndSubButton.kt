@@ -31,14 +31,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.Product
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddAndSubButton(
     modifier: Modifier = Modifier,
     txtQuantity: Int = 0,
-    productEntity: ProductEntity = ProductEntity(),
+    productEntity: Product = Product(),
     subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
     sumOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
 ) {

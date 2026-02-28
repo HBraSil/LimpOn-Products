@@ -56,9 +56,9 @@ fun ProductsTabContent(
     var isSearchExpanded by remember { mutableStateOf(false) }
 
     val mockProducts = listOf(
-        Product("Hambúrguer Duplo", "R$ 35,00", "15", inStock = true),
-        Product("Batata Frita G", "R$ 18,00", "0", inStock = false),
-        Product("Refrigerante Lata", "R$ 6,00", "42", inStock = true)
+        Product("Hambúrguer Duplo", "R$ 35,00", "15", ),
+        Product("Batata Frita G", "R$ 18,00", "0", ),
+        Product("Refrigerante Lata", "R$ 6,00", "42")
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -148,7 +148,7 @@ fun ProductsTabContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val filteredList = mockProducts.filter {
-                it.productName.contains(searchQuery, ignoreCase = true)
+                it.name.contains(searchQuery, ignoreCase = true)
             }
 
             item {
@@ -235,14 +235,14 @@ fun ProductListItem(product: Product, onClickItem: () -> Unit = {}) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = product.productName, fontWeight = FontWeight.Bold)
-                    Text(text = product.productPrice, color = MaterialTheme.colorScheme.onSecondary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    Text(text = product.name, fontWeight = FontWeight.Bold)
+                    Text(text = product.price.toString(), color = MaterialTheme.colorScheme.onSecondary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = if (product.inStock) "Em estoque: ${product.stockCount}" else "Esgotado",
+                    text = if (product.stockCount > 0) "Em estoque: ${product.stockCount}" else "Esgotado",
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (product.inStock) Color(0xFF4CAF50) else Color.Red
+                    color = if (product.stockCount > 0) Color(0xFF4CAF50) else Color.Red
                 )
             }
         }

@@ -403,10 +403,9 @@ fun NavGraphBuilder.homeGraph(
         }
 
         composable(
-            route = "${CustomerScreen.CUSTOMER_PRODUCTS.route}/{sellerId}",
-            arguments = listOf(navArgument("sellerId") { type = NavType.StringType })
-            ) {
-
+            route = "${CustomerScreen.CUSTOMER_PRODUCTS.route}/{storeId}",
+            arguments = listOf(navArgument("storeId") { type = NavType.StringType })
+        ) {
             CatalogScreen(
                 cartViewModel = cartViewModel,
                 onBackNavigation = {
@@ -506,8 +505,8 @@ fun NavGraphBuilder.profileGraph(navController: NavHostController) {
                 onOrderScreenClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
-                onSwitchProfileClick = { storeId ->
-                    navController.navigate("${NavGraph.STORE_MAIN.route}/$storeId") {
+                onSwitchProfileClick = {
+                    navController.navigate(NavGraph.STORE_MAIN.route) {
                         popUpTo(NavGraph.USER_MAIN.route) { inclusive = true }
                         launchSingleTop = true
                     }

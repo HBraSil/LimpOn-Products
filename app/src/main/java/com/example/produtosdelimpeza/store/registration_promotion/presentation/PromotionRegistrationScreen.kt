@@ -85,7 +85,7 @@ fun PromotionRegistrationScreen(
                 item {
                     DiscountTypeSection(
                         currentDiscountValue = formState.discountValueField.field,
-                        errorMessage = formState.discountValueField.error?.asString() ?: "",
+                        errorMessage = formState.discountValueField.error?.asString(),
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
                             promotionRegistrationViewModel.updateDiscountType(discountType)
 

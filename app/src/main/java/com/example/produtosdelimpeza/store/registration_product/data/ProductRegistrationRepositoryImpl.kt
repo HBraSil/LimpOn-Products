@@ -23,6 +23,7 @@ class ProductRegistrationRepositoryImpl @Inject constructor(
             if (!networkChecker.isInternetAvailable()) {
                 return FirebaseResult.Error.Network("No internet connection")
             }
+
             val storeId = userSession.storeId.first() ?: return FirebaseResult.Error.Unknown("Store ID not found")
 
             val docRef = firestore.collection("products").document()

@@ -5,5 +5,5 @@ import com.example.produtosdelimpeza.core.domain.model.Store
 
 interface CatalogRepository {
     suspend fun fetchStore(storeId: String): Result<Store>
-    suspend fun fetchProduct(sellerId: String): List<Product>
+    suspend fun fetchProduct(sellerId: String): Result<List<Product>>
 }

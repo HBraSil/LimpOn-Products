@@ -78,7 +78,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -98,6 +97,7 @@ import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
@@ -115,9 +115,10 @@ fun CatalogScreen(
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
     val store by catalogViewModel.store.collectAsState()
+    val allProducts by catalogViewModel.productList.collectAsState()
 
 
-    val cartIdxQuantity = remember { List(10) { 0 }.toMutableStateList() }
+
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetProductOpen by rememberSaveable { mutableStateOf(false) }
@@ -135,25 +136,6 @@ fun CatalogScreen(
         },
         containerColor = Color.Transparent
     ) {contentPadding ->
-        val sampleProductEntities = listOf(
-            ProductEntity(id = 1, name = "Sabão líquido 5 litros", price = 25.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[0]),
-            ProductEntity(id = 2, name = "Desinfetante Floral 2L", price = 15.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[1]),
-            ProductEntity(id = 3, name = "Detergente Neutro 500ml", price = 5.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[2]),
-            ProductEntity(id = 4, name = "Álcool 70% 1L", price = 10.0, badges = listOf("Oferta", "5L", "Mais vendido"), quantity = cartIdxQuantity[3]),
-            ProductEntity(id = 5, name = "Amaciante Concentrado 1L", price = 18.0, quantity = cartIdxQuantity[4]),
-            ProductEntity(id = 6, name = "Sabão em pó 1kg", price = 12.0, quantity = cartIdxQuantity[5]),
-            ProductEntity(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0, quantity = cartIdxQuantity[6]),
-            ProductEntity(id = 8, name = "Lustra móveis 500ml", price = 14.0, quantity = cartIdxQuantity[7]),
-            ProductEntity(id = 9, name = "Desengordurante 500ml", price = 9.0, quantity = cartIdxQuantity[8]),
-            ProductEntity(id = 10, name = "Limpa vidros 500ml", price = 7.0, quantity = cartIdxQuantity[9])
-        )
-
-        val sampleHighlights = List(6) {
-            ProductEntity(
-                name = listOf("Esponja multiuso (pacote com 3)", "Pizza Artesanal", "Amaciante Concentrado 1L", "Limpa vidros 500ml", "Suco Natural", "Café Torrado")[it],
-                price = listOf(12.0, 29.0, 10.22, 12.00, 40.00, 11.11)[it]
-            )
-        }
 
         LazyColumn(
             modifier = Modifier
@@ -163,7 +145,7 @@ fun CatalogScreen(
         ) {
             // Header principal
             item {
-                InformationCard(store?.name ?: "", onCardStoreProfileClick, onBackNavigation)
+                InformationCard(store.name, onCardStoreProfileClick, onBackNavigation)
             }
 
             // FAVORITOS
@@ -183,9 +165,9 @@ fun CatalogScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(sampleHighlights) { product ->
+                        items(allProducts) { product ->
                             ProductCard(
-                                productEntity = product,
+                                product = product,
                                 //isFavorite = favorites[product.id] == true,
                                 onToggleFavorite = {  },
                                 onClick = {   },
@@ -231,7 +213,7 @@ fun CatalogScreen(
                             .fillMaxWidth()
                             .padding(top = 10.dp)
                     ) {
-                        sampleProductEntities.forEachIndexed { index, product ->
+                        allProducts.forEachIndexed { index, product ->
                             val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
 
                         LimpOnCardProducts(
@@ -239,7 +221,7 @@ fun CatalogScreen(
                                 //.fillParentMaxWidth(0.48f)
                                 .weight(1f)
                                 .wrapContentHeight(),
-                                productEntity = product,
+                                product = product,
                                 txtQuantity = quantity,
                                 onClickProduct = {
                                     isSheetProductOpen = true
@@ -361,13 +343,6 @@ fun CatalogScreen(
                     }
                 }
             ) { contentPadding ->
-                val sampleProductsOfSpecificSellers = listOf(
-                    ProductEntity(id = 6, name = "Sabão em pó 1kg", badges = listOf("Oferta", "5L", "Mais vendido"), price = 12.0),
-                    ProductEntity(id = 7, name = "Esponja multiuso (pacote com 3)", price = 8.0),
-                    ProductEntity(id = 8, name = "Lustra móveis 500ml", price = 14.0),
-                    ProductEntity(id = 9, name = "Desengordurante 500ml", price = 9.0),
-                    ProductEntity(id = 10, name = "Limpa vidros 500ml", price = 7.0)
-                )
 
                 var expanded by remember { mutableStateOf(false) }
 
@@ -516,7 +491,7 @@ fun CatalogScreen(
                             .padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        sampleProductsOfSpecificSellers.forEachIndexed { _, product ->
+                        allProducts.forEachIndexed { _, product ->
                             LimpOnCardProducts(
                                 modifier = Modifier
                                     .width(150.dp)
@@ -526,7 +501,7 @@ fun CatalogScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                         shape = RoundedCornerShape(16.dp)
                                     ),
-                                productEntity = product,
+                                product = product,
                                 isProductScreen = false,
                                 onClickProduct = {}
                             )
@@ -542,7 +517,7 @@ fun CatalogScreen(
 // ---------- Card do produto ----------
 @Composable
 fun ProductCard(
-    productEntity: ProductEntity,
+    product: Product,
     //isFavorite: Boolean,
     onToggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
@@ -551,7 +526,7 @@ fun ProductCard(
 ) {
     Card(
         modifier = modifier
-            .clickable { onClick(productEntity.name) },
+            .clickable { onClick(product.name) },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
     ) {
@@ -574,7 +549,7 @@ fun ProductCard(
                 )
 
                 IconButton(
-                    onClick = { onToggleFavorite(productEntity.name) },
+                    onClick = { onToggleFavorite(product.name) },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
@@ -591,13 +566,13 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = productEntity.name,
+                text = product.name,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "R$ ${productEntity.price.toBrazilianCurrency()}",
+                text = "R$ ${product.price.toBrazilianCurrency()}",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.titleSmall

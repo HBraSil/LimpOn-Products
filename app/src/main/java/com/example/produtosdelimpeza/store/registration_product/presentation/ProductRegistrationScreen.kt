@@ -25,6 +25,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
+import com.example.produtosdelimpeza.core.ui.util.asString
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,11 +35,11 @@ fun ProductRegistrationScreen(
     onNavigateToLogin: () -> Unit = {},
     productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
 ) {
-    val formState by productRegistrationViewModel.productFormState.collectAsState()
-    val isValidToSave by productRegistrationViewModel.isValid.collectAsState()
+    val formState = productRegistrationViewModel.productFormState
     val state by productRegistrationViewModel.uiState.collectAsState()
 
-    var selectedCategory by remember { mutableStateOf("") }
+    var promotionalPrice by remember { mutableStateOf("") }
+
 
     val context = LocalContext.current
     LaunchedEffect(state.showNoInternet) {
@@ -110,52 +111,65 @@ fun ProductRegistrationScreen(
                 }
 
                 item {
+                    val errorFormState = formState.nameField.error?.asString()
+
                     OutlinedTextField(
-                        value = formState.productName,
+                        value = formState.nameField.field,
                         onValueChange = {
-                            productRegistrationViewModel.onEvent(
-                                AddProductField.NameField(
-                                    it
-                                )
-                            )
+                            productRegistrationViewModel.updateProductName(it)
                         },
                         label = { Text("Nome do Produto*") },
                         placeholder = { Text("Ex: Hambúrguer Artesanal") },
+                        isError = errorFormState != null,
+                        supportingText = {
+                            errorFormState?.let {
+                                Text(it)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
 
                 item {
+                    val errorFormState = formState.descriptionField.error?.asString()
+
                     OutlinedTextField(
-                        value = formState.productDescription,
+                        value = formState.descriptionField.field,
                         onValueChange = {
-                            productRegistrationViewModel.onEvent(
-                                AddProductField.ProductDescriptionField(
-                                    it
-                                )
-                            )
+                            productRegistrationViewModel.updateProductDescription(it)
                         },
                         label = { Text("Descrição detalhada*") },
                         placeholder = { Text("Descreva ingredientes, tamanho, etc.") },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
+                        isError = errorFormState != null,
+                        supportingText = {
+                            errorFormState?.let {
+                                Text(it)
+                            }
+                        },
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
                 item {
+                    val errorFormState = formState.priceField.error?.asString()
+
+
                     OutlinedTextField(
-                        value = formState.productPrice,
+                        value = formState.priceField.field,
                         onValueChange = {
-                            productRegistrationViewModel.onEvent(
-                                AddProductField.PriceField(
-                                    it
-                                )
-                            )
+                            productRegistrationViewModel.updateProductPrice(it)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Preço") },
                         leadingIcon = { Text("R$") },
+                        isError = errorFormState != null,
+                        supportingText = {
+                            errorFormState?.let {
+                                Text(it)
+                            }
+                        },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -170,45 +184,45 @@ fun ProductRegistrationScreen(
                             "Porções",
                             "Sobremesas"
                         ),
-                        selectedOption = selectedCategory,
+                        selectedOption = formState.categoryField.field,
                         onOptionSelected = {
-                            productRegistrationViewModel.onEvent(
-                                AddProductField.CategoryField(
-                                    it
-                                )
-                            )
-                            selectedCategory = it
+                            productRegistrationViewModel.updateCategory(it)
                         }
                     )
                 }
                 item {
                     PromotionSection(
-                        originalPrice = formState.promotionalPrice,
+                        originalPrice = promotionalPrice,
                         onPriceChange = {
-                            productRegistrationViewModel.onEvent(
-                                AddProductField.PromotionalPriceField(it)
-                            )
+                            promotionalPrice = it
                         }
                     )
                 }
                 item {
                     DietaryTagsSection(
-                        selectedTags = setOf("carne", "Lactício"),
-                        onTagToggle = { /* lógica de toggle */ })
+                        selectedTags = formState.classificationField.field,
+                        onTagToggle = {
+                            productRegistrationViewModel.updateClassification(it)
+                        }
+                    )
                 }
                 item {
                     InventorySection(
                         sku = "Sodoku",
                         onSkuChange = {},
-                        quantity = "8*",
-                        onQuantityChange = {})
+                        quantity = formState.stockCountField.field,
+                        onQuantityChange = {
+                            productRegistrationViewModel.updateStock(it)
+                        }
+                    )
                 }
                 item {
                     LimpOnRegistrationButton(
                         text = "Salvar Produto",
-                        isValid = isValidToSave
+                        loading = state.isLoading,
+                        isValid = formState.formIsValid
                     ) {
-                        productRegistrationViewModel.registerProduct(formState)
+                        productRegistrationViewModel.registerProduct()
                     }
                 }
             }
@@ -266,7 +280,7 @@ fun PromotionSection(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DietaryTagsSection(
-    selectedTags: Set<String>,
+    selectedTags: String,
     onTagToggle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {

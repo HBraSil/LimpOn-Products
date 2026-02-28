@@ -34,7 +34,7 @@ import com.example.produtosdelimpeza.core.domain.model.DiscountType
 @Composable
 fun DiscountTypeSection(
     currentDiscountValue: String = "",
-    errorMessage: String = "",
+    errorMessage: String? = "",
     onDiscountTypeAndValueChange: (DiscountType, String) -> Unit
 ) {
     val options = DiscountType.entries.filter { it != DiscountType.NONE }
@@ -97,7 +97,7 @@ fun DiscountTypeSection(
 private fun DiscountValueField(
     value: String,
     type: DiscountType?,
-    errorMessage: String = "",
+    errorMessage: String? = null,
     focusRequester: FocusRequester,
     onValueChange: (String) -> Unit,
 ) {
@@ -129,9 +129,11 @@ private fun DiscountValueField(
                 )
             }
         },
-        isError = errorMessage.isNotEmpty(),
+        isError = errorMessage != null,
         supportingText = {
-            if (errorMessage.isNotEmpty()) Text(text = errorMessage)
+            errorMessage?.let {
+                Text(text = it)
+            }
         },
         singleLine = true,
         shape = RoundedCornerShape(14.dp)

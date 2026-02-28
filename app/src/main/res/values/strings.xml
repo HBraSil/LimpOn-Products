@@ -120,4 +120,10 @@
     <string name="error_category_blank">Categoria está vazia</string>
     <string name="error_duration_less_than_one">A duração não poder ser menor do que 1</string>
     <string name="coupon_code_empty">O código do cupom é obrigatório</string>
+    <string name="product_name_empty">O nome do produto é obrigatório</string>
+    <string name="product_name_short">Nome do produto deve ter mais de duas letras</string>
+    <string name="product_description_empty">Descrição não pode ficar vazia</string>
+    <string name="product_price_invalid">Preço inválido</string>
+    <string name="product_stock_invalid">Estoque inválido</string>
+    <string name="product_category_empty">Categoria vazia</string>
 </resources>
