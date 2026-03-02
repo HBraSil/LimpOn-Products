@@ -40,7 +40,20 @@ class CatalogViewModel @Inject constructor(
             val result = storeCatalogRepository.fetchStore(storeId)
 
             if (result.isSuccess) {
-                _store.update { it.copy(id = storeId) }
+                _store.update {
+                    it.copy(
+                        id = storeId,
+                        ownerId = result.getOrNull()?.ownerId ?: "",
+                        name = result.getOrNull()?.name ?: "",
+                        address = result.getOrNull()?.address ?: "",
+                        phone = result.getOrNull()?.phone ?: "",
+                        email = result.getOrNull()?.email ?: "",
+                        description = result.getOrNull()?.description ?: "",
+                        category = result.getOrNull()?.category ?: "",
+                        revenue = result.getOrNull()?.revenue ?: "",
+                        storeOperationTime = result.getOrNull()?.storeOperationTime ?: emptyMap()
+                    )
+                }
             }
         }
     }

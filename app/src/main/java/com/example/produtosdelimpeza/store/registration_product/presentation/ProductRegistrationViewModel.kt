@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.domain.FirebaseResult
 import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.core.domain.util.toCurrencyDouble
 import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.store.registration_product.domain.ProductRegistrationRepository
 import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductCategoryValidator
@@ -62,6 +63,19 @@ class ProductRegistrationViewModel @Inject constructor(
     }
 
 
+    fun updateProductPrice(price: String) {
+        val isPriceValid = ProductStockValidator.isValid(price)
+
+        productFormState = productFormState.copy(
+            priceField = FieldState(
+                field = price,
+                error = isPriceValid,
+                isValid = isPriceValid == null
+            )
+        )
+
+        updateButton()
+    }
 
     fun updateProductPromotionalPrice(price: String) {
         productFormState = productFormState.copy(
@@ -142,8 +156,8 @@ class ProductRegistrationViewModel @Inject constructor(
             val product = Product(
                 name = productFormState.nameField.field,
                 description = productFormState.descriptionField.field,
-                price = productFormState.priceField.field.toDouble(),
-                promotionalPrice = productFormState.promotionalPriceField.field.toDouble(),
+                price = productFormState.priceField.field.toCurrencyDouble(),
+                promotionalPrice = productFormState.promotionalPriceField.field.toCurrencyDouble(),
                 stockCount = productFormState.stockCountField.field.toInt(),
                 category = productFormState.categoryField.field,
                 classification = productFormState.classificationField.field

@@ -5,7 +5,7 @@ import com.example.produtosdelimpeza.core.presentation.UiText
 
 object ProductDescriptionValidator {
     fun isValid(description: String): UiText.StringResource? {
-        if (description.isBlank()) return UiText.StringResource(R.string.product_description_empty)
+        if (description.isBlank()) return UiText.StringResource(R.string.error_empty_field)
 
         return null
     }

@@ -1,6 +1,7 @@
 package com.example.produtosdelimpeza.core.navigation
 
 import SellerEntryPointScreen
+import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -390,8 +391,9 @@ fun NavGraphBuilder.homeGraph(
             HomeScreen(
                 cartViewModel = cartViewModel,
                 navController = navController,
-                onCardSellerClick = { nameSeller ->
-                    navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$nameSeller")
+                onCardSellerClick = { storeId ->
+                    val encoded = Uri.encode(storeId)
+                    navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$encoded")
                 },
                 onSeeAllClick = {
                     navController.navigate(CustomerScreen.HIGHLIGHTS.route)

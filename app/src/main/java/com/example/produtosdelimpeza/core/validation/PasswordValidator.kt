@@ -6,7 +6,7 @@ import com.example.produtosdelimpeza.core.presentation.UiText
 
 object PasswordValidator {
     fun isValidPassword(password: String): UiText.StringResource? {
-        if (password.isBlank()) return UiText.StringResource(R.string.error_password_blank)
+        if (password.isBlank()) return UiText.StringResource(R.string.error_empty_field)
 
         if (password.length < 8) return UiText.StringResource(R.string.error_password_invalid)
 
@@ -15,7 +15,7 @@ object PasswordValidator {
     }
 
     fun isValidConfirmPassword(password: String, confirmPassword: String): UiText.StringResource? {
-        if (password.isBlank()) return UiText.StringResource(R.string.error_password_blank)
+        if (password.isBlank()) return UiText.StringResource(R.string.error_empty_field)
 
         if (password.length < 8) return UiText.StringResource(R.string.error_password_invalid)
 

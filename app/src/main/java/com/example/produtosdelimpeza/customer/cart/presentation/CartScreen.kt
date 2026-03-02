@@ -22,8 +22,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import java.text.NumberFormat
-import java.util.Locale
+import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 
 // --- 1. Estrutura de Dados (Hardcoded) ---
 
@@ -93,11 +92,7 @@ val initialCartState = CartState(
     observations = "Sem cebola no Mega Combo, por favor."
 )
 
-// --- 3. Utilitários ---
 
-val currencyFormatter: NumberFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-
-// --- 4. Composables ---
 
 @Composable
 fun CartScreen() {
@@ -166,7 +161,7 @@ fun CartTopBar() {
     )
 }
 
-@Composable
+/*@Composable
 fun HeaderNotification() {
     Row(
         modifier = Modifier
@@ -190,7 +185,7 @@ fun HeaderNotification() {
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
-}
+}*/
 
 
 @Composable
@@ -473,7 +468,6 @@ fun ValueSummarySection(state: CartState) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Seção de Cupons/Benefícios (inspirado no Zé/iFood)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

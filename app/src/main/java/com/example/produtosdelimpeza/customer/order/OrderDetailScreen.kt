@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
+import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -389,7 +389,7 @@ fun OrderItemsCard(order: Order) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "R$ ${order.total.toBrazilianCurrency()}",
+                        "R$ ${currencyFormatter.format(order.total)}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary

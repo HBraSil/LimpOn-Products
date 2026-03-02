@@ -78,7 +78,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -99,7 +98,7 @@ import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.Product
-import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
+import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 
@@ -135,7 +134,6 @@ fun CatalogScreen(
         },
         containerColor = Color.Transparent
     ) {contentPadding ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -570,7 +568,7 @@ fun ProductCard(
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "R$ ${product.price.toBrazilianCurrency()}",
+                text = "R$ ${currencyFormatter.format(product.price)}",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.titleSmall

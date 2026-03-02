@@ -64,7 +64,7 @@
     <string name="alert_icon">Ícone de alerta</string>
     <string name="dashboard">dashboard</string>
     <string name="profile_store">Perfil da loja</string>
-    <string name="order_detail_screen">lista de pedidos</string>
+    <string name="order_detail_screen">Pedidos</string>
     <string name="save_changes">Salvar Alterações</string>
     <string name="edit_name_store">editar nome da loja</string>
     <string name="store_managment">Gerenciamento</string>
@@ -108,22 +108,13 @@
 
 
     <string name="error_discount_greater_than_100">Desconto não pode ser maior que 100</string>
-    <string name="error_discount_blank">Campo desconto não pode ser vazio</string>
-    <string name="error_password_blank">Campo senha não pode ser vazio</string>
+    <string name="error_empty_field">Campo vazio</string>
     <string name="error_password_invalid">Senha deve ter 8 caracteres ou mais</string>
     <string name="error_confirm_password_invalid">Confirmar senha deve ser igual à senha</string>
-    <string name="error_email_blank">Campo e-mail não pode ser vazio</string>
     <string name="error_email_invalid">E-mail inválido. Verifique o campo novamente</string>
-    <string name="error_name_blank">Campo nome não pode ser vazio</string>
     <string name="error_name_invalid">Nome deve ter 3 letras ou mais</string>
-    <string name="error_last_name_blank">Campo nome não pode ser vazio</string>
-    <string name="error_category_blank">Categoria está vazia</string>
     <string name="error_duration_less_than_one">A duração não poder ser menor do que 1</string>
-    <string name="coupon_code_empty">O código do cupom é obrigatório</string>
-    <string name="product_name_empty">O nome do produto é obrigatório</string>
     <string name="product_name_short">Nome do produto deve ter mais de duas letras</string>
-    <string name="product_description_empty">Descrição não pode ficar vazia</string>
     <string name="product_price_invalid">Preço inválido</string>
     <string name="product_stock_invalid">Estoque inválido</string>
-    <string name="product_category_empty">Categoria vazia</string>
 </resources>

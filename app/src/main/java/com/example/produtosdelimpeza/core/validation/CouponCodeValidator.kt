@@ -5,7 +5,7 @@ import com.example.produtosdelimpeza.core.presentation.UiText
 
 object CouponCodeValidator {
     fun isValid(field: String): UiText.StringResource? {
-        if (field.isEmpty()) return UiText.StringResource(R.string.coupon_code_empty)
+        if (field.isBlank()) return UiText.StringResource(R.string.error_empty_field)
 
 
         return null

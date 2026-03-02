@@ -27,7 +27,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.produtosdelimpeza.core.theme.GradientBackCardsComponents
 import com.example.produtosdelimpeza.core.theme.StarColor
-import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -122,7 +121,6 @@ fun OrderListScreen(onNavigateToOrderDetails: () -> Unit) {
                 },
                 sheetState = sheetState,
             ) {
-                // drag handle custom
 
                 FiltersBottomSheet_DoubleSliders(
                     availableStatuses = PedidoStatus.entries,
@@ -207,7 +205,6 @@ fun OrderCard(
                     }
                 }
 
-                // Status chip at the right
                 StatusChip(
                     modifier = Modifier.padding(end = 16.dp),
                     order.status
@@ -258,7 +255,7 @@ fun OrderCard(
                                 )
                         ) {
                             Text(
-                                text = "R$ ${40.0.toBrazilianCurrency()}",
+                                text = "R$ ${40.0}",
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(6.dp),
                                 color = MaterialTheme.colorScheme.background

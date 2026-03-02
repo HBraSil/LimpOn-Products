@@ -90,8 +90,8 @@ import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.model.Store
-import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 
@@ -302,7 +302,7 @@ fun SampleFeaturedProducts(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "R$ ${productEntityCart.price.toBrazilianCurrency()}",
+                    text = "R$ ${currencyFormatter.format(productEntityCart.price)}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
@@ -327,7 +327,6 @@ fun SampleFeaturedProducts(
 }
 
 
-// --- Section header (title + action) ---
 @Composable
 fun SectionHeader(
     title: String,

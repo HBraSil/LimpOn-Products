@@ -5,8 +5,8 @@ import java.util.UUID
 
 data class Store(
     val id: String = UUID.randomUUID().toString(),
-    val name: String = "",
     val ownerId: String = "",
+    val name: String = "",
     val email: String = "",
     val description: String = "",
     val category: String = "",

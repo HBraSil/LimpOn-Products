@@ -5,6 +5,8 @@ import com.example.produtosdelimpeza.core.presentation.UiText
 
 object ProductStockValidator {
     fun isValid(stock: String): UiText.StringResource? {
+        if (stock.isBlank()) return UiText.StringResource(R.string.error_empty_field)
+
         if (stock.toInt() <= 0) return UiText.StringResource(R.string.product_stock_invalid)
 
 

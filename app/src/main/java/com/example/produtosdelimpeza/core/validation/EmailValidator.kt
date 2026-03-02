@@ -7,7 +7,7 @@ import com.example.produtosdelimpeza.core.presentation.UiText
 object EmailValidator {
     fun validate(email: String): UiText.StringResource? {
         if (email.isBlank()) {
-            return UiText.StringResource(R.string.error_email_blank)
+            return UiText.StringResource(R.string.error_empty_field)
         }
 
         if (!isEmailValid(email)) {
