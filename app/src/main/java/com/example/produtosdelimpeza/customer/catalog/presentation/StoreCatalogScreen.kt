@@ -78,6 +78,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -116,8 +117,6 @@ fun CatalogScreen(
     val cartItems by cartViewModel.cartItems.collectAsState()
     val store by catalogViewModel.store.collectAsState()
     val allProducts by catalogViewModel.productList.collectAsState()
-
-
 
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -343,7 +342,6 @@ fun CatalogScreen(
                     }
                 }
             ) { contentPadding ->
-
                 var expanded by remember { mutableStateOf(false) }
 
                 val rotation by animateFloatAsState(

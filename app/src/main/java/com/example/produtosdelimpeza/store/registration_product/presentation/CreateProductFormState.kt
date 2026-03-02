@@ -6,7 +6,7 @@ data class CreateProductFormState(
     val nameField: FieldState = FieldState(),
     val descriptionField: FieldState = FieldState(),
     val priceField: FieldState = FieldState(),
-    //val promotionalPriceField: FieldState = FieldState(),
+    val promotionalPriceField: FieldState = FieldState(),
     val classificationField: FieldState = FieldState(),
     val categoryField: FieldState = FieldState(),
     val stockCountField: FieldState = FieldState(),

@@ -28,7 +28,7 @@ class CatalogViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            savedStateHandle.get<String>("sellerId")?.let { storeId ->
+            savedStateHandle.get<String>("storeId")?.let { storeId ->
                 updateStore(storeId)
                 updateProducts(storeId)
             }

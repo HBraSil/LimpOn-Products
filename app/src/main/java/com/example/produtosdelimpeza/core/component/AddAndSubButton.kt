@@ -38,9 +38,9 @@ import com.example.produtosdelimpeza.core.domain.Product
 fun AddAndSubButton(
     modifier: Modifier = Modifier,
     txtQuantity: Int = 0,
-    productEntity: Product = Product(),
-    subOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
-    sumOfProducts: (String, Int, Double) -> Unit = {name, quantity, price ->},
+    product: Product = Product(),
+    subOfProducts: (String, Int, Double) -> Unit = {_, _, _ ->},
+    sumOfProducts: (String, Int, Double) -> Unit = {_, _, _ ->},
 ) {
     val transition = updateTransition(targetState = txtQuantity, label = "qtyTransition")
     val scale by transition.animateFloat(label = "qtyScale") { 1.0f + (if (it > 0) 0.05f else 0f) }
@@ -66,7 +66,7 @@ fun AddAndSubButton(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             IconButton(
-                onClick = { subOfProducts(productEntity.name, txtQuantity, productEntity.price) },
+                onClick = { subOfProducts(product.name, txtQuantity, product.price) },
 
             ) {
                 Icon(
@@ -88,7 +88,7 @@ fun AddAndSubButton(
 
             Spacer(Modifier.width(4.dp))
 
-            IconButton(onClick = { sumOfProducts(productEntity.name, txtQuantity, productEntity.price) }) {
+            IconButton(onClick = { sumOfProducts(product.name, txtQuantity, product.price) }) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = "Aumentar",

@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.Product
-import com.example.produtosdelimpeza.core.ui.formatter.toBrazilianCurrency
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -47,7 +46,7 @@ fun LimpOnCardProducts(
     txtQuantity: Int = 0,
     isProductScreen: Boolean = true,
     onClickProduct: () -> Unit = {},
-    subOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
+    subOfProducts: (String, Int, Double) -> Unit = { _, _, _ -> },
     sumOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
 ) {
     Card(
@@ -154,7 +153,7 @@ fun LimpOnCardProducts(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = "R$ ${product.price.toBrazilianCurrency()}",
+                    text = "R$ ${product.price}",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -181,7 +180,7 @@ fun LimpOnCardProducts(
                     AddAndSubButton(
                         modifier = Modifier,
                         txtQuantity = txtQuantity,
-                        productEntity = product,
+                        product = product,
                         subOfProducts = subOfProducts,
                         sumOfProducts = sumOfProducts
                     )

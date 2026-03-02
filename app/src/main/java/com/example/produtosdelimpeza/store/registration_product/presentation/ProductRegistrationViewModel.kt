@@ -12,7 +12,6 @@ import com.example.produtosdelimpeza.store.registration_product.domain.ProductRe
 import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductCategoryValidator
 import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductDescriptionValidator
 import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductNameValidator
-import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductPriceValidator
 import com.example.produtosdelimpeza.store.registration_product.presentation.validation.ProductStockValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,21 +61,8 @@ class ProductRegistrationViewModel @Inject constructor(
         updateButton()
     }
 
-    fun updateProductPrice(price: String) {
-        val isPriceValid = ProductPriceValidator.isValid(price)
 
-        productFormState = productFormState.copy(
-            priceField = FieldState(
-                field = price,
-                error = isPriceValid,
-                isValid = isPriceValid == null
-            )
-        )
 
-        updateButton()
-    }
-
-/*
     fun updateProductPromotionalPrice(price: String) {
         productFormState = productFormState.copy(
             promotionalPriceField = FieldState(
@@ -88,7 +74,7 @@ class ProductRegistrationViewModel @Inject constructor(
 
         updateButton()
     }
-*/
+
 
     fun updateStock(stock: String) {
         val isStockValid = ProductStockValidator.isValid(stock)
@@ -157,6 +143,7 @@ class ProductRegistrationViewModel @Inject constructor(
                 name = productFormState.nameField.field,
                 description = productFormState.descriptionField.field,
                 price = productFormState.priceField.field.toDouble(),
+                promotionalPrice = productFormState.promotionalPriceField.field.toDouble(),
                 stockCount = productFormState.stockCountField.field.toInt(),
                 category = productFormState.categoryField.field,
                 classification = productFormState.classificationField.field
