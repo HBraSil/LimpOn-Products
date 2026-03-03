@@ -968,29 +968,6 @@ fun ItemCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-
-                    /*val typeEmoji = if (store.isPhysicalStore) "🏪 Loja física" else "🧍 Ambulante"
-                    Text(
-                        text = typeEmoji,
-                        color = MaterialTheme.colorScheme.background,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                    )
-*/
-                    Spacer(modifier = Modifier.width(6.dp))
-
-  /*                  val passColor by animateColorAsState(
-                        targetValue =
-                            if (store.sellerPassesByYourCity) Color(0xFF0FA958)
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-*/
-
                     Text(
                         text = store.address,
                         style = MaterialTheme.typography.labelSmall,

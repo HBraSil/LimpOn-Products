@@ -180,7 +180,7 @@ fun CatalogScreen(
             item {
                 Spacer(Modifier.height(20.dp))
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -200,23 +200,19 @@ fun CatalogScreen(
                             Icon(Icons.Default.FilterList, contentDescription = null)
                         }
                     }
-
-
+                    Spacer(Modifier.height(10.dp))
                     FlowRow(
                         maxItemsInEachRow = 2,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(26.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         allProducts.forEachIndexed { index, product ->
                             val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
 
                         LimpOnCardProducts(
                             modifier = Modifier
-                                //.fillParentMaxWidth(0.48f)
-                                .weight(1f)
+                                .fillMaxWidth(0.48f)
                                 .wrapContentHeight(),
                                 product = product,
                                 txtQuantity = quantity,
@@ -650,7 +646,6 @@ fun InformationCard(
 ) {
     val bannerHeight = 160
     Box(modifier = Modifier.fillMaxWidth()) {
-        // Banner (placeholder) - replace by Image when integrating real assets
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -664,7 +659,6 @@ fun InformationCard(
                     )
                 )
         ) {
-            // Optional: small decorative text on banner
             Text(
                 text = "Banner do vendedor",
                 modifier = Modifier
@@ -674,7 +668,6 @@ fun InformationCard(
             )
         }
 
-        // Row posicionada sobre o banner, respeitando a status bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -683,7 +676,6 @@ fun InformationCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // Botão Voltar
             IconButton(
                 onClick = onBackNavigation,
                 colors = IconButtonDefaults.iconButtonColors(
@@ -697,7 +689,6 @@ fun InformationCard(
                 )
             }
 
-            // Botão Favoritar
             IconButton(onClick = { }) {
                 Icon(
                     imageVector = Icons.Outlined.FavoriteBorder,
@@ -744,7 +735,7 @@ fun InformationCard(
                             )
                         }
                     }
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.width(16.dp))
 
 
                     Column(
@@ -764,15 +755,6 @@ fun InformationCard(
                             fontSize = 13.sp,
                         )
                     }
-
-                    Spacer(Modifier.weight(1f))
-                    Text(
-                        text = "🧍 Ambulante",
-                        modifier = Modifier.padding(top = 16.dp, end = 16.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.9f),
-                        fontWeight = FontWeight.Bold
-                    )
                 }
 
                 Text(
