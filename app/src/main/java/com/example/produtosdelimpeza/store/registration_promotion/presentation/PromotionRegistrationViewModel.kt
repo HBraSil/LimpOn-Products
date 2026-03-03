@@ -34,6 +34,10 @@ class PromotionRegistrationViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
 
+    fun reset() {
+        promotionFormState = CreatePromotionFormState()
+        _uiState.value = CreatePromotionUiState()
+    }
 
     fun updateDiscountType(field: DiscountType) {
         promotionFormState = promotionFormState.copy(
@@ -52,12 +56,12 @@ class PromotionRegistrationViewModel @Inject constructor(
         val isDiscountValueValid = DiscountValidator.isValid(field)
 
         promotionFormState = promotionFormState.copy(
-                discountValueField = FieldState(
-                    field = field,
-                    error = isDiscountValueValid,
-                    isValid = isDiscountValueValid == null,
-                )
+            discountValueField = FieldState(
+                field = field,
+                error = isDiscountValueValid,
+                isValid = isDiscountValueValid == null,
             )
+        )
 
         updateButton()
     }
@@ -86,10 +90,6 @@ class PromotionRegistrationViewModel @Inject constructor(
         )
 
         updateButton()
-    }
-
-    fun updateDialogView() {
-        _uiState.update { it.copy(success = false) }
     }
 
     private fun updateButton() {

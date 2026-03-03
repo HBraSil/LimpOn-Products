@@ -75,7 +75,7 @@
     <string name="fifteen_days">15 dias</string>
     <string name="thirty_days">30 dias</string>
     <string name="custom">Personalizado</string>
-    <string name="cupon_created">Cupon criado com sucesso!</string>
+    <string name="coupon_created">Cupon criado com sucesso!</string>
     <string name="promotion_created">Promoção criada com sucesso!</string>
     <string name="contact_email">Email para contato</string>
     <string name="full_name">Digite seu nome completo</string>
@@ -117,4 +117,7 @@
     <string name="product_name_short">Nome do produto deve ter mais de duas letras</string>
     <string name="product_price_invalid">Preço inválido</string>
     <string name="product_stock_invalid">Estoque inválido</string>
+    <string name="product_created">Produto criado com sucesso</string>
+    <string name="error_white_spaces">Espaço em branco não é permitido</string>
+    <string name="coupon_code_information">O cliente digitará esse código na hora da compra</string>
 </resources>

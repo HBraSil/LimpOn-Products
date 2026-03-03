@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,9 +18,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -27,11 +28,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.core.ui.util.asString
+import com.example.produtosdelimpeza.store.component.SuccessRegistrationOverlay
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,46 +46,57 @@ fun ProductRegistrationScreen(
     productRegistrationViewModel: ProductRegistrationViewModel = hiltViewModel()
 ) {
     val formState = productRegistrationViewModel.productFormState
-    val state by productRegistrationViewModel.uiState.collectAsState()
+    val uiState by productRegistrationViewModel.uiState.collectAsState()
+    val listState = rememberLazyListState()
 
     val context = LocalContext.current
-    LaunchedEffect(state.showNoInternet) {
-        if (state.showNoInternet) {
+    LaunchedEffect(uiState.showNoInternet) {
+        if (uiState.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
-    if (state.showSessionExpired) {
+    if (uiState.showSessionExpired) {
         SessionExpiredAlertDialog{
             productRegistrationViewModel.signOut()
             onNavigateToLogin()
         }
     }
 
-    Box {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Novo Produto") },
-                    navigationIcon = {
-                        IconButton(onClick = onBackNavigation) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBackIos,
-                                contentDescription = "Voltar"
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
-                    )
+
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
+            delay(1500)
+            listState.animateScrollToItem(0)
+            productRegistrationViewModel.reset()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Novo Produto") },
+                navigationIcon = {
+                    IconButton(onClick = onBackNavigation) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBackIos,
+                            contentDescription = "Voltar"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            }
-        ) { paddingValues ->
+            )
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
                     Text("Foto do Produto", style = MaterialTheme.typography.titleSmall)
@@ -156,28 +171,6 @@ fun ProductRegistrationScreen(
                     )
                 }
                 item {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        PriceInputField(
-                            label = "Preço Base",
-                            value = formState.priceField.field,
-                            isError = formState.priceField.error != null,
-                            errorMessage = formState.priceField.error?.asString(),
-                            onValueChange = {
-                                productRegistrationViewModel.updateProductPrice(it)
-                            },
-                        )
-
-                        PriceInputField(
-                            label = "Valor promocional",
-                            value = formState.promotionalPriceField.field,
-                            onValueChange = {
-                                productRegistrationViewModel.updateProductPromotionalPrice(it)
-                            },
-                            isPromotional = true
-                        )
-                    }
-                }
-                item {
                     AppliesToCategorySelector(
                         options = listOf(
                             "Todos os produtos",
@@ -202,6 +195,28 @@ fun ProductRegistrationScreen(
                     )
                 }
                 item {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        PriceInputField(
+                            label = "Preço Base",
+                            value = formState.priceField.field,
+                            isError = formState.priceField.error != null,
+                            errorMessage = formState.priceField.error?.asString(),
+                            onValueChange = {
+                                productRegistrationViewModel.updateProductPrice(it)
+                            },
+                        )
+
+                        PriceInputField(
+                            label = "Valor promocional",
+                            value = formState.promotionalPriceField.field,
+                            onValueChange = {
+                                productRegistrationViewModel.updateProductPromotionalPrice(it)
+                            },
+                            isPromotional = true
+                        )
+                    }
+                }
+                item {
                     InventorySection(
                         sku = "Sodoku",
                         onSkuChange = {},
@@ -214,13 +229,19 @@ fun ProductRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Salvar Produto",
-                        loading = state.isLoading,
+                        loading = uiState.isLoading,
                         isValid = formState.formIsValid
                     ) {
                         productRegistrationViewModel.registerProduct()
                     }
                 }
+
             }
+
+            SuccessRegistrationOverlay(
+                message = stringResource(R.string.product_created),
+                uiState.success
+            )
         }
     }
 }
@@ -310,6 +331,7 @@ fun PriceInputField(
 }
 
 
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DietaryTagsSection(
@@ -363,7 +385,7 @@ fun InventorySection(
         OutlinedTextField(
             value = quantity,
             onValueChange = onQuantityChange,
-            label = { Text("Estoque") },
+            label = { Text("Estoque (opcional)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(12.dp)
@@ -371,33 +393,6 @@ fun InventorySection(
     }
 }
 
-
-@Composable
-fun SuccessSnackbar(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .shadow(4.dp, RoundedCornerShape(12.dp))
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-    }
-}
 
 
 @Preview(showBackground = true, showSystemUi = true)

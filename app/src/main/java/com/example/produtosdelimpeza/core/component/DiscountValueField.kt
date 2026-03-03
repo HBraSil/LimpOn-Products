@@ -34,7 +34,7 @@ import com.example.produtosdelimpeza.core.domain.model.DiscountType
 @Composable
 fun DiscountTypeSection(
     currentDiscountValue: String = "",
-    errorMessage: String? = "",
+    errorMessage: String?,
     onDiscountTypeAndValueChange: (DiscountType, String) -> Unit
 ) {
     val options = DiscountType.entries.filter { it != DiscountType.NONE }
@@ -117,7 +117,7 @@ private fun DiscountValueField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
-        trailingIcon = {
+        leadingIcon = {
             if (type != null) {
                 Text(
                     text = when (type) {

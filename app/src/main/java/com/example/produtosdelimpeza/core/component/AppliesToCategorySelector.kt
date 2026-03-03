@@ -18,15 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppliesToCategorySelector(
-    title: String = "Onde essa promoção vale",
-    subtitle: String = "Selecione a categoria de produtos",
     options: List<String>,
     selectedOption: String?,
     onOptionSelected: (String) -> Unit
@@ -35,15 +32,7 @@ fun AppliesToCategorySelector(
 
     Column {
         Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        Spacer(Modifier.height(4.dp))
-
-        Text(
-            text = subtitle,
+            text = "Selecione a categoria de produtos",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

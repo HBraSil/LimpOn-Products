@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -29,9 +30,10 @@ import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
-import com.example.produtosdelimpeza.core.component.OperationResultOverlay
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
 import com.example.produtosdelimpeza.core.ui.util.asString
+import com.example.produtosdelimpeza.store.component.SuccessRegistrationOverlay
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,43 +44,49 @@ fun PromotionRegistrationScreen(
     promotionRegistrationViewModel: PromotionRegistrationViewModel = hiltViewModel()
 ) {
 
-    val state by promotionRegistrationViewModel.uiState.collectAsState()
+    val uiState by promotionRegistrationViewModel.uiState.collectAsState()
     val formState = promotionRegistrationViewModel.promotionFormState
+    val listState = rememberLazyListState()
 
-
- /*   LaunchedEffect(state.unknwonError) {
-        if (state.unknwonError) {
-            showSuccess = true
-        }
-    }*/
 
     val context = LocalContext.current
-    LaunchedEffect(state.showNoInternet) {
-        if (state.showNoInternet) {
+    LaunchedEffect(uiState.showNoInternet) {
+        if (uiState.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
-    if (state.showSessionExpired) {
+    if (uiState.showSessionExpired) {
         SessionExpiredAlertDialog(onNavigateToLogin)
     }
-    Box {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackNavigation) {
-                            Icon(Icons.AutoMirrored.Default.ArrowBackIos, null)
-                        }
-                    },
-                    title = { Text("Criar Promoção") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-                )
-            }
-        ) { paddingValues ->
+
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
+            delay(1500)
+            listState.animateScrollToItem(0)
+            promotionRegistrationViewModel.reset()
+        }
+    }
+
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackNavigation) {
+                        Icon(Icons.AutoMirrored.Default.ArrowBackIos, null)
+                    }
+                },
+                title = { Text("Criar Promoção") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            )
+        }
+    ) { paddingValues ->
+        Box {
             LazyColumn(
                 modifier = Modifier
                     .padding(10.dp),
                 contentPadding = paddingValues,
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(30.dp)
             ) {
                 item { ImpactHeader() }
@@ -88,7 +96,6 @@ fun PromotionRegistrationScreen(
                         errorMessage = formState.discountValueField.error?.asString(),
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
                             promotionRegistrationViewModel.updateDiscountType(discountType)
-
                             promotionRegistrationViewModel.updateDiscountValue(discountValue)
                         }
                     )
@@ -127,7 +134,7 @@ fun PromotionRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar promoção",
-                        loading = state.isLoading,
+                        loading = uiState.isLoading,
                         isValid = formState.formIsValid
                     ) {
                         promotionRegistrationViewModel.createPromotion()
@@ -136,12 +143,10 @@ fun PromotionRegistrationScreen(
             }
         }
 
-        if (state.success) {
-            OperationResultOverlay(
-                message = stringResource(R.string.promotion_created),
-                onDismiss = { promotionRegistrationViewModel.updateDialogView() }
-            )
-        }
+        SuccessRegistrationOverlay(
+            message = stringResource(R.string.promotion_created),
+            visible = uiState.success
+        )
     }
 }
 

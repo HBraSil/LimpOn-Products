@@ -33,6 +33,12 @@ class ProductRegistrationViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
 
+    fun reset() {
+        productFormState = CreateProductFormState()
+        _uiState.value = CreateProductUiState()
+    }
+
+
     fun updateProductName(name: String) {
         val isNameValid = ProductNameValidator.isValid(name)
 

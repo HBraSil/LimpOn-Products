@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
@@ -23,13 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.component.OperationResultOverlay
 import com.example.produtosdelimpeza.core.component.AppliesToCategorySelector
 import com.example.produtosdelimpeza.core.component.DiscountTypeSection
 import com.example.produtosdelimpeza.core.component.DurationSelector
 import com.example.produtosdelimpeza.core.component.LimpOnRegistrationButton
 import com.example.produtosdelimpeza.core.component.SessionExpiredAlertDialog
 import com.example.produtosdelimpeza.core.ui.util.asString
+import com.example.produtosdelimpeza.store.component.SuccessRegistrationOverlay
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,56 +41,66 @@ fun CouponRegistrationScreen(
     couponRegistrationViewModel: CouponRegistrationViewModel = hiltViewModel()
 ) {
     val formState = couponRegistrationViewModel.couponFormState
-    val state by couponRegistrationViewModel.uiState.collectAsState()
-
-
+    val uiState by couponRegistrationViewModel.uiState.collectAsState()
+    val listState = rememberLazyListState()
     val context = LocalContext.current
-    if (state.showSessionExpired) {
+
+
+    if (uiState.showSessionExpired) {
         SessionExpiredAlertDialog {
             couponRegistrationViewModel.signOut()
             onNavigateToLogin()
         }
     }
 
-    LaunchedEffect(state.showNoInternet) {
-        if (state.showNoInternet) {
+    LaunchedEffect(uiState.showNoInternet) {
+        if (uiState.showNoInternet) {
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
 
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
+            delay(1500)
+            listState.animateScrollToItem(0)
+            couponRegistrationViewModel.reset()
+        }
+    }
 
-    Box {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackNavigation) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
-                                contentDescription = stringResource(R.string.icon_navigation_back)
-                            )
-                        }
-                    },
-                    title = {
-                        Column {
-                            Text("Criar cupom")
-                            Text(
-                                "Atraia mais clientes com desconto",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    )
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackNavigation) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
+                            contentDescription = stringResource(R.string.icon_navigation_back)
+                        )
+                    }
+                },
+                title = {
+                    Column {
+                        Text("Criar cupom")
+                        Text(
+                            "Atraia mais clientes com desconto",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
                 )
-            }
-        ) { padding ->
+            )
+        }
+    ) { padding ->
+        Box {
             LazyColumn(
                 modifier = Modifier
                     .padding(padding)
                     .padding(horizontal = 10.dp),
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 item { CouponInsightCard() }
@@ -96,7 +108,11 @@ fun CouponRegistrationScreen(
                     CouponTextField(
                         label = "Código do cupom",
                         placeholder = "EX: PRIMEIRA10",
-                        supporting = "O cliente digitará esse código no checkout",
+                        supporting =
+                            if (formState.codeField.error != null)
+                                formState.codeField.error.asString()
+                            else
+                                stringResource(R.string.coupon_code_information),
                         error = formState.codeField.error?.asString(),
                         currentCouponCode = formState.codeField.field
                     ) {
@@ -106,7 +122,7 @@ fun CouponRegistrationScreen(
                 item {
                     DiscountTypeSection(
                         currentDiscountValue = formState.discountValueField.field,
-                        errorMessage = formState.discountValueField.error?.asString() ?: "",
+                        errorMessage = formState.discountValueField.error?.asString(),
                         onDiscountTypeAndValueChange = { discountType, discountValue ->
                             couponRegistrationViewModel.updateDiscountType(discountType)
                             couponRegistrationViewModel.updateDiscountValue(discountValue)
@@ -143,21 +159,16 @@ fun CouponRegistrationScreen(
                 item {
                     LimpOnRegistrationButton(
                         text = "Criar cupom",
-                        loading = state.isLoading,
+                        loading = uiState.isLoading,
                         isValid = formState.formIsValid
                     ) {
                         couponRegistrationViewModel.createCoupon()
                     }
                 }
             }
-        }
-
-        if (state.success) {
-            OperationResultOverlay(
-                message = stringResource(R.string.cupon_created),
-                onDismiss = {
-                    couponRegistrationViewModel.updateDialogView()
-                }
+            SuccessRegistrationOverlay(
+                message = stringResource(R.string.coupon_created),
+                visible = uiState.success
             )
         }
     }

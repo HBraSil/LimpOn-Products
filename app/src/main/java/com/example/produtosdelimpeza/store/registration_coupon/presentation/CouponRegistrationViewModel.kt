@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CouponRegistrationViewModel @Inject constructor(
-    private val couponRegistrationRepository: CouponRegistrationRepository,
+    private val couponRegistrationRepository: CouponRegistrationRepository
 ) : ViewModel() {
 
     var couponFormState by mutableStateOf(CreateCouponFormState())
@@ -30,6 +30,11 @@ class CouponRegistrationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CreateCouponUiState())
     val uiState = _uiState.asStateFlow()
 
+
+    fun reset() {
+        couponFormState = CreateCouponFormState()
+        _uiState.value = CreateCouponUiState()
+    }
 
     fun updateCouponCode(field: String) {
         val isCouponCodeValid = CouponCodeValidator.isValid(field)
@@ -49,8 +54,8 @@ class CouponRegistrationViewModel @Inject constructor(
         couponFormState = couponFormState.copy(
             discountTypeField = FieldState(
                 field = field.name,
-                isValid = true,
-                error = null
+                error = null,
+                isValid = true
             )
         )
 
@@ -98,12 +103,6 @@ class CouponRegistrationViewModel @Inject constructor(
 
         updateButton()
     }
-
-    fun updateDialogView() {
-        _uiState.update { it.copy(success = false) }
-    }
-
-
 
     private fun updateButton() {
         val isFormValid = with(couponFormState) {
