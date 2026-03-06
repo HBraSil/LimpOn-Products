@@ -3,16 +3,11 @@ package com.example.produtosdelimpeza
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
@@ -36,6 +31,7 @@ class MainActivity : ComponentActivity() {
                 sessionViewModel.lastUserMode.value == null
             }
         }
+        enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
@@ -50,40 +46,9 @@ class MainActivity : ComponentActivity() {
                     LimpOnAppNavigation(startDestination)
                 }
 
-                val activity = LocalActivity.current as ComponentActivity
-                val statusBarColor = Color.Transparent.toArgb()
-
-                DisposableEffect(Unit) {
-                    val statusBarStyle = SystemBarStyle.light(
-                        scrim = statusBarColor,
-                        darkScrim = statusBarColor
-                    )
-
-                    activity.enableEdgeToEdge(
-                        statusBarStyle = statusBarStyle,
-                        navigationBarStyle = SystemBarStyle.light(
-                            Color.Transparent.toArgb(),
-                            Color.Transparent.toArgb()
-                        )
-                    )
-
-                    onDispose {
-                        activity.enableEdgeToEdge(
-                            statusBarStyle = SystemBarStyle.auto(
-                                Color.Transparent.toArgb(),
-                                Color.Transparent.toArgb()
-                            ),
-                            navigationBarStyle = SystemBarStyle.auto(
-                                Color.Transparent.toArgb(),
-                                Color.Transparent.toArgb()
-                            )
-                        )
-                    }
-                }
             }
         }
     }
-
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

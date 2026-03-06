@@ -176,7 +176,7 @@ fun CatalogScreen(
                 }
             }
 
-            // Todos os produtos (grid 2 colunas usando FlowRow)
+
             item {
                 Spacer(Modifier.height(20.dp))
                 Column(
@@ -347,7 +347,7 @@ fun CatalogScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rowScrollState)
                         .padding(paddingValues = contentPadding),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
