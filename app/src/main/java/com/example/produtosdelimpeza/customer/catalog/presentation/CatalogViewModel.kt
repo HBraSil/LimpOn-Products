@@ -25,6 +25,9 @@ class CatalogViewModel @Inject constructor(
     private val _productList = MutableStateFlow<List<Product>>(emptyList())
     val productList = _productList.asStateFlow()
 
+    private val _productDetail = MutableStateFlow(Product())
+    val productDetail = _productDetail.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -33,6 +36,10 @@ class CatalogViewModel @Inject constructor(
                 updateProducts(storeId)
             }
         }
+    }
+
+    fun updateProductDetail(product: Product) {
+        _productDetail.value = product
     }
 
     fun updateStore(storeId: String) {

@@ -96,6 +96,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
+import com.example.produtosdelimpeza.core.component.ProductPrice
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
@@ -375,11 +376,9 @@ fun CatalogScreen(
                         color = Color.Gray
                     )
 
-                    Text(
-                        text = currencyFormatter.format(productDetail.price),
-                        modifier = Modifier.padding(top = 16.dp, start = 26.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.Black
+                    ProductPrice(
+                        price = productDetail.price,
+                        promotionalPrice = productDetail.promotionalPrice
                     )
 
                     Row(

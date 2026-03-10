@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -32,13 +31,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.Product
-import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -150,37 +147,10 @@ fun LimpOnCardProducts(
 
             Spacer(Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier
-                    .padding(start = 10.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                val hasPromotion = product.promotionalPrice > 0
-                val finalPrice = if (hasPromotion) product.promotionalPrice else product.price
-
-                val formattedFinalPrice = currencyFormatter.format(finalPrice)
-                val formattedOriginalPrice = currencyFormatter.format(product.price)
-
-                Text(
-                    text = formattedFinalPrice,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                if (hasPromotion) {
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = formattedOriginalPrice,
-                        fontWeight = FontWeight.Normal,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            textDecoration = TextDecoration.LineThrough,
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 3.dp)
-                    )
-                }
-            }
+            ProductPrice(
+                price = product.price,
+                promotionalPrice = product.promotionalPrice
+            )
 
             if (isProductScreen) {
                 Row(
