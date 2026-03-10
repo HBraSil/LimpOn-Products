@@ -1,8 +1,7 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
-import android.app.Activity
-import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,7 +50,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -59,8 +58,12 @@ import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
 import com.example.produtosdelimpeza.core.component.LimpOnTextField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
-import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.core.ui.util.asString
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,11 +77,9 @@ fun LoginScreen(
     val verticalScrollState = rememberScrollState()
     val uiState by loginViewModel.loginUiState.collectAsState()
 
-
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
     }
-
 
     Box {
         Scaffold(
@@ -145,34 +146,42 @@ fun ContentLoginScreen(
     val state by loginViewModel.loginUiState.collectAsState()
     val passwordHidden by loginViewModel.passwordHidden.collectAsState()
 
+    val callbackManager = remember {
+        CallbackManager.Factory.create()
+    }
+    val fbLauncher = rememberLauncherForActivityResult(
+        LoginManager.getInstance().createLogInActivityResultContract(callbackManager)
+    ) { result ->
+        LoginManager.getInstance().onActivityResult(
+            result.resultCode,
+            result.data,
+            object: FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    loginViewModel.loginWithFacebook(result.accessToken.token)
+                }
+                override fun onCancel() {
+                    println("onCancel")
+                }
+                override fun onError(error: FacebookException) {
+                    println("onError $error")
+                }
+            }
+        )
+    }
 
     LaunchedEffect(state) {
-        if(state.success) {
-            onLoginClick()
-        }
+        if(state.success) onLoginClick()
     }
 
-    LaunchedEffect(state.error) {
-        if (state.error != null) {
-            Toast.makeText(
-                context,
-                "state.error",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    state.error?.let { errorMessage ->
 
-    LaunchedEffect(state.error) {
-        state.error?.let { errorMessage ->
+        Toast.makeText(
+            context,
+            errorMessage,
+            Toast.LENGTH_LONG
+        ).show()
 
-            Toast.makeText(
-                context,
-                errorMessage,
-                Toast.LENGTH_LONG
-            ).show()
-
-            loginViewModel.cleanErrorMessage()
-        }
+        loginViewModel.cleanErrorMessage()
     }
 
 
@@ -191,6 +200,7 @@ fun ContentLoginScreen(
             )
         },
     )
+
 
     LimpOnTextField(
         value = loginViewModel.loginFormState.password.field,
@@ -272,7 +282,7 @@ fun ContentLoginScreen(
                     .size(30.dp)
                     .wrapContentSize(Alignment.Center)
                     .clickable {
-                        loginViewModel.signInWithGoogle()
+                        loginViewModel.loginWithGoogle()
                     }
             )
         }
@@ -286,20 +296,14 @@ fun ContentLoginScreen(
             color = Gray,
         )
 
+
         HorizontalDivider(modifier = Modifier
             .padding(start = 10.dp, end = 10.dp)
             .weight(1f), 0.dp, Black)
 
         FloatingActionButton(
             onClick = {
-                loginViewModel.loginWithFacebook(
-                    activity = context as Activity,
-                    onSuccess = {
-                    },
-                    onError = {
-                        Log.e("FACEBOOK", "Erro no login", it)
-                    }
-                )
+                fbLauncher.launch(listOf("public_profile", "email"))
             },
             modifier = Modifier.padding(end = 30.dp),
             shape = CircleShape,
@@ -316,10 +320,11 @@ fun ContentLoginScreen(
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     ProdutosDeLimpezaTheme {
         LoginScreen(onSignupClick = {})
     }
-}
+}*/

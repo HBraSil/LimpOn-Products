@@ -68,9 +68,12 @@
     <string name="save_changes">Salvar Alterações</string>
     <string name="edit_name_store">editar nome da loja</string>
     <string name="store_managment">Gerenciamento</string>
+
+    <!-- facebook login protocol -->
     <string name="facebook_app_id">1538777397410460</string>
     <string name="fb_login_protocol_scheme">fb1538777397410460</string>
     <string name="facebook_client_token">538df1fb63e63b4078cbf6614a5c9871</string>
+
     <string name="seven_days">7 dias</string>
     <string name="fifteen_days">15 dias</string>
     <string name="thirty_days">30 dias</string>
@@ -120,4 +123,6 @@
     <string name="product_created">Produto criado com sucesso</string>
     <string name="error_white_spaces">Espaço em branco não é permitido</string>
     <string name="coupon_code_information">O cliente digitará esse código na hora da compra</string>
+    <string name="see_all_payment_methods">ver todas as formas de pagamento</string>
+    <string name="product_description">Descrição do produto</string>
 </resources>

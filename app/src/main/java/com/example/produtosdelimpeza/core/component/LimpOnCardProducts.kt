@@ -32,11 +32,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -47,8 +49,10 @@ fun LimpOnCardProducts(
     isProductScreen: Boolean = true,
     onClickProduct: () -> Unit = {},
     subOfProducts: (String, Int, Double) -> Unit = { _, _, _ -> },
-    sumOfProducts: (String, Int, Double) -> Unit = { name, quantity, price -> },
+    sumOfProducts: (String, Int, Double) -> Unit = { _, _, _ -> },
 ) {
+
+
     Card(
         onClick = onClickProduct,
         shape = RoundedCornerShape(10.dp),
@@ -69,7 +73,6 @@ fun LimpOnCardProducts(
                 modifier = Modifier.align(Alignment.Center),
                 alignment = Alignment.Center
             )
-
 
             IconButton(onClick = {},
                 modifier = Modifier
@@ -108,7 +111,7 @@ fun LimpOnCardProducts(
             )
 
             Text(
-                text = "Lava roupas, lava louça",
+                text = product.description,
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .align(Alignment.Start),
@@ -118,7 +121,6 @@ fun LimpOnCardProducts(
                 color = Color.DarkGray,
                 overflow = TextOverflow.Ellipsis,
             )
-
 
             /*if (product.badges.isNotEmpty()) {
                 Row(
@@ -145,6 +147,7 @@ fun LimpOnCardProducts(
                     }
                 }
             }*/
+
             Spacer(Modifier.height(12.dp))
 
             Row(
@@ -152,21 +155,31 @@ fun LimpOnCardProducts(
                     .padding(start = 10.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
+                val hasPromotion = product.promotionalPrice > 0
+                val finalPrice = if (hasPromotion) product.promotionalPrice else product.price
+
+                val formattedFinalPrice = currencyFormatter.format(finalPrice)
+                val formattedOriginalPrice = currencyFormatter.format(product.price)
+
                 Text(
-                    text = "R$ ${product.price}",
+                    text = formattedFinalPrice,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "unid.",
-                    fontWeight = FontWeight.Normal,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 3.dp)
-                )
+                if (hasPromotion) {
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = formattedOriginalPrice,
+                        fontWeight = FontWeight.Normal,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            textDecoration = TextDecoration.LineThrough,
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(bottom = 3.dp)
+                    )
+                }
             }
 
             if (isProductScreen) {

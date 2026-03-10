@@ -115,7 +115,7 @@ class SignUpViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val result = repository.registerUser(formState.name.field, formState.lastName.field, formState.email.field, formState.password.field)
+                val result = repository.createUserWithEmailAndPassword(formState.name.field, formState.lastName.field, formState.email.field, formState.password.field)
 
                 when (result) {
                     is LoginResponse.Success -> _uiState.update { it.copy(success = true, isLoading = false) }

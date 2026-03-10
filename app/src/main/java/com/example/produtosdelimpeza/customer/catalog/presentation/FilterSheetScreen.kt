@@ -65,8 +65,8 @@ fun FilterBottomSheetContent(
     var onlyDiscount by rememberSaveable { mutableStateOf(false) }
     var onlyFastDelivery by rememberSaveable { mutableStateOf(false) }
     var selectedSort by rememberSaveable { mutableStateOf("Mais vendidos") }
-    var priceStart by rememberSaveable { mutableFloatStateOf(0f) }      // salvo como Float
-    var priceEnd by rememberSaveable { mutableFloatStateOf(100f) }      // salvo como Float
+    var priceStart by rememberSaveable { mutableFloatStateOf(0f) }
+    var priceEnd by rememberSaveable { mutableFloatStateOf(100f) }
     var selectedCategories by rememberSaveable { mutableStateOf(setOf<String>()) }
     var minRating by rememberSaveable { mutableIntStateOf(0) }
 

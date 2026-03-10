@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
-import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,15 +11,11 @@ import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.auth.presentation.AuthUiState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
 import com.example.produtosdelimpeza.core.validation.PasswordValidator
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.login.LoginManager
-import com.facebook.login.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,39 +32,6 @@ class LoginViewModel @Inject constructor(
 
     private val _authUiState = MutableStateFlow(AuthUiState())
     val loginUiState = _authUiState.asStateFlow()
-
-
-    private val callbackManager = CallbackManager.Factory.create()
-
-    fun loginWithFacebook(
-        activity: Activity,
-        onSuccess: (LoginResult) -> Unit,
-        onError: (FacebookException) -> Unit
-    ) {
-        val loginManager = LoginManager.getInstance()
-
-        loginManager.registerCallback(
-            callbackManager,
-            callback = object : FacebookCallback<LoginResult> {
-                override fun onSuccess(result: LoginResult) {
-                    Log.d("FB_LOGIN_SUCCESS", "sem mensagem")
-                    onSuccess(result)
-                }
-                override fun onCancel() {
-                    // opcional
-                }
-                override fun onError(error: FacebookException) {
-                    Log.e("FB_LOGIN_ERROR", error.message ?: "sem mensagem", error)
-                    onError(error)
-                }
-            }
-        )
-
-        LoginManager.getInstance().logInWithReadPermissions(
-            activity,
-            listOf("public_profile", "email")
-        )
-    }
 
     fun updateEmail(email: String) {
         val isEmailValidate = EmailValidator.validate(email)
@@ -112,13 +74,34 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun signInWithGoogle() {
+    fun loginWithGoogle() {
         viewModelScope.launch {
             authRepository.signInWithGoogle().collect { result ->
                 when(result) {
                     is LoginResponse.Loading -> _authUiState.update { it.copy(isLoading = true) }
                     is LoginResponse.Success -> _authUiState.update { it.copy(success = true, isLoading = false) }
                     is LoginResponse.Error -> _authUiState.update { it.copy(error = result.error) }
+                }
+            }
+        }
+    }
+
+    fun loginWithFacebook(token: String) {
+        _authUiState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+
+            authRepository.facebookLogin(token).collectLatest { response ->
+                when (response) {
+                    LoginResponse.Success -> {
+                        _authUiState.update { it.copy(success = true, isLoading = false) }
+                        Log.d("AuthViewModel", "Facebook Login Success")
+                    }
+                    is LoginResponse.Error -> {
+                        _authUiState.update { it.copy(error = response.error) }
+                        Log.e("AuthViewModel", "Facebook Login Error: ${response.error}")
+                    }
+                    else -> {}
                 }
             }
         }

@@ -2,12 +2,14 @@ package com.example.produtosdelimpeza.core.auth.data
 
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
 import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
 import com.example.produtosdelimpeza.core.data.UserLocalDataSource
 import com.example.produtosdelimpeza.core.domain.model.User
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -28,7 +30,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val userLocalDataSource: UserLocalDataSource
 ) : AuthRepository {
 
-    override suspend fun registerUser(name: String, lastName: String, email: String, password: String): LoginResponse {
+    override suspend fun createUserWithEmailAndPassword(name: String, lastName: String, email: String, password: String): LoginResponse {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user
@@ -84,35 +86,58 @@ class AuthRepositoryImpl @Inject constructor(
                 emit(LoginResponse.Error("Credenciais do Google não encontradas"))
                 return@flow
             }
-
             emit(LoginResponse.Loading)
 
-            // 1. Tentar Autenticar no Firebase
-            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-            val firebaseUser = signinResult.user ?: throw Exception("Usuário não encontrado após login")
 
-            // 2. Verificar se o usuário já existe localmente ou precisa ser criado
-            val existingUser = userLocalDataSource.getUserById(firebaseUser.uid)
+            val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            val user = signinResult.user ?: throw Exception("Usuário não encontrado após login")
+            val existingUser = userLocalDataSource.getUserById(user.uid)
 
             if (existingUser == null) {
                 val userProperties = User(
-                    uid = firebaseUser.uid,
-                    name = firebaseUser.displayName ?: "",
-                    email = firebaseUser.email ?: ""
+                    uid = user.uid,
+                    name = user.displayName ?: "",
+                    email = user.email ?: ""
                 )
 
-                // Salva em ambos (Se um falhar, o catch abaixo captura)
                 saveUserInRoom(userProperties)
-                saveUserInFirestore(userProperties, firebaseUser)
+                saveUserInFirestore(userProperties, user)
             }
 
             emit(LoginResponse.Success)
-
         } catch (e: NoCredentialException) {
-            Log.e("GOOGLE_AUTH", "Erro no login: ${e.message}")
             emit(LoginResponse.Error("Nenhuma conta no dispositivo detectada"))
+        } catch (e: GetCredentialCancellationException) {}
+        catch (e: Exception) {
+            emit(LoginResponse.Error(e.message ?: "Erro desconhecido ao fazer login"))
+        }
+    }
+
+    override suspend fun facebookLogin(token: String): Flow<LoginResponse> = flow {
+        try {
+            val credential = FacebookAuthProvider.getCredential(token)
+            val authResult = firebaseAuth.signInWithCredential(credential).await()
+            val user = authResult.user ?: throw Exception("Usuário não encontrado após login")
+
+            val existingUser = userLocalDataSource.getUserById(user.uid) // Assuming this is a suspend function
+            Log.d("FACEBOOK_FIREBASE", firebaseAuth.currentUser?.uid ?: "NO USER")
+            if (existingUser == null) {
+                val userProperties = User(
+                    uid = user.uid,
+                    name = user.displayName ?: "",
+                    email = user.email ?: ""
+                )
+
+                saveUserInRoom(userProperties)
+                saveUserInFirestore(userProperties, user)
+            }
+
+            emit(LoginResponse.Success)
+        } catch (e: NoCredentialException) {
+            emit(LoginResponse.Error("Nenhuma conta no dispositivo detectada"))
+        } catch (e: FirebaseAuthUserCollisionException) {
+            emit(LoginResponse.Error("Email já existe. Utilize outra forma de login"))
         } catch (e: Exception) {
-            Log.e("GOOGLE_AUTH", "Erro no login: ${e.message}")
             emit(LoginResponse.Error(e.message ?: "Erro desconhecido ao fazer login"))
         }
     }

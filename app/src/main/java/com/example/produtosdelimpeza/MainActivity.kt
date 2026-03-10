@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.navigation.LimpOnAppNavigation
 import com.example.produtosdelimpeza.core.navigation.route.NavGraph
@@ -23,16 +22,14 @@ class MainActivity : ComponentActivity() {
     private val deepLinkViewModel: DeepLinkViewModel by viewModels()
     private val sessionViewModel: NavigationLastUserModeViewModel by viewModels()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen().apply {
-             setKeepOnScreenCondition {
+            setKeepOnScreenCondition {
                 sessionViewModel.lastUserMode.value == null
             }
         }
         enableEdgeToEdge()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             ProdutosDeLimpezaTheme {
@@ -43,12 +40,13 @@ class MainActivity : ComponentActivity() {
                         ProfileMode.LoggedIn.CustomerSection -> NavGraph.USER_MAIN.route
                         ProfileMode.LoggedOut -> NavGraph.AUTH.route
                     }
+
                     LimpOnAppNavigation(startDestination)
                 }
-
             }
         }
     }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

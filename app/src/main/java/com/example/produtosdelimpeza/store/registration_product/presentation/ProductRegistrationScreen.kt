@@ -55,13 +55,6 @@ fun ProductRegistrationScreen(
             Toast.makeText(context, "Sem conexão com a internet", Toast.LENGTH_SHORT).show()
         }
     }
-    if (uiState.showSessionExpired) {
-        SessionExpiredAlertDialog{
-            productRegistrationViewModel.signOut()
-            onNavigateToLogin()
-        }
-    }
-
 
     LaunchedEffect(uiState.success) {
         if (uiState.success) {
@@ -70,6 +63,7 @@ fun ProductRegistrationScreen(
             productRegistrationViewModel.reset()
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -242,6 +236,14 @@ fun ProductRegistrationScreen(
                 message = stringResource(R.string.product_created),
                 uiState.success
             )
+        }
+
+
+        if (uiState.showSessionExpired) {
+            SessionExpiredAlertDialog{
+                productRegistrationViewModel.signOut()
+                onNavigateToLogin()
+            }
         }
     }
 }

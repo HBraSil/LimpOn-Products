@@ -159,21 +159,24 @@ class ProductRegistrationViewModel @Inject constructor(
         viewModelScope.launch {
 
 
-            val product = Product(
-                name = productFormState.nameField.field,
-                description = productFormState.descriptionField.field,
-                price = productFormState.priceField.field.toCurrencyDouble(),
-                promotionalPrice = productFormState.promotionalPriceField.field.toCurrencyDouble(),
-                stockCount = productFormState.stockCountField.field.toInt(),
-                category = productFormState.categoryField.field,
-                classification = productFormState.classificationField.field
-            )
+            with(productFormState) {
+                val product = Product(
+                    name = nameField.field,
+                    description = descriptionField.field,
+                    price = priceField.field.toCurrencyDouble(),
+                    promotionalPrice = promotionalPriceField.field.toCurrencyDouble(),
+                    stockCount = stockCountField.field.toInt(),
+                    category = categoryField.field,
+                    classification = classificationField.field
+                )
 
-            when (productRepository.registerProduct(product)) {
-                is FirebaseResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
-                is FirebaseResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
-                is FirebaseResult.Success -> _uiState.update { it.copy(isLoading = false, success = true) }
+                when (productRepository.registerProduct(product)) {
+                    is FirebaseResult.Error.Network -> _uiState.update { it.copy(showNoInternet = true) }
+                    is FirebaseResult.Error.Unknown -> _uiState.update { it.copy(unknwonError = true) }
+                    is FirebaseResult.Success -> _uiState.update { it.copy(isLoading = false, success = true) }
+                }
             }
+
         }
     }
 

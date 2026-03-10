@@ -116,6 +116,7 @@ fun CatalogScreen(
     val cartItems by cartViewModel.cartItems.collectAsState()
     val store by catalogViewModel.store.collectAsState()
     val allProducts by catalogViewModel.productList.collectAsState()
+    val productDetail by catalogViewModel.productDetail.collectAsState()
 
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -140,12 +141,10 @@ fun CatalogScreen(
                 .padding(contentPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header principal
             item {
                 InformationCard(store.name, onCardStoreProfileClick, onBackNavigation)
             }
 
-            // FAVORITOS
             item {
                 Column(
                     modifier = Modifier
@@ -175,7 +174,6 @@ fun CatalogScreen(
                     }
                 }
             }
-
 
             item {
                 Spacer(Modifier.height(20.dp))
@@ -218,6 +216,8 @@ fun CatalogScreen(
                                 txtQuantity = quantity,
                                 onClickProduct = {
                                     isSheetProductOpen = true
+                                    catalogViewModel.updateProductDetail(product)
+
                                 },
                                 subOfProducts = { name, quantity, curPrice ->
                                     cartViewModel.deleteOrRemoveProduct(
@@ -362,7 +362,7 @@ fun CatalogScreen(
                     Spacer(Modifier.height(20.dp))
 
                     Text(
-                        text = "Detergente",
+                        text = productDetail.name,
                         modifier = Modifier.padding(start = 16.dp),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
@@ -376,7 +376,7 @@ fun CatalogScreen(
                     )
 
                     Text(
-                        text = "R$ 25,00",
+                        text = currencyFormatter.format(productDetail.price),
                         modifier = Modifier.padding(top = 16.dp, start = 26.dp),
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.Black
@@ -386,7 +386,7 @@ fun CatalogScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "ver todas as formas de pagamento",
+                            text = stringResource(R.string.see_all_payment_methods),
                             modifier = Modifier
                                 .padding(start = 26.dp)
                                 .clickable {},
@@ -407,7 +407,7 @@ fun CatalogScreen(
                             .padding(top = 26.dp, start = 10.dp, end = 10.dp, bottom = 20.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(
-                                color = Color(0xFFDCDBDB), // fundo levemente cinza
+                                color = Color(0xFFDCDBDB),
                             )
                     ) {
 
@@ -427,7 +427,7 @@ fun CatalogScreen(
                             )
 
                             Text(
-                                text = "Descrição do produto",
+                                text = stringResource(R.string.product_description),
                                 modifier = Modifier.padding(start = 10.dp, top = 6.dp, bottom = 6.dp, end = 6.dp),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.ExtraBold,
@@ -459,7 +459,7 @@ fun CatalogScreen(
                             )
 
                             Text(
-                                text = "Poder concentrado para a sua casa. O Sabão [Nome] penetra nas fibras, eliminando as manchas mais difíceis e a gordura, enquanto cuida dos seus tecidos/louças. Limpeza superior, rendimento máximo.",
+                                text = productDetail.description,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = Color.DarkGray,
                                 fontWeight = FontWeight.Light,
@@ -469,7 +469,7 @@ fun CatalogScreen(
                     }
 
                     Text(
-                        text = "Mais produtos de RA produtos de limpeza",
+                        text = "Mais produtos de ${store.name}",
                         modifier = Modifier.padding(bottom = 10.dp, start = 16.dp),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
@@ -506,7 +506,6 @@ fun CatalogScreen(
 }
 
 
-// ---------- Card do produto ----------
 @Composable
 fun ProductCard(
     product: Product,
@@ -564,7 +563,7 @@ fun ProductCard(
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "R$ ${currencyFormatter.format(product.price)}",
+                text = "${currencyFormatter.format(product.price)}",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.titleSmall
