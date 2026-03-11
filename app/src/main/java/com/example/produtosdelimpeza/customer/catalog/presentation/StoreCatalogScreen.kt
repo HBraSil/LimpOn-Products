@@ -138,8 +138,8 @@ fun CatalogScreen(
     ) {contentPadding ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding),
+                .fillMaxSize(),
+            contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -243,6 +243,7 @@ fun CatalogScreen(
                             )
                         }
                     }
+                    Spacer(Modifier.height(20.dp))
                 }
             }
         }
@@ -580,7 +581,6 @@ fun CartBottomBarScaffoldStyle(
     onOpenCart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // anima entrada/saída vertical
     AnimatedVisibility(
         visible = items > 0,
         enter = slideInVertically(
@@ -592,7 +592,7 @@ fun CartBottomBarScaffoldStyle(
         Surface(
             modifier = modifier
                 .fillMaxWidth()
-                .navigationBarsPadding(), // evita área da nav bar
+                .navigationBarsPadding(),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Row(

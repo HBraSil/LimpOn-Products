@@ -16,7 +16,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
@@ -56,7 +55,7 @@ object CustomerBottomNavConfig {
         navController: NavHostController,
         currentRoute: String?
     ) {
-        NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(0.5f)) {
+        NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
             bottomNavigationCustomerItems.forEach { item ->
                 NavigationBarItem(
                     //modifier = Modifier.background(if (currentRoute == item.router.route) DarkGray else White),
@@ -85,7 +84,7 @@ object CustomerBottomNavConfig {
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },
-                    colors = NavigationBarItemDefaults.colors(indicatorColor = White)
+                    colors = NavigationBarItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primary.copy(0.4f))
                 )
             }
         }

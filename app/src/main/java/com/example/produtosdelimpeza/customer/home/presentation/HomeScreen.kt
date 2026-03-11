@@ -133,10 +133,11 @@ private val sampleProductEntities = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    paddingValues: PaddingValues,
+    navController: NavHostController,
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
-    navController: NavHostController,
     onCardSellerClick: (String) -> Unit = {},
     onSeeAllClick: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
@@ -149,7 +150,6 @@ fun HomeScreen(
     var shortcutSelected by remember { mutableStateOf("1") }
 
     val user by homeViewModel.user.collectAsState()
-
 
     LaunchedEffect(Unit) {
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.CustomerSection)
@@ -166,11 +166,12 @@ fun HomeScreen(
                 )
             }
         },
-    ) { paddingValues ->
+        modifier = Modifier.padding(paddingValues)
+    ) { innerPadding ->
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = innerPadding.calculateBottomPadding())
         ) {
             item {
                 Box {
@@ -240,8 +241,6 @@ fun HomeScreen(
                 ItemCard(store = item) {
                     onCardSellerClick(item.id)
                 }
-
-                Spacer(Modifier.height(16.dp))
             }
         }
     }
@@ -796,7 +795,6 @@ fun CartBottomBarScaffoldStyle(
     onNavigateToCart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // anima entrada/saída vertical
     AnimatedVisibility(
         visible = items > 0,
         enter = slideInVertically(
@@ -977,7 +975,6 @@ fun ItemCard(
                 }
             }
 
-            // Botão favorito
             FavoriteButton()
         }
     }

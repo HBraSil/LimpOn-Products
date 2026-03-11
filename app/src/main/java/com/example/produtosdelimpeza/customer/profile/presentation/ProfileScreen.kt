@@ -4,10 +4,9 @@ package com.example.produtosdelimpeza.customer.profile.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -36,13 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.core.domain.model.Store
 
-// Definição de cores personalizadas para o tema (minimalista)
 val DarkText = Color(0xFF1E1E1E)
 val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 
 
 @Composable
 fun ProfileScreen(
+    paddingValues: PaddingValues ,
     onNotificationsScreenClick: () -> Unit = {},
     onEditUserProfileScreenClick: () -> Unit = {},
     onPaymentMethodsScreenClick: () -> Unit = {},
@@ -61,128 +60,137 @@ fun ProfileScreen(
     val profiles by profileViewModel.allStores.collectAsState()
 
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            HeaderSection(
-                userName = user.name,
-                userInitials = "HB",
-                onClickEditUserProfile = onEditUserProfileScreenClick
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            QuickActionsSection(
-                onClickNotificationsScreen = onNotificationsScreenClick,
-                onClickHelpScreen = onHelpScreenClick,
-                onClickPaymentMethods = onPaymentMethodsScreenClick,
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-            InfoSection(title = "Benefícios") {
-                InfoItem(
-                    icon = Icons.Default.Star,
-                    text = "Créditos e Fidelidade",
-                    endText = "R$ 0,00",
-                    onClick = { /* Ação */ }
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 48.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray.copy(alpha = 0.5f)
-                )
-                InfoItem(
-                    icon = Icons.Default.Discount,
-                    text = "Cupons",
-                    onClick = onCouponsScreenClick
-                )
-                InfoItem(
-                    icon = Icons.Default.Discount,
-                    text = "Quero vender no app",
-                    onClick = onSellInTheApp
+            item {
+                HeaderSection(
+                    userName = user.name,
+                    userInitials = "HB",
+                    onClickEditUserProfile = onEditUserProfileScreenClick
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            InfoSection(title = "Minha Conta") {
-                InfoItem(
-                    icon = Icons.Default.LocationOn,
-                    text = "Meus Endereços",
-                    onClick = onMyAddressesScreenClick
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 48.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray.copy(alpha = 0.5f)
-                )
-                InfoItem(
-                    icon = Icons.Default.CreditCard,
-                    text = "Formas de Pagamento",
-                    onClick = onPaymentMethodsScreenClick
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 48.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray.copy(alpha = 0.5f)
-                )
-                InfoItem(
-                    icon = Icons.Default.History,
-                    text = "Histórico de Pedidos",
-                    onClick = onOrderScreenClick
+            item {
+                QuickActionsSection(
+                    onClickNotificationsScreen = onNotificationsScreenClick,
+                    onClickHelpScreen = onHelpScreenClick,
+                    onClickPaymentMethods = onPaymentMethodsScreenClick,
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Seção 3: Suporte e Informações
-            InfoSection(title = "Suporte e Informações") {
-                InfoItem(
-                    icon = Icons.AutoMirrored.Filled.Help,
-                    text = "Ajuda e FAQ",
-                    onClick = onHelpScreenClick
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 48.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray.copy(alpha = 0.5f)
-                )
-                InfoItem(
-                    icon = Icons.Default.Policy,
-                    text = "Termos de Uso e Privacidade",
-                    onClick = { /* Ação */ }
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 48.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray.copy(alpha = 0.5f)
-                )
-                InfoItem(
-                    icon = Icons.Default.Policy,
-                    text = stringResource(R.string.about),
-                    onClick = onAboutScreenClick
-                )
-            }
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            AccountFooterSection(
-                userProfiles = profiles,
-                onSignOutClick = onSignOutClick,
-                signOut = { profileViewModel.signOut() },
-                onSwitchProfileClick = {
-                    onSwitchProfileClick()
-                    profileViewModel.saveLastUserMode(it)
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                InfoSection(title = "Benefícios") {
+                    InfoItem(
+                        icon = Icons.Default.Star,
+                        text = "Créditos e Fidelidade",
+                        endText = "R$ 0,00",
+                        onClick = { /* Ação */ }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.Discount,
+                        text = "Cupons",
+                        onClick = onCouponsScreenClick
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.Discount,
+                        text = "Quero vender no app",
+                        onClick = onSellInTheApp
+                    )
                 }
-            )
+            }
 
-            Spacer(modifier = Modifier.height(20.dp))
-        }
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                InfoSection(title = "Minha Conta") {
+                    InfoItem(
+                        icon = Icons.Default.LocationOn,
+                        text = "Meus Endereços",
+                        onClick = onMyAddressesScreenClick
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.CreditCard,
+                        text = "Formas de Pagamento",
+                        onClick = onPaymentMethodsScreenClick
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.History,
+                        text = "Histórico de Pedidos",
+                        onClick = onOrderScreenClick
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                InfoSection(title = "Suporte e Informações") {
+                    InfoItem(
+                        icon = Icons.AutoMirrored.Filled.Help,
+                        text = "Ajuda e FAQ",
+                        onClick = onHelpScreenClick
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.Policy,
+                        text = "Termos de Uso e Privacidade",
+                        onClick = { /* Ação */ }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 48.dp),
+                        thickness = 1.dp,
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+                    InfoItem(
+                        icon = Icons.Default.Policy,
+                        text = stringResource(R.string.about),
+                        onClick = onAboutScreenClick
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                AccountFooterSection(
+                    userProfiles = profiles,
+                    onSignOutClick = onSignOutClick,
+                    signOut = { profileViewModel.signOut() },
+                    onSwitchProfileClick = {
+                        onSwitchProfileClick()
+                        profileViewModel.saveLastUserMode(it)
+                    }
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
     }
 }
 
@@ -371,12 +379,8 @@ fun AccountFooterSection(
 }
 
 
-
-
-// --- 1. Cabeçalho ---
 @Composable
 fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile: () -> Unit = {}) {
-        // Bloco de Destaque do Usuário (Avatar + Nome)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -391,12 +395,11 @@ fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar (Círculo com Iniciais)
             Box(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(PrimaryColor.copy(alpha = 0.1f)), // Cor suave de fundo
+                    .background(PrimaryColor.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -426,7 +429,6 @@ fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile
                 )
             }
 
-            // Ícone de navegação para indicar que o card é clicável
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Editar Perfil",
@@ -439,7 +441,6 @@ fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile
 }
 
 
-// --- 2. Ações Rápidas (Cards) ---
 @Composable
 fun QuickActionsSection(
     onClickNotificationsScreen: () -> Unit,
@@ -472,6 +473,7 @@ fun QuickActionsSection(
         )
     }
 }
+
 
 @Composable
 fun QuickActionCard(
@@ -509,22 +511,21 @@ fun QuickActionCard(
     }
 }
 
-// --- 3. Seções Informativas (Listas) ---
+
 @Composable
 fun InfoSection(title: String, content: @Composable () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Container para agrupar os itens e aplicar um fundo/elevação se necessário
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = Color.White,
-            shadowElevation = 2.dp // Sombra sutil para destacar a seção
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 2.dp
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 content()
@@ -532,6 +533,7 @@ fun InfoSection(title: String, content: @Composable () -> Unit) {
         }
     }
 }
+
 
 @Composable
 fun InfoItem(
@@ -550,7 +552,7 @@ fun InfoItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = DarkText.copy(alpha = 0.7f),
+            tint = MaterialTheme.colorScheme.onSurface.copy(0.6f),
             modifier = Modifier.size(24.dp)
         )
 
@@ -559,7 +561,8 @@ fun InfoItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(1f)
         )
 

@@ -5,12 +5,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -130,18 +129,18 @@ fun LimpOnAppNavigation(
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             authGraph(navController)
-            customerMainGraph(navController, cartViewModel)
-            storeMainGraph(navController)
+            customerMainGraph(innerPadding, navController, cartViewModel)
+            storeMainGraph(innerPadding, navController)
             autonomousMainGraph(navController)
         }
     }
+
 }
 
 
-private fun NavGraphBuilder.storeMainGraph(navController: NavHostController) {
+private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navController: NavHostController) {
     navigation(
         route = NavGraph.STORE_MAIN.route,
         startDestination = StoreScreen.DASHBOARD.route
@@ -348,6 +347,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
 
 
 fun NavGraphBuilder.customerMainGraph(
+    innerPadding: PaddingValues,
     navController: NavHostController,
     cartViewModel: CartViewModel,
 ) {
@@ -357,10 +357,10 @@ fun NavGraphBuilder.customerMainGraph(
     ) {
         sharedGraph()
 
-        homeGraph(navController, cartViewModel)
+        homeGraph(innerPadding, navController, cartViewModel)
         searchGraph()
         ordersGraph(navController)
-        profileGraph(navController)
+        profileGraph(innerPadding, navController)
     }
 }
 
@@ -381,6 +381,7 @@ private fun NavGraphBuilder.sharedGraph() {
 
 
 fun NavGraphBuilder.homeGraph(
+    innerPadding: PaddingValues,
     navController: NavHostController,
     cartViewModel: CartViewModel,
 ){
@@ -390,8 +391,9 @@ fun NavGraphBuilder.homeGraph(
     ) {
         composable(route = CustomerScreen.CUSTOMER_HOME.route) {
             HomeScreen(
-                cartViewModel = cartViewModel,
+                paddingValues = innerPadding,
                 navController = navController,
+                cartViewModel = cartViewModel,
                 onCardSellerClick = { storeId ->
                     val encoded = Uri.encode(storeId)
                     navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$encoded")
@@ -474,13 +476,14 @@ private fun NavGraphBuilder.ordersGraph(navController: NavHostController) {
 }
 
 
-fun NavGraphBuilder.profileGraph(navController: NavHostController) {
+fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: NavHostController) {
     navigation(
         route = NavGraph.PROFILE.route,
         startDestination = CustomerScreen.CUSTOMER_PROFILE.route
     ){
         composable(route = CustomerScreen.CUSTOMER_PROFILE.route) {
             ProfileScreen(
+                paddingValues = innerPadding,
                 onNotificationsScreenClick = {
                     navController.navigate(CustomerScreen.MANAGEMENT_NOTIFICATION.route)
                 },
