@@ -1,15 +1,15 @@
 package com.example.produtosdelimpeza.customer.cart.domain
 
-import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.Product
 
 interface CartRepository {
-    suspend fun insertProduct(productEntity: ProductEntity)
+    suspend fun insertProduct(product: Product)
 
-    suspend fun updateProduct(productEntity: ProductEntity)
+    suspend fun updateProduct(product: Product)
 
-    suspend fun deleteProduct(productEntity: ProductEntity)
+    suspend fun deleteProduct(product: Product)
 
-    suspend fun getAllProducts(): List<ProductEntity>
+    suspend fun getAllProducts(): List<Product>
 
     suspend fun clearCart()
 }

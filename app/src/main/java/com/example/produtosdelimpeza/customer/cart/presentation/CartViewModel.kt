@@ -1,12 +1,14 @@
 package com.example.produtosdelimpeza.customer.cart.presentation
 
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.customer.cart.domain.CartRepository
-import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,16 +17,16 @@ class CartViewModel @Inject constructor(
     private val repository: CartRepository
 ) : ViewModel() {
 
-    private val _cartItems = MutableStateFlow<List<ProductEntity>>(emptyList())
-    val cartItems: StateFlow<List<ProductEntity>> = _cartItems
+    private val _cartItems = MutableStateFlow<List<Product>>(emptyList())
+    val cartItems: StateFlow<List<Product>> = _cartItems.asStateFlow()
 
-    private val _totalQuantity = MutableStateFlow(0)
-    val totalQuantity: StateFlow<Int> = _totalQuantity
+    private val _quantities = mutableStateMapOf<String, Int>()
+    val quantities: Map<String, Int> get() = _quantities
 
     private val _totalPrice = MutableStateFlow(0.0)
-    val totalPrice: StateFlow<Double> = _totalPrice
+    val totalPrice: StateFlow<Double> = _totalPrice.asStateFlow()
 
-
+/*
     init {
         viewModelScope.launch {
             loadCart()
@@ -41,7 +43,7 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun addOrUpdateProduct(productEntity: ProductEntity) {
+    fun addOrUpdateProduct(productEntity: Product) {
         viewModelScope.launch {
             val currentList = _cartItems.value.toMutableList()
             val existingIndex = currentList.indexOfFirst { it.id == productEntity.id }
@@ -58,19 +60,21 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun deleteOrRemoveProduct(productEntity: ProductEntity) {
+    fun deleteOrRemoveProduct(product: ProductEntity) {
         viewModelScope.launch {
-            if (productEntity.quantity > 1) {
-                val updatedProduct = productEntity.copy(quantity = productEntity.quantity - 1)
+            if (product.quantity > 1) {
+                val updatedProduct = product.copy(quantity = product.quantity - 1)
 
                 repository.updateProduct(updatedProduct)
             } else {
-                repository.deleteProduct(productEntity)
+                repository.deleteProduct(product)
             }
             loadCart()
         }
     }
+*/
 
+/*
     fun getTotalPriceForProduct(productId: Int): Double {
         val product = _cartItems.value.find { it.id == productId }
         val quantity = product?.quantity ?: 0
@@ -79,19 +83,35 @@ class CartViewModel @Inject constructor(
         return totalPriceForThisProduct
     }
 
-    fun getProductForId(productId: Int): ProductEntity? {
+    fun getProductForId(productId: Int): Product? {
         return _cartItems.value.find { it.id == productId }
     }
 
-    private fun updateTotals(productEntities: List<ProductEntity>) {
-        _totalQuantity.value = productEntities.sumOf { it.quantity }
-        _totalPrice.value = productEntities.sumOf { it.price * it.quantity }
+    private fun updateTotals(listOfProducts: List<Product>) {
+        _totalQuantity.value = listOfProducts.sumOf { it.quantity }
+        _totalPrice.value = listOfProducts.sumOf { it.price * it.quantity }
+    }
+*/
+
+
+    fun decreaseQuantity(productId: String) {
+        _quantities[productId]?.let {
+            if ( it > 0) {
+                _quantities[productId] = it - 1
+            }
+        }
+    }
+
+    fun increaseQuantity(productId: String, price: Double) {
+        val qtd = _quantities[productId] ?: 0
+        qtd.let {
+            _quantities[productId] = it + 1
+        }
     }
 
     fun clearCart() {
         viewModelScope.launch {
             repository.clearCart()
-            loadCart()
         }
     }
 }

@@ -43,13 +43,10 @@ fun LimpOnCardProducts(
     modifier: Modifier = Modifier,
     product: Product = Product(),
     txtQuantity: Int = 0,
-    isProductScreen: Boolean = true,
     onClickProduct: () -> Unit = {},
-    subOfProducts: (String, Int, Double) -> Unit = { _, _, _ -> },
-    sumOfProducts: (String, Int, Double) -> Unit = { _, _, _ -> },
+    subOfProducts: () -> Unit = {},
+    sumOfProducts: () -> Unit = {},
 ) {
-
-
     Card(
         onClick = onClickProduct,
         shape = RoundedCornerShape(10.dp),
@@ -152,22 +149,19 @@ fun LimpOnCardProducts(
                 promotionalPrice = product.promotionalPrice
             )
 
-            if (isProductScreen) {
-                Row(
-                    modifier = Modifier
-                        .padding(bottom = 6.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AddAndSubButton(
-                        modifier = Modifier,
-                        txtQuantity = txtQuantity,
-                        product = product,
-                        subOfProducts = subOfProducts,
-                        sumOfProducts = sumOfProducts
-                    )
-                }
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 6.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AddAndSubButton(
+                    modifier = Modifier,
+                    txtQuantity = txtQuantity,
+                    onSubProduct = subOfProducts,
+                    onAddProduct = sumOfProducts
+                )
             }
         }
     }

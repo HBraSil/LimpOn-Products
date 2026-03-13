@@ -142,7 +142,7 @@ fun HomeScreen(
     onSeeAllClick: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
 ) {
-    val totalQuantity by cartViewModel.totalQuantity.collectAsState()
+    val totalQuantity = cartViewModel.quantities.values.sum()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val listOfStores by homeViewModel.listOfStores.collectAsState()
 

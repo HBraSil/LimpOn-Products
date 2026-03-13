@@ -11,8 +11,9 @@ data class ProductEntity(
     var oldPrice: Double? = 0.0,
     val discountPercent: Int? = null,
     var price: Double = 0.0,
-    var badges: List<String> = emptyList(),
-    var quantity: Int = 0,
-    val imageUrl: String? = null,
-    val isTopSeller: Boolean = false
+    val promotionalPrice: Double = 0.0,
+    var description: String = "",
+    var classification: String = "",
+    var category: String = "",
+    var stockCount: Int = 0,
 )

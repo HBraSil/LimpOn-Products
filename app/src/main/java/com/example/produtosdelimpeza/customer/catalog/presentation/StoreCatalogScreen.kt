@@ -97,7 +97,6 @@ import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
 import com.example.produtosdelimpeza.core.component.ProductPrice
-import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
@@ -112,9 +111,8 @@ fun CatalogScreen(
     onCartScreenClick: () -> Unit = {},
     catalogViewModel: CatalogViewModel = hiltViewModel(),
 ) {
-    val totalQuantity by cartViewModel.totalQuantity.collectAsState()
+    val totalQuantity = cartViewModel.quantities.values.sum()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
-    val cartItems by cartViewModel.cartItems.collectAsState()
     val store by catalogViewModel.store.collectAsState()
     val allProducts by catalogViewModel.productList.collectAsState()
     val productDetail by catalogViewModel.productDetail.collectAsState()
@@ -207,37 +205,24 @@ fun CatalogScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         allProducts.forEachIndexed { index, product ->
-                            val quantity = cartItems.firstOrNull { it.id == index }?.quantity ?: 0
-
-                        LimpOnCardProducts(
-                            modifier = Modifier
-                                .fillMaxWidth(0.48f)
-                                .wrapContentHeight(),
+                            val totalQuantity = cartViewModel.quantities[product.id] ?: 0
+                            LimpOnCardProducts(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.48f)
+                                    .wrapContentHeight(),
                                 product = product,
-                                txtQuantity = quantity,
+                                txtQuantity = totalQuantity,
                                 onClickProduct = {
                                     isSheetProductOpen = true
                                     catalogViewModel.updateProductDetail(product)
-
                                 },
-                                subOfProducts = { name, quantity, curPrice ->
-                                    cartViewModel.deleteOrRemoveProduct(
-                                        ProductEntity(
-                                            id = index,
-                                            name = name,
-                                            price = curPrice,
-                                            quantity = quantity
-                                        )
-                                    )
+                                subOfProducts = {
+                                    cartViewModel.decreaseQuantity(productId = product.id)
                                 },
-                                sumOfProducts = { name, quantity, curPrice ->
-                                    cartViewModel.addOrUpdateProduct(
-                                        ProductEntity(
-                                            id = index,
-                                            name = name,
-                                            price = curPrice,
-                                            quantity = quantity
-                                        )
+                                sumOfProducts = {
+                                    cartViewModel.increaseQuantity(
+                                        productId = product.id,
+                                        price = if (product.promotionalPrice > 0.0) product.promotionalPrice else product.price
                                     )
                                 }
                             )
@@ -322,7 +307,7 @@ fun CatalogScreen(
                                 .padding(horizontal = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            AddAndSubButton(txtQuantity = 1)
+                            AddAndSubButton()
 
                             Spacer(Modifier.weight(1f))
 
@@ -494,7 +479,7 @@ fun CatalogScreen(
                                         shape = RoundedCornerShape(16.dp)
                                     ),
                                 product = product,
-                                isProductScreen = false,
+                                //isProductScreen = false,
                                 onClickProduct = {}
                             )
                         }

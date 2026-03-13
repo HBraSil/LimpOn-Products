@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.customer.cart.presentation
 
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,19 +13,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.domain.Product
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
-
-// --- 1. Estrutura de Dados (Hardcoded) ---
 
 data class CartItem(
     val id: Int,
@@ -95,33 +96,40 @@ val initialCartState = CartState(
 
 
 @Composable
-fun CartScreen() {
-    // Usamos o 'mutableStateOf' para simular a mudança de estado da UI,
-    // como a seleção de entrega e observações.
-    var cartState by remember { mutableStateOf(initialCartState) }
+fun CartScreen(
+    cartViewModel: CartViewModel = hiltViewModel(),
+    onBackNavigation: () -> Unit = {}
+) {
+    val cartState by cartViewModel.cartItems.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
+
 
     Scaffold(
-        topBar = { CartTopBar() },
+        topBar = {
+            CartTopBar (
+                cartViewModel,
+                onBackNavigation
+            )
+        },
         bottomBar = { },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { CartItemSection(cartState.items) }
+            item { CartItemSection(cartState) }
             item { UpsellSuggestionSection() }
             item { AddressSection() }
-            item {
+            /*item {
                 ObservationField(
                     currentObservation = cartState.observations,
                     onObservationChange = { newObs ->
                         cartState = cartState.copy(observations = newObs)
                     }
                 )
-            }
-            item { ValueSummarySection(cartState) }
+            }*/
+            item { ValueSummarySection( totalPrice) }
             item {
                 CheckoutButton()
             }
@@ -132,7 +140,10 @@ fun CartScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartTopBar() {
+fun CartTopBar(
+    cartViewModel: CartViewModel,
+    onBackNavigation: () -> Unit
+) {
     TopAppBar(
         title = {
             Text(
@@ -149,7 +160,9 @@ fun CartTopBar() {
         actions = {
             Text(
                 text = "Limpar",
-                modifier = Modifier.padding(end = 16.dp),
+                modifier = Modifier.padding(end = 16.dp).clickable {
+                    cartViewModel.clearCart()
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(red = 1f)
@@ -189,7 +202,7 @@ fun HeaderNotification() {
 
 
 @Composable
-fun CartItemSection(items: List<CartItem>) {
+fun CartItemSection(items: List<Product>) {
     Column(modifier = Modifier.padding(14.dp)) {
         items.forEachIndexed { index, item ->
             CartItemRow(item = item)
@@ -206,7 +219,7 @@ fun CartItemSection(items: List<CartItem>) {
 
 
 @Composable
-fun CartItemRow(item: CartItem) {
+fun CartItemRow(item: Product) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -242,13 +255,13 @@ fun CartItemRow(item: CartItem) {
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
-                    Text(
-                        item.description,
+                    /*Text(
+                        item.,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
-                    )
+                    )*/
                 }
                 // Botão/Ícone de Remoção/Edição (inspirado no Rappi/Burger King)
                 IconButton(
@@ -271,7 +284,7 @@ fun CartItemRow(item: CartItem) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    currencyFormatter.format(item.price * item.quantity),
+                    currencyFormatter.format(item.price),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -292,7 +305,7 @@ fun CartItemRow(item: CartItem) {
                         )
                     }
                     Text(
-                        "${item.quantity}",
+                        "${item.price}",
                         modifier = Modifier.padding(horizontal = 6.dp),
                         fontWeight = FontWeight.Bold
                     )
@@ -408,7 +421,9 @@ fun ObservationField(currentObservation: String, onObservationChange: (String) -
 }
 
 @Composable
-fun ValueSummarySection(state: CartState) {
+fun ValueSummarySection(
+    totalPrice: Double
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -426,7 +441,7 @@ fun ValueSummarySection(state: CartState) {
             )
 
             // Subtotal
-            ValueRow("Subtotal dos itens:", state.subtotal)
+         /*   ValueRow("Subtotal dos itens:", state.subtotal)
 
             // Entrega
             ValueRow("Taxa de Entrega:", state.deliveryFee, isFree = state.deliveryFee == 0.0)
@@ -440,7 +455,7 @@ fun ValueSummarySection(state: CartState) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
             }
-
+*/
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 thickness = 1.dp,
@@ -459,7 +474,7 @@ fun ValueSummarySection(state: CartState) {
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    currencyFormatter.format(state.total),
+                    text = totalPrice.toString(),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground.copy(blue = 0.6f)
