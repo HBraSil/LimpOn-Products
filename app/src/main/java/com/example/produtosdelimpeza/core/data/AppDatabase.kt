@@ -11,12 +11,13 @@ import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.data.entity.StoreEntity
 import com.example.produtosdelimpeza.core.data.entity.UserEntity
+import com.example.produtosdelimpeza.customer.cart.data.CartItemEntity
 import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
 
 @TypeConverters(Converters::class)
 @Database(
-    entities = [ProductEntity::class, UserEntity::class, StoreEntity::class],
-    version = 8,
+    entities = [ProductEntity::class, UserEntity::class, StoreEntity::class, CartItemEntity::class],
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

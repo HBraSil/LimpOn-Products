@@ -355,7 +355,7 @@ fun NavGraphBuilder.customerMainGraph(
         route = NavGraph.USER_MAIN.route,
         startDestination = NavGraph.HOME.route
     ) {
-        sharedGraph()
+        sharedGraph(navController)
 
         homeGraph(innerPadding, navController, cartViewModel)
         searchGraph()
@@ -364,15 +364,15 @@ fun NavGraphBuilder.customerMainGraph(
     }
 }
 
-private fun NavGraphBuilder.sharedGraph() {
+private fun NavGraphBuilder.sharedGraph(navController: NavController) {
     navigation(
         route = NavGraph.SHRARED_GRAPH.route,
         startDestination = CustomerScreen.CART.route
     ){
         composable(route = CustomerScreen.CART.route) {
             CartScreen(
-                /*onBackNavigation = { navController.navigateUp() },
-                cartViewModel = cartViewModel*/
+                /*cartViewModel = cartViewModel*/
+                onBackNavigation = { navController.navigateUp() },
             )
         }
     }

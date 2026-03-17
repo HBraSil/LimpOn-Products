@@ -1,14 +1,14 @@
 package com.example.produtosdelimpeza.customer.cart.presentation
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.customer.cart.domain.CartRepository
 import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.customer.cart.domain.CartItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,15 +16,26 @@ import javax.inject.Inject
 class CartViewModel @Inject constructor(
     private val repository: CartRepository
 ) : ViewModel() {
+    val cartItemsList = repository.observeCartItems()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            emptyList()
+        )
 
-    private val _cartItems = MutableStateFlow<List<Product>>(emptyList())
-    val cartItems: StateFlow<List<Product>> = _cartItems.asStateFlow()
+    val cartQuantity = cartItemsList.map { list ->
+        list.sumOf { it.quantity }
+    }
 
-    private val _quantities = mutableStateMapOf<String, Int>()
-    val quantities: Map<String, Int> get() = _quantities
+    val cartTotalPrice = cartItemsList.map { list ->
+        list.sumOf { item ->
+                if (item.totalPromotionalPrice > 0)
+                    item.totalPromotionalPrice
+                else
+                    item.totalPrice
+        }
+    }
 
-    private val _totalPrice = MutableStateFlow(0.0)
-    val totalPrice: StateFlow<Double> = _totalPrice.asStateFlow()
 
 /*
     init {
@@ -94,18 +105,65 @@ class CartViewModel @Inject constructor(
 */
 
 
-    fun decreaseQuantity(productId: String) {
-        _quantities[productId]?.let {
-            if ( it > 0) {
-                _quantities[productId] = it - 1
+/*
+    fun changeToCartItemAndUpdate(product: Product) {
+        increaseQuantity(
+            CartItem(
+                productId = product.id,
+                name = product.name,
+                description = product.description,
+                price = product.price,
+                promotionalPrice = product.promotionalPrice,
+                quantity = 1
+            )
+        )
+    }
+*/
+
+
+    fun decreaseQuantity(product: Product) {}
+
+
+    fun addProductToCart(product: Product) {
+        viewModelScope.launch {
+            val existingItem = cartItemsList.value.find { it.productId == product.id }
+
+            if (existingItem == null) {
+                repository.insert(
+                    CartItem(
+                        productId = product.id,
+                        name = product.name,
+                        description = product.description,
+                        totalPrice = product.price,
+                        totalPromotionalPrice = product.promotionalPrice,
+                        quantity = 1
+                    )
+                )
+            } else {
+                increaseQuantity(existingItem)
             }
         }
     }
 
-    fun increaseQuantity(productId: String, price: Double) {
-        val qtd = _quantities[productId] ?: 0
-        qtd.let {
-            _quantities[productId] = it + 1
+    fun increaseQuantity(item: CartItem) {
+        viewModelScope.launch {
+            val product = repository.getProductById(item.productId)
+
+            product?.let {
+                repository.update(
+                    cartItem = item.copy(
+                        totalPrice = item.totalPrice + product.price,
+                        totalPromotionalPrice = item.totalPromotionalPrice + product.promotionalPrice,
+                        quantity = item.quantity + 1
+                    )
+                )
+            }
+        }
+    }
+
+    fun removeItem(item: CartItem) {
+        viewModelScope.launch {
+                repository.deleteItem(item)
         }
     }
 

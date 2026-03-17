@@ -142,8 +142,8 @@ fun HomeScreen(
     onSeeAllClick: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
 ) {
-    val totalQuantity = cartViewModel.quantities.values.sum()
-    val totalPrice by cartViewModel.totalPrice.collectAsState()
+    val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
+    val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
     val listOfStores by homeViewModel.listOfStores.collectAsState()
 
     var expandedCard by remember { mutableStateOf(false) }
@@ -155,12 +155,11 @@ fun HomeScreen(
         navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.CustomerSection)
     }
 
-
     Scaffold(
         bottomBar = {
             Column {
                 CartBottomBarScaffoldStyle(
-                    items = totalQuantity,
+                    items = totalQtd,
                     total = totalPrice,
                     onNavigateToCart = { navController.navigate("cart") }
                 )
@@ -168,7 +167,6 @@ fun HomeScreen(
         },
         modifier = Modifier.padding(paddingValues)
     ) { innerPadding ->
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = innerPadding.calculateBottomPadding())
@@ -176,8 +174,7 @@ fun HomeScreen(
             item {
                 Box {
                     Column(
-                        modifier = Modifier
-                            .padding(top = 100.dp)
+                        modifier = Modifier.padding(top = 100.dp)
                     ) {
                         BannerDeOfertas(modifier = Modifier.fillMaxWidth())
                         Spacer(modifier = Modifier.height(16.dp))
@@ -847,7 +844,7 @@ fun CartBottomBarScaffoldStyle(
     }
 }
 
-// --- Categories row ---
+
 @Composable
 fun CategoriesRow(categories: List<Category>, onClick: (Category) -> Unit) {
     LazyRow(contentPadding = PaddingValues(start = 12.dp)) {

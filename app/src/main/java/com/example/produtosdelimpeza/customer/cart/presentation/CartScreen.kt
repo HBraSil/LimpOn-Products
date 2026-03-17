@@ -2,7 +2,6 @@ package com.example.produtosdelimpeza.customer.cart.presentation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -21,78 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.core.component.AddAndSubButton
+import com.example.produtosdelimpeza.core.component.ProductPrice
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
-
-data class CartItem(
-    val id: Int,
-    val name: String,
-    val description: String,
-    val price: Double,
-    val quantity: Int,
-    val imageUrl: String = "", // Placeholder para URL de imagem
-)
-
-data class DeliveryOption(
-    val id: Int,
-    val type: String,
-    val time: String,
-    val price: Double,
-    val isTurbo: Boolean = false,
-)
-
-data class Coupon(
-    val code: String,
-    val description: String,
-    val value: Double,
-    val isApplied: Boolean,
-)
-
-data class CartState(
-    val items: List<CartItem>,
-    val deliveryOptions: List<DeliveryOption>,
-    val selectedDeliveryId: Int,
-    val coupon: Coupon?,
-    val subtotal: Double,
-    val discount: Double,
-    val observations: String,
-) {
-    val deliveryFee: Double
-        get() = deliveryOptions.find { it.id == selectedDeliveryId }?.price ?: 0.0
-
-    val total: Double
-        get() = subtotal + deliveryFee - discount
-}
-
-// --- 2. Dados de Exemplo ---
-
-val mockItems = listOf(
-    CartItem(1, "Combo Mega Burger King", "2x Whopper, 2x Batata Média, 2x Refrigerante", 68.90, 1),
-    CartItem(2, "Porção de Feijão Tropeiro", "Com bacon e torresmo. Serve 2.", 29.90, 1),
-    CartItem(3, "Cerveja IPA Artesanal (330ml)", "Gelada e 'congelada'", 18.50, 6)
-)
-
-val mockDeliveryOptions = listOf(
-    DeliveryOption(1, "Turbo", "20 - 30 min", 9.99, isTurbo = true),
-    DeliveryOption(2, "Rápida", "35 - 45 min", 5.99),
-    DeliveryOption(3, "Padrão", "50 - 60 min", 2.99)
-)
-
-val mockCoupon = Coupon("DEZOFF", "10% OFF em pedidos acima de R$ 100", 12.00, true)
-
-val initialCartState = CartState(
-    items = mockItems,
-    deliveryOptions = mockDeliveryOptions,
-    selectedDeliveryId = 1,
-    coupon = mockCoupon,
-    subtotal = mockItems.sumOf { it.price * it.quantity },
-    discount = mockCoupon.value,
-    observations = "Sem cebola no Mega Combo, por favor."
-)
-
+import com.example.produtosdelimpeza.customer.cart.domain.CartItem
 
 
 @Composable
@@ -100,8 +35,9 @@ fun CartScreen(
     cartViewModel: CartViewModel = hiltViewModel(),
     onBackNavigation: () -> Unit = {}
 ) {
-    val cartState by cartViewModel.cartItems.collectAsState()
-    val totalPrice by cartViewModel.totalPrice.collectAsState()
+    val cartList by cartViewModel.cartItemsList.collectAsState()
+    val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
+    //val promotionalPrice by cartViewModel.totalPromotionalPrice.collectAsState(initial = 0.0)
 
 
     Scaffold(
@@ -118,18 +54,32 @@ fun CartScreen(
             modifier = Modifier.padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item { CartItemSection(cartState) }
-            item { UpsellSuggestionSection() }
-            item { AddressSection() }
-            /*item {
-                ObservationField(
-                    currentObservation = cartState.observations,
-                    onObservationChange = { newObs ->
-                        cartState = cartState.copy(observations = newObs)
+            // item { HeaderNotification() } this composable goes here
+            item {
+                CartItemSection(
+                    items = cartList,
+                    onRemoveItem = { item ->
+                        cartViewModel.removeItem(item)
+                    },
+                    onAdd = {
+                        cartViewModel.increaseQuantity(it)
+                    },
+                    onSub = {
+                        //cartViewModel.decreaseQuantity(productId = )
                     }
                 )
-            }*/
-            item { ValueSummarySection( totalPrice) }
+            }
+            item { UpsellSuggestionSection() }
+            item { AddressSection() }
+            item {
+                ObservationField(
+                    currentObservation = "Observation goes here",
+                    onObservationChange = { newObs ->
+
+                    }
+                )
+            }
+            item { ValueSummarySection(totalPrice) }
             item {
                 CheckoutButton()
             }
@@ -153,7 +103,7 @@ fun CartTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* Ação de Voltar */ }) {
+            IconButton(onClick = { onBackNavigation() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Voltar")
             }
         },
@@ -174,7 +124,8 @@ fun CartTopBar(
     )
 }
 
-/*@Composable
+/*
+@Composable
 fun HeaderNotification() {
     Row(
         modifier = Modifier
@@ -198,14 +149,24 @@ fun HeaderNotification() {
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
-}*/
-
+}
+*/
 
 @Composable
-fun CartItemSection(items: List<Product>) {
+fun CartItemSection(
+    items: List<CartItem>,
+    onRemoveItem: (CartItem) -> Unit,
+    onAdd: (CartItem) -> Unit,
+    onSub: (String) -> Unit
+) {
     Column(modifier = Modifier.padding(14.dp)) {
         items.forEachIndexed { index, item ->
-            CartItemRow(item = item)
+            CartItemRow (
+                item = item,
+                onRemoveItem = { onRemoveItem(item) },
+                onAdd = { onAdd(item) },
+                onSub = { onSub(item.productId) }
+            )
             if (index < items.lastIndex) {
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 12.dp),
@@ -218,14 +179,19 @@ fun CartItemSection(items: List<Product>) {
 }
 
 
+
 @Composable
-fun CartItemRow(item: Product) {
+fun CartItemRow(
+    item: CartItem,
+    onRemoveItem: () -> Unit,
+    onAdd: () -> Unit,
+    onSub: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Imagem/Ícone Placeholder
         Box(
             modifier = Modifier
                 .size(50.dp)
@@ -242,30 +208,33 @@ fun CartItemRow(item: Product) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Nome e Descrição
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f),
+                ) {
                     Text(
-                        item.name,
+                        text = item.name,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
-                    /*Text(
-                        item.,
+                    Text(
+                        text = item.description,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
-                    )*/
+                    )
                 }
-                // Botão/Ícone de Remoção/Edição (inspirado no Rappi/Burger King)
+
+                Spacer(modifier = Modifier.width(10.dp))
+
                 IconButton(
-                    onClick = {}
+                    onClick = onRemoveItem,
                 ){
                     Icon(
                         Icons.Default.Delete,
@@ -283,40 +252,15 @@ fun CartItemRow(item: Product) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    currencyFormatter.format(item.price),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                ProductPrice(
+                    item.totalPrice,
+                    item.totalPromotionalPrice,
                 )
-                Row(
-                    modifier = Modifier
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 1f),
-                            shape = RoundedCornerShape(16.dp)
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IconButton(onClick = { /* Diminuir */ }) {
-                        Icon(
-                            Icons.Default.Remove,
-                            contentDescription = "Diminuir",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Text(
-                        "${item.price}",
-                        modifier = Modifier.padding(horizontal = 6.dp),
-                        fontWeight = FontWeight.Bold
-                    )
-                    IconButton(onClick = { /* Aumentar */ }) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = "Aumentar",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
+                AddAndSubButton (
+                    txtQuantity = item.quantity,
+                    onAddProduct = onAdd,
+                    onSubProduct = onSub
+                )
             }
         }
     }
@@ -462,7 +406,6 @@ fun ValueSummarySection(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
             )
 
-            // Total
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -474,7 +417,7 @@ fun ValueSummarySection(
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = totalPrice.toString(),
+                    text = currencyFormatter.format(totalPrice),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground.copy(blue = 0.6f)

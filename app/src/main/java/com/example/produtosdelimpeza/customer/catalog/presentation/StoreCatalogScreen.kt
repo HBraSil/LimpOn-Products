@@ -111,21 +111,23 @@ fun CatalogScreen(
     onCartScreenClick: () -> Unit = {},
     catalogViewModel: CatalogViewModel = hiltViewModel(),
 ) {
-    val totalQuantity = cartViewModel.quantities.values.sum()
-    val totalPrice by cartViewModel.totalPrice.collectAsState()
     val store by catalogViewModel.store.collectAsState()
     val allProducts by catalogViewModel.productList.collectAsState()
     val productDetail by catalogViewModel.productDetail.collectAsState()
+    val cartList by cartViewModel.cartItemsList.collectAsState()
+    val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
+    val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
 
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetProductOpen by rememberSaveable { mutableStateOf(false) }
     var isSheetFilterOpen by rememberSaveable { mutableStateOf(false) }
 
+
     Scaffold(
         bottomBar = {
             CartBottomBarScaffoldStyle(
-                items = totalQuantity,
+                items = totalQtd,
                 total = totalPrice,
                 onOpenCart = {
                     onCartScreenClick()
@@ -204,26 +206,24 @@ fun CatalogScreen(
                         verticalArrangement = Arrangement.spacedBy(26.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        allProducts.forEachIndexed { index, product ->
-                            val totalQuantity = cartViewModel.quantities[product.id] ?: 0
+                        allProducts.forEachIndexed { _, product ->
+                            val qtd = cartList.find { it.productId == product.id }
+
                             LimpOnCardProducts(
                                 modifier = Modifier
                                     .fillMaxWidth(0.48f)
                                     .wrapContentHeight(),
                                 product = product,
-                                txtQuantity = totalQuantity,
+                                txtQuantity = qtd?.quantity ?: 0,
+                                subOfProducts = {
+                                    cartViewModel.decreaseQuantity(product)
+                                },
+                                sumOfProducts = {
+                                    cartViewModel.addProductToCart(product)
+                                },
                                 onClickProduct = {
                                     isSheetProductOpen = true
                                     catalogViewModel.updateProductDetail(product)
-                                },
-                                subOfProducts = {
-                                    cartViewModel.decreaseQuantity(productId = product.id)
-                                },
-                                sumOfProducts = {
-                                    cartViewModel.increaseQuantity(
-                                        productId = product.id,
-                                        price = if (product.promotionalPrice > 0.0) product.promotionalPrice else product.price
-                                    )
                                 }
                             )
                         }
