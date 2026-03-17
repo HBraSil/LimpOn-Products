@@ -26,7 +26,7 @@ interface CartProductsDAO {
     @Delete
     suspend fun deleteProduct(productEntity: ProductEntity)
 
-    @Query("DELETE FROM product")
+    @Query("DELETE FROM cart_item")
     suspend fun deleteAllProducts()
 
     @Delete

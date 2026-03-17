@@ -121,7 +121,26 @@ class CartViewModel @Inject constructor(
 */
 
 
-    fun decreaseQuantity(product: Product) {}
+    fun decreaseQuantity(id: String) {
+        viewModelScope.launch {
+            val existingItem = cartItemsList.value.find { it.productId == id }!!
+            val product = repository.getProductById(id) ?: return@launch
+
+
+
+            if (existingItem.quantity > 1) {
+                repository.update(
+                    cartItem = existingItem.copy(
+                        totalPrice = existingItem.totalPrice - product.price,
+                        totalPromotionalPrice = existingItem.totalPromotionalPrice - product.promotionalPrice,
+                        quantity = existingItem.quantity - 1
+                    )
+                )
+            } else {
+                removeItem(existingItem)
+            }
+        }
+    }
 
 
     fun addProductToCart(product: Product) {
@@ -163,7 +182,7 @@ class CartViewModel @Inject constructor(
 
     fun removeItem(item: CartItem) {
         viewModelScope.launch {
-                repository.deleteItem(item)
+            repository.deleteItem(item)
         }
     }
 

@@ -18,12 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.AddAndSubButton
 import com.example.produtosdelimpeza.core.component.ProductPrice
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
@@ -37,15 +39,12 @@ fun CartScreen(
 ) {
     val cartList by cartViewModel.cartItemsList.collectAsState()
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
-    //val promotionalPrice by cartViewModel.totalPromotionalPrice.collectAsState(initial = 0.0)
-
 
     Scaffold(
         topBar = {
-            CartTopBar (
-                cartViewModel,
-                onBackNavigation
-            )
+            CartTopBar(onBackNavigation) {
+                cartViewModel.clearCart()
+            }
         },
         bottomBar = { },
         containerColor = MaterialTheme.colorScheme.background
@@ -56,18 +55,22 @@ fun CartScreen(
         ) {
             // item { HeaderNotification() } this composable goes here
             item {
-                CartItemSection(
-                    items = cartList,
-                    onRemoveItem = { item ->
-                        cartViewModel.removeItem(item)
-                    },
-                    onAdd = {
-                        cartViewModel.increaseQuantity(it)
-                    },
-                    onSub = {
-                        //cartViewModel.decreaseQuantity(productId = )
-                    }
-                )
+                if (cartList.isEmpty()) {
+                    EmptyCartScreen()
+                } else {
+                    CartItemSection(
+                        items = cartList,
+                        onRemoveItem = { item ->
+                            cartViewModel.removeItem(item)
+                        },
+                        onAdd = {
+                            cartViewModel.increaseQuantity(it)
+                        },
+                        onSub = {
+                            cartViewModel.decreaseQuantity(it)
+                        }
+                    )
+                }
             }
             item { UpsellSuggestionSection() }
             item { AddressSection() }
@@ -80,19 +83,31 @@ fun CartScreen(
                 )
             }
             item { ValueSummarySection(totalPrice) }
-            item {
-                CheckoutButton()
-            }
+            item { CheckoutButton(isEnabled = cartList.isNotEmpty()) }
         }
-
     }
 }
+
+
+@Composable
+fun EmptyCartScreen() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 30.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.empty_cart),
+            style = MaterialTheme.typography.titleLarge,
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartTopBar(
-    cartViewModel: CartViewModel,
-    onBackNavigation: () -> Unit
+    onBackNavigation: () -> Unit,
+    cleanCart: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -111,7 +126,7 @@ fun CartTopBar(
             Text(
                 text = "Limpar",
                 modifier = Modifier.padding(end = 16.dp).clickable {
-                    cartViewModel.clearCart()
+                    cleanCart()
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
@@ -480,7 +495,9 @@ fun ValueRow(label: String, value: Double, color: Color? = null, isFree: Boolean
 }
 
 @Composable
-fun CheckoutButton() {
+fun CheckoutButton(
+    isEnabled: Boolean = false
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
         horizontalArrangement = Arrangement.Center,
@@ -488,6 +505,7 @@ fun CheckoutButton() {
     ) {
         ElevatedButton(
             onClick = { /* Ir para o pagamento */ },
+            enabled = isEnabled,
             modifier = Modifier.width(250.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,

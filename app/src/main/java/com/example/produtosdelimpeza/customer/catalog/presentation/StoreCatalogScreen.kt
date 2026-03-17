@@ -216,7 +216,7 @@ fun CatalogScreen(
                                 product = product,
                                 txtQuantity = qtd?.quantity ?: 0,
                                 subOfProducts = {
-                                    cartViewModel.decreaseQuantity(product)
+                                    cartViewModel.decreaseQuantity(product.id)
                                 },
                                 sumOfProducts = {
                                     cartViewModel.addProductToCart(product)

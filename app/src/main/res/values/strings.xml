@@ -125,4 +125,5 @@
     <string name="coupon_code_information">O cliente digitará esse código na hora da compra</string>
     <string name="see_all_payment_methods">ver todas as formas de pagamento</string>
     <string name="product_description">Descrição do produto</string>
+    <string name="empty_cart">Seu carrinho está vazio</string>
 </resources>
