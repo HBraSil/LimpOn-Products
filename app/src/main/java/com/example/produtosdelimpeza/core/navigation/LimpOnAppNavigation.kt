@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.notifications.NotificationsScreen
+import com.example.produtosdelimpeza.Map
 import com.example.produtosdelimpeza.autonomous.dashboard.presentation.AutonomousDashboardScreen
 import com.example.produtosdelimpeza.autonomous.profile.presentation.AutonomousProfileScreen
 import com.example.produtosdelimpeza.autonomous.service_settings.presentation.ServiceSettingsScreen
@@ -65,6 +66,7 @@ import com.example.produtosdelimpeza.customer.cart.presentation.CartScreen
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 import com.example.produtosdelimpeza.customer.profile.presentation.ProfileScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.address.AddressesScreen
+import com.example.produtosdelimpeza.customer.profile.presentation.address.SetLocationScreenContainer
 import com.example.produtosdelimpeza.customer.profile.presentation.coupons.CouponsScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.header_profile_screen.EditUserProfileScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.help.HelpScreen
@@ -364,6 +366,7 @@ fun NavGraphBuilder.customerMainGraph(
     }
 }
 
+
 private fun NavGraphBuilder.sharedGraph(navController: NavController) {
     navigation(
         route = NavGraph.SHRARED_GRAPH.route,
@@ -376,7 +379,6 @@ private fun NavGraphBuilder.sharedGraph(navController: NavController) {
             )
         }
     }
-
 }
 
 
@@ -538,8 +540,25 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         }
 
         composable(route = CustomerScreen.CUSTOMER_ADDRESS.route) {
-            AddressesScreen()
+            AddressesScreen(
+                onGoToAddNewAddressScreen = {
+                    navController.navigate(CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route)
+                }
+            )
         }
+
+        composable(route = CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route) {
+            SetLocationScreenContainer(
+                onSelectMapClick = {
+                    navController.navigate(CustomerScreen.CUSTOMER_SET_LOCATION.route)
+                }
+            )
+        }
+
+        composable(route = CustomerScreen.CUSTOMER_SET_LOCATION.route) {
+            Map()
+        }
+
         composable(route = CustomerScreen.MANAGEMENT_NOTIFICATION.route) {
             ManagementNotificationScreen(
                 onBackNavigation = { navController.navigateUp() }

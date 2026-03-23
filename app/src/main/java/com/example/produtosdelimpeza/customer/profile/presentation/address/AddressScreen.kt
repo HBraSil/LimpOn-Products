@@ -4,16 +4,11 @@ package com.example.produtosdelimpeza.customer.profile.presentation.address
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.*
@@ -21,19 +16,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.produtosdelimpeza.R
 
 
 private const val ANIMATION_DURATION = 300
@@ -115,7 +107,7 @@ object AddressDataSource {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddressesScreen() {
+fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit) {
 
     var selectedAddressId by remember { mutableIntStateOf(1) }
     val addresses = remember {
@@ -123,23 +115,10 @@ fun AddressesScreen() {
     }
 
 
-    var showFormSheet by remember { mutableStateOf(false) }
     var addressToEdit by remember { mutableStateOf<Address?>(null) }
 
     var addressToDelete by remember { mutableStateOf<Address?>(null) }
 
-    val handleSaveAddress: (Address) -> Unit = { newAddress ->
-        if (newAddress.isDefault) {
-            addresses.forEach { it.isDefault = false }
-        }
-        val index = addresses.indexOfFirst { it.id == newAddress.id }
-        if (index != -1) {
-            addresses[index] = newAddress
-        } else {
-            addresses.add(newAddress)
-        }
-        showFormSheet = false
-    }
 
 
     val handleToggleDefault: (Address) -> Unit = { selectedAddress ->
@@ -168,13 +147,13 @@ fun AddressesScreen() {
             FloatingActionButton(
                 onClick = {
                     addressToEdit = null
-                    showFormSheet = true
+                    onGoToAddNewAddressScreen()
                 },
                 modifier = Modifier.padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.background
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Adicionar novo endereço")
+                Text(text = stringResource(R.string.add_new_address))
             }
         }
     ) { paddingValues ->
@@ -206,7 +185,6 @@ fun AddressesScreen() {
                     isSelected = isSelected,
                     onEdit = {
                         addressToEdit = it
-                        showFormSheet = true
                     },
                     onDelete = { addressToDelete = it },
                     onToggleDefault = {
@@ -219,7 +197,7 @@ fun AddressesScreen() {
     }
 
 
-    if (showFormSheet) {
+/*    if (showFormSheet) {
         AddressFormSheet(
             addressToEdit = addressToEdit,
             onDismiss = {
@@ -228,7 +206,7 @@ fun AddressesScreen() {
             },
             onSave = handleSaveAddress
         )
-    }
+    }*/
 
     // Dialog de Confirmação de Exclusão
     addressToDelete?.let { address ->
@@ -377,181 +355,6 @@ fun AddressCard(
     }
 }
 
-// --- Address Form Sheet Component ---
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddressFormSheet(
-    addressToEdit: Address? = null,
-    onDismiss: () -> Unit,
-    onSave: (Address) -> Unit,
-) {
-    val isEditing = addressToEdit != null
-    val title = if (isEditing) "Editar Endereço" else "Adicionar Novo Endereço"
-
-    // Estados do Formulário
-    var label by remember {
-        mutableStateOf(
-            addressToEdit?.label ?: AddressDataSource.predefinedLabels.first()
-        )
-    }
-    var street by remember { mutableStateOf(addressToEdit?.street ?: "") }
-    var number by remember { mutableStateOf(addressToEdit?.number ?: "") }
-    var complement by remember { mutableStateOf(addressToEdit?.complement ?: "") }
-    var neighborhood by remember { mutableStateOf(addressToEdit?.neighborhood ?: "") }
-    var city by remember { mutableStateOf(addressToEdit?.city ?: "") }
-    var state by remember { mutableStateOf(addressToEdit?.state ?: "") }
-    var zip by remember { mutableStateOf(addressToEdit?.zip ?: "") }
-
-    val isFormValid =
-        street.isNotBlank() && number.isNotBlank() && neighborhood.isNotBlank() && city.isNotBlank() && state.isNotBlank() && zip.isNotBlank()
-
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.background) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Fechar")
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Rótulo (Dropdown)
-            LabelDropdown(
-                selectedLabel = label,
-                onLabelSelected = { label = it }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Campos de Endereço
-            OutlinedTextField(
-                value = street,
-                onValueChange = { street = it },
-                label = { Text("Rua") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = number,
-                    onValueChange = { number = it },
-                    label = { Text("Número") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                )
-                OutlinedTextField(
-                    value = complement,
-                    onValueChange = { complement = it },
-                    label = { Text("Complemento (Opcional)") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = neighborhood,
-                onValueChange = { neighborhood = it },
-                label = { Text("Bairro") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = city,
-                    onValueChange = { city = it },
-                    label = { Text("Cidade") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = state,
-                    onValueChange = { state = it },
-                    label = { Text("Estado") },
-                    modifier = Modifier.weight(0.5f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = zip,
-                onValueChange = { zip = it },
-                label = { Text("CEP") },
-                modifier = Modifier.fillMaxWidth().imePadding(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Botões de Ação
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Cancelar",
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-                Button(
-                    onClick = {
-                        val newAddress = Address(
-                            id = addressToEdit?.id
-                                ?: 0, // ID 0 para novo, será tratado na tela principal
-                            label = label,
-                            street = street,
-                            number = number,
-                            complement = complement.ifBlank { null },
-                            neighborhood = neighborhood,
-                            city = city,
-                            state = state,
-                            zip = zip,
-                            isDefault = addressToEdit?.isDefault ?: false
-                        )
-                        onSave(newAddress)
-                    },
-                    enabled = isFormValid,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(if (isEditing) "Salvar Alterações" else "Adicionar Endereço")
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -593,188 +396,6 @@ fun LabelDropdown(
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
-        }
-    }
-}
-
-// --- States and Shimmer ---
-
-@Composable
-fun EmptyState(
-    title: String = "Nenhum endereço cadastrado",
-    message: String = "Adicione seu primeiro endereço para começar a fazer pedidos.",
-    icon: ImageVector = Icons.Default.AddLocationAlt,
-    ctaText: String = "Adicionar Endereço",
-    onCtaClick: () -> Unit = {},
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onCtaClick) {
-            Text(ctaText)
-        }
-    }
-}
-
-@Composable
-fun ShimmerBrush(
-    showShimmer: Boolean = true,
-    targetColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
-): Brush {
-    return if (showShimmer) {
-        val shimmerColors = listOf(
-            targetColor.copy(alpha = 0.9f),
-            targetColor.copy(alpha = 0.4f),
-            targetColor.copy(alpha = 0.9f),
-        )
-
-        val transition = rememberInfiniteTransition(label = "Shimmer Transition")
-        val translateAnimation = transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1000f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = 1000,
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Reverse
-            ), label = "Shimmer Animation"
-        )
-        Brush.linearGradient(
-            colors = shimmerColors,
-            start = Offset.Zero,
-            end = Offset(x = translateAnimation.value, y = translateAnimation.value)
-        )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(Color.Transparent, Color.Transparent),
-            start = Offset.Zero,
-            end = Offset.Zero
-        )
-    }
-}
-
-@Composable
-fun AddressCardSkeleton() {
-    val brush = ShimmerBrush()
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp)
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Rótulo e Badge Skeleton
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(brush)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Spacer(
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(20.dp)
-                            .background(brush, RoundedCornerShape(4.dp))
-                    )
-                }
-                // Ações Skeleton
-                Row {
-                    Spacer(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(brush, CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Spacer(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(brush, CircleShape)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Linhas de Endereço Skeleton
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(16.dp)
-                    .background(brush, RoundedCornerShape(4.dp))
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(16.dp)
-                    .background(brush, RoundedCornerShape(4.dp))
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Toggle Skeleton
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(brush)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Spacer(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(16.dp)
-                        .background(brush, RoundedCornerShape(4.dp))
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun AddressListSkeleton(count: Int = 3) {
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(count) {
-            AddressCardSkeleton()
         }
     }
 }

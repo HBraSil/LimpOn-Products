@@ -13,6 +13,8 @@ enum class CustomerScreen(val route: String, val showBottomBar: Boolean = false)
     CUSTOMER_PAYMENT_METHODS("payment_methods"),
     CUSTOMER_COUPON("coupon"),
     CUSTOMER_ADDRESS("customer_address"),
+    CUSTOMER_ADD_NEW_ADDRESS("customer_add_new_address"),
+    CUSTOMER_SET_LOCATION("customer_set_location"),
     HELP("help"),
 
 

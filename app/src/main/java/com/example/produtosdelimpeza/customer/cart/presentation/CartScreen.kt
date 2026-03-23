@@ -400,21 +400,21 @@ fun ValueSummarySection(
             )
 
             // Subtotal
-         /*   ValueRow("Subtotal dos itens:", state.subtotal)
+            ValueRow("Subtotal dos itens:", totalPrice)
 
             // Entrega
-            ValueRow("Taxa de Entrega:", state.deliveryFee, isFree = state.deliveryFee == 0.0)
+            ValueRow("Taxa de Entrega:", 20.0, isFree = true)
 
             // Desconto/Cupom
-            if (state.coupon != null && state.coupon.isApplied) {
+            //if (state.coupon != null && state.coupon.isApplied) {
                 ValueRow(
-                    label = "Desconto (${state.coupon.code}):",
-                    value = -state.discount, // Valor negativo para desconto
+                    label = "Desconto aplicado",
+                    value = 20.0, // Valor negativo para desconto
                     color = MaterialTheme.colorScheme.error
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-            }
-*/
+            //}
+
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 thickness = 1.dp,

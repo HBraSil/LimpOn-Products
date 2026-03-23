@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
@@ -93,8 +90,8 @@ fun LoginScreen(
                             modifier = Modifier.padding(end = 20.dp)
                         ) {
                             Text(
-                                text = "Registre-se aqui",
-                                fontSize = 14.sp,
+                                text = stringResource(R.string.register_here),
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = ExtraBold,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
@@ -110,17 +107,16 @@ fun LoginScreen(
                     .padding(top = contentPadding.calculateTopPadding())
                     .verticalScroll(verticalScrollState)
                     .navigationBarsPadding()
-                    .padding(start = 16.dp, end = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Spacer(Modifier.height(20.dp))
                 Image(
                     painter = painterResource(R.drawable.limp_on_light_logo),
                     contentDescription = stringResource(R.string.login_image),
                 )
                 Text(
-                    text = "Faça seu login",
-                    fontSize = 20.sp,
+                    text = stringResource(R.string.do_login),
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = Bold,
                 )
                 ContentLoginScreen(

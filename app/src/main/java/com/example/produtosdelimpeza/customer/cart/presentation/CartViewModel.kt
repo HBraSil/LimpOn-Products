@@ -104,7 +104,6 @@ class CartViewModel @Inject constructor(
     }
 */
 
-
 /*
     fun changeToCartItemAndUpdate(product: Product) {
         increaseQuantity(

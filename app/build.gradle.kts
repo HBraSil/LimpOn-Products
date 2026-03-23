@@ -6,11 +6,12 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.hilt.plugin)
     alias(libs.plugins.google.services)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
     namespace = "com.example.produtosdelimpeza"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.produtosdelimpeza"
@@ -20,6 +21,7 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "X_SECRET_KEY", "\"${getSecretKey()}\"")
+        manifestPlaceholders["MAPS_API_KEY"] = getSecretKey() ?: ""
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,7 +62,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -80,7 +81,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 
     // ICON LIBRARY
     implementation(libs.androidx.material.icons)
@@ -128,9 +128,15 @@ dependencies {
     implementation(libs.facebook.core)
 
 
-    // Coil
+    // COIL
     implementation(libs.coil.compose)
+
+
+    //MAPS
+    implementation(libs.maps)
+    implementation(libs.maps.compose)
 }
+
 
 fun getSecretKey(): String? {
     return project.findProperty("x_secret_key")?.toString()

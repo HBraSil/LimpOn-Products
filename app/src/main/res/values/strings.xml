@@ -101,6 +101,7 @@
     <string name="autonomous_profile">Perfil</string>
     <string name="service_center">Central de serviços</string>
 
+
     <string name="monday">Segunda-feira</string>
     <string name="tuesday">Terça-feira</string>
     <string name="wednesday">Quarta-feira</string>
@@ -126,4 +127,7 @@
     <string name="see_all_payment_methods">ver todas as formas de pagamento</string>
     <string name="product_description">Descrição do produto</string>
     <string name="empty_cart">Seu carrinho está vazio</string>
+    <string name="do_login">Faça seu login</string>
+    <string name="register_here">Registre-se aqui</string>
+    <string name="add_new_address">Adicionar novo enderenço</string>
 </resources>
