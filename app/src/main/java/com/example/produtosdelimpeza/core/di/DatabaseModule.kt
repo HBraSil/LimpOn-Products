@@ -38,6 +38,7 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideCartProductsDAO(database: AppDatabase): CartProductsDAO {
         return database.cartProductsDao()
     }

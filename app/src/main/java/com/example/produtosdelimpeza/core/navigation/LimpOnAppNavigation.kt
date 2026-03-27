@@ -25,7 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.notifications.NotificationsScreen
-import com.example.produtosdelimpeza.Map
+import com.example.produtosdelimpeza.LocationScreen
+import com.example.produtosdelimpeza.LocationUiState
 import com.example.produtosdelimpeza.autonomous.dashboard.presentation.AutonomousDashboardScreen
 import com.example.produtosdelimpeza.autonomous.profile.presentation.AutonomousProfileScreen
 import com.example.produtosdelimpeza.autonomous.service_settings.presentation.ServiceSettingsScreen
@@ -556,7 +557,17 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         }
 
         composable(route = CustomerScreen.CUSTOMER_SET_LOCATION.route) {
-            Map()
+            LocationScreen(
+                state = LocationUiState(
+                    query = "",
+                    address = "Av. Paulista, 1234",
+                    subtitle = "Bela Vista, São Paulo - SP",
+                    distance = "2.5 km"
+                ),
+                onQueryChange = {},
+                onConfirmClick = {},
+                onMenuClick = {}
+            )
         }
 
         composable(route = CustomerScreen.MANAGEMENT_NOTIFICATION.route) {

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.hilt.plugin)
     alias(libs.plugins.google.services)
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.secrets.gradle.plugin)
 }
 
 android {
@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

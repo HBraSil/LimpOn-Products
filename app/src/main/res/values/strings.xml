@@ -130,4 +130,6 @@
     <string name="do_login">Faça seu login</string>
     <string name="register_here">Registre-se aqui</string>
     <string name="add_new_address">Adicionar novo enderenço</string>
+    <string name="search_placeholder">Digite um endereço</string>
+    <string name="search_icon_description">Ícone de busca</string>
 </resources>
