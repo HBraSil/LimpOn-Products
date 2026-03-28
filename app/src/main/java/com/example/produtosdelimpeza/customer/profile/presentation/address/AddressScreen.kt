@@ -100,6 +100,45 @@ object AddressDataSource {
             zip = "11000-000",
             isDefault = false,
             distance = "80 km"
+        ),
+        Address(
+            id = 4,
+            label = "Outro",
+            street = "Rua da Praia",
+            number = "50",
+            complement = null,
+            neighborhood = "Centro",
+            city = "Santos",
+            state = "SP",
+            zip = "11000-000",
+            isDefault = false,
+            distance = "80 km"
+        ),
+        Address(
+            id = 5,
+            label = "Outro",
+            street = "Rua da Praia",
+            number = "50",
+            complement = null,
+            neighborhood = "Centro",
+            city = "Santos",
+            state = "SP",
+            zip = "11000-000",
+            isDefault = false,
+            distance = "80 km"
+        ),
+        Address(
+            id = 6,
+            label = "Outro",
+            street = "Rua da Praia",
+            number = "50",
+            complement = null,
+            neighborhood = "Centro",
+            city = "Santos",
+            state = "SP",
+            zip = "11000-000",
+            isDefault = false,
+            distance = "80 km"
         )
     )
 }
@@ -107,7 +146,7 @@ object AddressDataSource {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit) {
+fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit, onBackNavigation: () -> Unit) {
 
     var selectedAddressId by remember { mutableIntStateOf(1) }
     val addresses = remember {
@@ -142,9 +181,9 @@ fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit) {
 
 
     Scaffold(
-        topBar = { AddressesHeader() },
+        topBar = { AddressesHeader(onBack = onBackNavigation) },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = {
                     addressToEdit = null
                     onGoToAddNewAddressScreen()
@@ -174,13 +213,14 @@ fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(bottom = 90.dp, start = 16.dp, end = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(addresses, key = { it.id }) { address ->
                 val isSelected = address.id == selectedAddressId
 
                 AddressCard(
+                    modifier = Modifier,
                     address = address,
                     isSelected = isSelected,
                     onEdit = {
@@ -231,11 +271,11 @@ fun AddressesScreen(onGoToAddNewAddressScreen: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddressesHeader() {
+fun AddressesHeader(onBack: () -> Unit) {
     TopAppBar(
         title = { Text("Meus Endereços") },
         navigationIcon = {
-            IconButton(onClick = { /* Ação de voltar */ }) {
+            IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Voltar")
             }
         },
@@ -247,6 +287,7 @@ fun AddressesHeader() {
 
 @Composable
 fun AddressCard(
+    modifier: Modifier = Modifier,
     address: Address,
     isSelected: Boolean,
     onEdit: (Address) -> Unit,
@@ -308,7 +349,7 @@ fun AddressCard(
         tonalElevation = animatedTonalElevation,
         color =  animatedContainerColor,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = animatedContentAlpha)),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .scale(animatedScale) // Aplica a animação de escala
             .padding(vertical = 8.dp) // Espaçamento vertical entre os cards

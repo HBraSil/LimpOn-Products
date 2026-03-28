@@ -23,12 +23,14 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,18 +53,10 @@ data class AddressUiState(
 )
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewSetLocation() {
-    MaterialTheme {
-        SetLocationScreenContainer()
-    }
-}
-
-
 @Composable
 fun SetLocationScreenContainer(
-    onSelectMapClick: () -> Unit = {}
+    onSelectMapClick: () -> Unit = {},
+    onBackNavigation: () -> Unit = {}
 ) {
     var state by remember {
         mutableStateOf(AddressUiState())
@@ -77,9 +71,9 @@ fun SetLocationScreenContainer(
         onCityChange = { state = state.copy(city = it) },
         onStateChange = { state = state.copy(state = it) },
         onSearchCep = { /* buscar CEP */ },
-        onSelectMap = { onSelectMapClick() },
+        onSelectMap = onSelectMapClick,
         onConfirm = { /* salvar */ },
-        onBack = {}
+        onBack = onBackNavigation
     )
 }
 
@@ -106,11 +100,13 @@ fun AddNewAddressScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = null)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -130,11 +126,15 @@ fun AddNewAddressScreen(
                 ) {
                     Button(
                         onClick = onSelectMap,
-                        shape = RoundedCornerShape(50)
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.secondary
+                        )
                     ) {
                         Icon(Icons.Default.LocationOn, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Select Location on Map")
+                        Text(text = "Select Location on Map")
                     }
                 }
             }
@@ -155,7 +155,10 @@ fun AddNewAddressScreen(
             )
 
             // CEP + Search
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 OutlinedTextField(
                     value = state.cep,
                     onValueChange = onCepChange,
@@ -174,7 +177,7 @@ fun AddNewAddressScreen(
                     Icon(
                         Icons.Default.Search,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
@@ -230,10 +233,23 @@ fun AddNewAddressScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = CircleShape
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
             ) {
-                Text("Confirm Address")
+                Text(text = "Confirm Address")
             }
         }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSetLocation() {
+    MaterialTheme {
+        SetLocationScreenContainer()
     }
 }

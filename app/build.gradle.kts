@@ -136,6 +136,7 @@ dependencies {
     //MAPS
     implementation(libs.maps)
     implementation(libs.maps.compose)
+    implementation(libs.places)
 }
 
 

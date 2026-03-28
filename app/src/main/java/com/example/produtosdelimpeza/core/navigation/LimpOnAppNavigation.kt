@@ -544,7 +544,8 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
             AddressesScreen(
                 onGoToAddNewAddressScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route)
-                }
+                },
+                onBackNavigation = { navController.navigateUp() }
             )
         }
 
@@ -552,7 +553,8 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
             SetLocationScreenContainer(
                 onSelectMapClick = {
                     navController.navigate(CustomerScreen.CUSTOMER_SET_LOCATION.route)
-                }
+                },
+                onBackNavigation = { navController.navigateUp() }
             )
         }
 

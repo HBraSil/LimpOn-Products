@@ -43,14 +43,13 @@ class LoginViewModel @Inject constructor(
             )
         )
     }
-
     fun updatePassword(password: String) {
-        val isEmailValidate = PasswordValidator.isValidPassword(password)
+        val isPasswordValidate = PasswordValidator.isValidPassword(password)
         loginFormState = loginFormState.copy(
-            password = loginFormState.email.copy(
+            password = loginFormState.password.copy(
                 field = password,
-                error = isEmailValidate,
-                isValid = isEmailValidate == null
+                error = isPasswordValidate,
+                isValid = isPasswordValidate == null
             )
         )
     }

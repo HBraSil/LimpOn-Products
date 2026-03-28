@@ -128,22 +128,23 @@ enum class BottomNavItem {
     Saved
 }
 
+
 @Preview(showSystemUi = true)
 @Composable
 fun LocationPreview() {
-
-        LocationScreen(
-            state = LocationUiState(
-                query = "",
-                address = "Av. Paulista, 1234",
-                subtitle = "Bela Vista, São Paulo - SP",
-                distance = "2.5 km"
-            ),
-            onQueryChange = {},
-            onConfirmClick = {},
-            onMenuClick = {}
-        )
+    LocationScreen(
+        state = LocationUiState(
+            query = "",
+            address = "Av. Paulista, 1234",
+            subtitle = "Bela Vista, São Paulo - SP",
+            distance = "2.5 km"
+        ),
+        onQueryChange = {},
+        onConfirmClick = {},
+        onMenuClick = {}
+    )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
