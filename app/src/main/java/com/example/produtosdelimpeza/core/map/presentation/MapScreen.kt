@@ -1,10 +1,8 @@
-package com.example.produtosdelimpeza
+package com.example.produtosdelimpeza.core.map.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,13 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.LocationSource
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -72,6 +63,8 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
@@ -81,6 +74,8 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,7 +89,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.google.android.gms.location.FusedLocationProviderClient
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.produtosdelimpeza.R
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.launch
@@ -108,18 +105,21 @@ data class LocationUiState(
 )
 
 
+
 @Composable
-fun LocationScreen(
-    state: LocationUiState,
+fun MapScreen(
+/*    state: LocationUiState,
     onQueryChange: (String) -> Unit,
     onConfirmClick: () -> Unit,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,*/
+    mapViewModel: MapViewModel = hiltViewModel()
 ) {
-    LocationContent(/*
+    MapContent(/*
         state = state,
         onQueryChange = onQueryChange,
         onConfirmClick = onConfirmClick,
         onMenuClick = onMenuClick*/
+        mapViewModel
     )
 }
 
@@ -129,51 +129,74 @@ enum class BottomNavItem {
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun LocationPreview() {
-    LocationScreen(
-        state = LocationUiState(
-            query = "",
-            address = "Av. Paulista, 1234",
-            subtitle = "Bela Vista, São Paulo - SP",
-            distance = "2.5 km"
-        ),
-        onQueryChange = {},
-        onConfirmClick = {},
-        onMenuClick = {}
-    )
-}
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LocationContent(
+fun MapContent(
+    mapViewModel: MapViewModel
 ) {
     val sheetState = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val singapore = LatLng(1.35, 103.87)
-    val cameraPositionState = rememberCameraPositionState {
-        this.position = CameraPosition.fromLatLngZoom(singapore, 10f)
+    val userLocation by mapViewModel.userLocation.collectAsStateWithLifecycle()
+    var withoutPermission by remember { mutableStateOf(false) }
+    val uiState by mapViewModel.uiState.collectAsState()
+    var isBottomCardVisible by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(BottomNavItem.Explore) }
+    val centerLocation = mapViewModel.events
+    val cameraPositionState = rememberCameraPositionState()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineLocationGranted =
+            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+
+        val coarseLocationGranted =
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        if (!fineLocationGranted || !coarseLocationGranted) {
+            mapViewModel.fetchUserLocation()
+        }
     }
+
     val mapProperties = MapProperties(
         mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json)
     )
 
-    var hasLocationPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-        )
+    LaunchedEffect(userLocation, centerLocation.collectAsStateWithLifecycle(0).value) {
+        centerLocation.collect { event ->
+            if (event) {
+                userLocation?.let { latLng ->
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+                    )
+                }
+            }
+        }
     }
 
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+
+
+/*
     val myLocationSource = object : LocationSource {
         var listener: LocationSource.OnLocationChangedListener? = null
 
@@ -188,51 +211,7 @@ fun LocationContent(
         fun onLocationChanged(location: Location) {
             listener?.onLocationChanged(location)
         }
-    }
-    var currentLocation by remember {
-        mutableStateOf<LatLng?>(null)
-    }
-    val scope = rememberCoroutineScope()
-
-    val locationCallback = remember {
-        object : LocationCallback() {
-            override fun onLocationResult(result: LocationResult) {
-                val location = result.lastLocation ?: return
-
-                val latLng = LatLng(location.latitude, location.longitude)
-
-                currentLocation = latLng
-
-                scope.launch {
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(latLng, 16f),
-                        durationMs = 3000
-                    )
-                }
-            }
-        }
-    }
-
-    var isBottomCardVisible by remember { mutableStateOf(false) }
-
-
-
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    DisposableEffect(Unit) {
-        onDispose {
-            fusedLocationClient.removeLocationUpdates(locationCallback)
-        }
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        hasLocationPermission =
-            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
-                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-    }
-
-    var selected by remember { mutableStateOf(BottomNavItem.Explore) }
+    }*/
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -241,12 +220,13 @@ fun LocationContent(
             cameraPositionState = cameraPositionState,
             properties = mapProperties,
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
-            locationSource = myLocationSource
+           // locationSource = myLocationSource
         ) {
-            currentLocation?.let { latLng ->
+            userLocation?.let { latLng ->
                 Marker(
                     state = rememberUpdatedMarkerState(position = latLng),
-                    title = "Minha localização"
+                    title = "Minha localização",
+                    snippet = "This is where you are currently located."
                 )
             }
         }
@@ -263,22 +243,18 @@ fun LocationContent(
                 distance = "2.5 km"
             ),
             cameraPositionState,
-            hasLocationPermission,
-            fusedLocationClient,
-            launcher,
             onQueryChange = {},
-            onConfirmClick = {},
             onMenuClick = {},
-            currentLocation = {
-                currentLocation = it
+            goToUserLocation = {
+                mapViewModel.fetchUserLocation()
             }
         )
+
         AnimatedSavedSheet(
             visible = isBottomCardVisible,
             sheetState = sheetState,
             onClose = { isSheetOpen = false },
             modifier = Modifier.zIndex(2f)
-
         )
 
         ModernBottomBar(
@@ -293,6 +269,33 @@ fun LocationContent(
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp).zIndex(3f)
+        )
+    }
+
+
+    if (withoutPermission) {
+        AlertDialog(
+            onDismissRequest = {
+
+            },
+            confirmButton = {},
+            dismissButton = {
+                Button(
+                    onClick = {
+                        withoutPermission = false
+                    }
+                ){
+                    Text("Cancel")
+                }
+
+            },
+            title = {
+                Text(
+                    text = "Sem permissão",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {}
         )
     }
 }
@@ -394,13 +397,9 @@ fun TopSearchSection(
     modifier: Modifier = Modifier,
     state: LocationUiState,
     cameraPositionState: CameraPositionState,
-    hasLocationPermission: Boolean,
-    fusedLocationClient: FusedLocationProviderClient,
-    launcher: ActivityResultLauncher<Array<String>>,
     onQueryChange: (String) -> Unit,
-    onConfirmClick: () -> Unit,
     onMenuClick: () -> Unit,
-    currentLocation: (LatLng) -> Unit
+    goToUserLocation: () -> Unit,
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -513,31 +512,7 @@ fun TopSearchSection(
         }
 
         SmallFloatingActionButton(
-            onClick = @androidx.annotation.RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION]) {
-                if (!hasLocationPermission) {
-                    launcher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        )
-                    )
-                } else {
-                    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                        location?.let {
-                            val latLng = LatLng(it.latitude, it.longitude)
-
-                            currentLocation(latLng)
-
-                            scope.launch {
-                                cameraPositionState.animate(
-                                    CameraUpdateFactory.newLatLngZoom(latLng, 16f),
-                                    3000
-                                )
-                            }
-                        }
-                    }
-                }
-            },
+            onClick = goToUserLocation,
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.onSecondary.copy(1f),
             contentColor = MaterialTheme.colorScheme.background
@@ -548,10 +523,11 @@ fun TopSearchSection(
                 modifier = Modifier
                     .padding(14.dp)
                     .size(26.dp),
-                tint = if (hasLocationPermission)
+                tint =
                     MaterialTheme.colorScheme.background
+                    /*if (hasLocationPermission)
                 else
-                    MaterialTheme.colorScheme.background.copy(0.4f)
+                    MaterialTheme.colorScheme.background.copy(0.4f)*/
             )
         }
     }
@@ -583,12 +559,6 @@ fun AnimatedSavedSheet(
     )
 
     var containerHeight by remember { mutableStateOf(0) }
-    val density = LocalDensity.current
-    val screenHeightPx = with(density) {
-        LocalConfiguration.current.screenHeightDp.dp.toPx()
-    }
-
-    // 🔥 agora sim: começa FORA da tela
     val offsetY by animateFloatAsState(
         targetValue = if (visible) 0f else containerHeight.toFloat(),
         animationSpec = tween(300, easing = FastOutSlowInEasing),
@@ -877,6 +847,17 @@ fun SuggestionItem(place: Place) {
         Icon(Icons.Default.ChevronRight, null)
     }
 }
+
+
+
+@Preview(showSystemUi = true)
+@Composable
+fun MapPreview() {
+    MapScreen(
+    )
+}
+
+
 
 // MODELS
 
