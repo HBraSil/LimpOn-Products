@@ -1,8 +1,12 @@
 package com.example.produtosdelimpeza.core.map.presentation
 
 import android.Manifest
+import android.app.Activity
+import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -75,15 +79,12 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -134,16 +135,22 @@ enum class BottomNavItem {
 fun MapContent(
     mapViewModel: MapViewModel
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    var isSheetOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val userLocation by mapViewModel.userLocation.collectAsStateWithLifecycle()
-    var withoutPermission by remember { mutableStateOf(false) }
-    val uiState by mapViewModel.uiState.collectAsState()
-    var isBottomCardVisible by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(BottomNavItem.Explore) }
-    val centerLocation = mapViewModel.events
+
+    val sheetState = rememberModalBottomSheetState()
     val cameraPositionState = rememberCameraPositionState()
+
+    var selected by remember { mutableStateOf(BottomNavItem.Explore) }
+    var isSheetOpen by remember { mutableStateOf(false) }
+    var withoutPermission by remember { mutableStateOf(false) }
+    var isBottomCardVisible by remember { mutableStateOf(false) }
+
+    val events = mapViewModel.mapUiEvent
+    val state = mapViewModel.uiState.collectAsStateWithLifecycle()
+
+    val mapProperties = MapProperties(
+        mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json)
+    )
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -154,23 +161,32 @@ fun MapContent(
         val coarseLocationGranted =
             permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
-        if (!fineLocationGranted || !coarseLocationGranted) {
+        if (fineLocationGranted && coarseLocationGranted) {
             mapViewModel.fetchUserLocation()
         }
     }
 
-    val mapProperties = MapProperties(
-        mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json)
-    )
+    // Novo launcher para resolução do LocationSettings (esse é o que você precisa)
+    val resolutionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            mapViewModel.fetchUserLocation()
+        }
+    }
 
-    LaunchedEffect(userLocation, centerLocation.collectAsStateWithLifecycle(0).value) {
-        centerLocation.collect { event ->
-            if (event) {
-                userLocation?.let { latLng ->
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(latLng, 15f)
-                    )
+    LaunchedEffect(Unit) {
+        events.collect { event ->
+            when (event) {
+                is MapUiEvent.OnCenterLocationClick -> {
+                    Log.d("ATENÇAO", "CAIU AQUI")
+                    state.value.userLocation?.let { latLng ->
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+                        )
+                    }
                 }
+                else -> {}
             }
         }
     }
@@ -195,23 +211,23 @@ fun MapContent(
     }
 
 
-
-/*
-    val myLocationSource = object : LocationSource {
-        var listener: LocationSource.OnLocationChangedListener? = null
-
-        override fun activate(p0: LocationSource.OnLocationChangedListener) {
-            this.listener = p0
+    LaunchedEffect(Unit) {
+        events.collect { event ->
+            when (event) {
+                is MapUiEvent.RequestLocationResolution -> {
+                    try {
+                        resolutionLauncher.launch(
+                            IntentSenderRequest.Builder(event.exception.resolution).build()
+                        )
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        sendEx.printStackTrace()
+                    }
+                }
+                else -> {}
+            }
         }
+    }
 
-        override fun deactivate() {
-            this.listener = null
-        }
-
-        fun onLocationChanged(location: Location) {
-            listener?.onLocationChanged(location)
-        }
-    }*/
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -222,7 +238,7 @@ fun MapContent(
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
            // locationSource = myLocationSource
         ) {
-            userLocation?.let { latLng ->
+            state.value.userLocation?.let { latLng ->
                 Marker(
                     state = rememberUpdatedMarkerState(position = latLng),
                     title = "Minha localização",
@@ -246,7 +262,7 @@ fun MapContent(
             onQueryChange = {},
             onMenuClick = {},
             goToUserLocation = {
-                mapViewModel.fetchUserLocation()
+                mapViewModel.onCenterLocationClick()
             }
         )
 
