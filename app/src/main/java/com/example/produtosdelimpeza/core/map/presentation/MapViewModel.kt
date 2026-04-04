@@ -1,24 +1,37 @@
 package com.example.produtosdelimpeza.core.map.presentation
 
+import android.graphics.Typeface
+import android.text.style.StyleSpan
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.produtosdelimpeza.core.map.data.PlaceSuggestion
 import com.example.produtosdelimpeza.core.map.domain.LocationSettingsResult
 import com.example.produtosdelimpeza.core.map.domain.MapRepository
 import com.example.produtosdelimpeza.core.map.domain.MapResponse
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.mapLatest
 
 
+private val predictionStyleSpan = StyleSpan(Typeface.BOLD)
+
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val mapRepository: MapRepository,
@@ -26,18 +39,52 @@ class MapViewModel @Inject constructor(
     private val _mapUiEvent = MutableSharedFlow<MapUiEvent>()
     val mapUiEvent:  SharedFlow<MapUiEvent> = _mapUiEvent.asSharedFlow()
 
-    private val _uiState = MutableStateFlow(MapUiState())
-    val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
+    private val _mapState = MutableStateFlow(MapUiState())
+    val mapState: StateFlow<MapUiState> = _mapState.asStateFlow()
+
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    val predictions =
+        _searchText.debounce(300)
+        .mapLatest { query ->
+            if(query.isBlank()) emptyList()
+            else mapRepository.searchPlaces(query)
+        }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000), // Liga quando a tela abre
+                initialValue = emptyList()
+            )
+
+    val searchState =
+        predictions.map { predictionsLits ->
+            Log.d("ATENÇAO", "ALGO ACONTECEU na val search: ${predictionsLits.size}")
+            predictionsLits.map {
+            Log.d("ATENÇAO", "ALGO ACONTECEU na val search: ${it.placeId} ${it.getPrimaryText(predictionStyleSpan)} ${it.getSecondaryText(null).toString() }")
+                PlaceSuggestion(
+                    it.placeId,
+                    it.getPrimaryText(predictionStyleSpan),
+                    it.getSecondaryText(predictionStyleSpan)
+                )
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
+
+
 
     init {
         checkAndRequestLocationSettings()
     }
 
+
     fun fetchUserLocation() {
         viewModelScope.launch {
             when (val result = mapRepository.fetchUserLocation()) {
                 is MapResponse.Success -> {
-                    _uiState.update {
+                    _mapState.update {
                         it.copy(
                             userLocation = LatLng(result.latitude, result.longitude),
                             isLoading = false,
@@ -46,14 +93,19 @@ class MapViewModel @Inject constructor(
                     }
                     Log.d("ATENÇAO", "CAIU AQUI`: ${result.latitude} ${result.longitude}")
                 }
-                else -> {}
+                is MapResponse.Error -> {
+                    Log.d("ATENÇAO", "foi pro else: ${result.errorMessage}")
+                }
+                is MapResponse.MissingPermission -> {
+
+                }
             }
         }
     }
 
     fun onCenterLocationClick() {
         viewModelScope.launch {
-            with(_uiState.value) {
+            with(_mapState.value) {
                 Log.d("ATENÇAO", "ALGO ACONTECEU: ${this.userLocation}")
                 if (this.userLocation != null) {
                     _mapUiEvent.emit(
@@ -66,6 +118,12 @@ class MapViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+
+    fun onQueryChange(newQuery: String) {
+        Log.d("ATENÇAO", "ALGO ACONTECEU onQueryChange: $newQuery")
+        _searchText.value = newQuery
     }
 
     fun checkAndRequestLocationSettings() {
@@ -84,3 +142,4 @@ class MapViewModel @Inject constructor(
         }
     }
 }
+

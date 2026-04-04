@@ -2,6 +2,7 @@ package com.example.produtosdelimpeza.core.di
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -76,6 +77,8 @@ object DatabaseModule {
     fun provideFusedLocationProviderClient(
         @ApplicationContext context: Context
     ): FusedLocationProviderClient {
+        Log.d("GOOGLE_API_KEY", "ALOHA")
+
         return LocationServices.getFusedLocationProviderClient(context)
     }
 }

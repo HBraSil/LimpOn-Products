@@ -39,6 +39,7 @@ class PromotionRegistrationViewModel @Inject constructor(
         _uiState.value = CreatePromotionUiState()
     }
 
+
     fun updateDiscountType(field: DiscountType) {
         promotionFormState = promotionFormState.copy(
             discountTypeField = FieldState(

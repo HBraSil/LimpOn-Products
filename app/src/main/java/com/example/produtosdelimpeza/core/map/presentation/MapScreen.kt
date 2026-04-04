@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.text.Spannable
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -62,7 +63,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
@@ -75,10 +76,10 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -86,27 +87,48 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.core.map.data.PlaceSuggestion
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.launch
+import kotlin.collections.forEach
 
+internal val predictionsHighlightStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.Bold)
 
-data class LocationUiState(
-    val query: String = "",
-    val address: String = "",
-    val subtitle: String = "",
-    val distance: String = ""
-)
-
-
-
+internal fun Spannable.toAnnotatedString(spanStyle: SpanStyle?): AnnotatedString {
+    return buildAnnotatedString {
+        if (spanStyle == null) {
+            append(this@toAnnotatedString.toString())
+        } else {
+            var last = 0
+            for (span in getSpans(0, this@toAnnotatedString.length, Any::class.java)) {
+                val start = this@toAnnotatedString.getSpanStart(span)
+                val end = this@toAnnotatedString.getSpanEnd(span)
+                if (last < start) {
+                    append(this@toAnnotatedString.substring(last, start))
+                }
+                withStyle(spanStyle) {
+                    append(this@toAnnotatedString.substring(start, end))
+                }
+                last = end
+            }
+            if (last < this@toAnnotatedString.length) {
+                append(this@toAnnotatedString.substring(last))
+            }
+        }
+    }
+}
 @Composable
 fun MapScreen(
 /*    state: LocationUiState,
@@ -146,7 +168,9 @@ fun MapContent(
     var isBottomCardVisible by remember { mutableStateOf(false) }
 
     val events = mapViewModel.mapUiEvent
-    val state = mapViewModel.uiState.collectAsStateWithLifecycle()
+    val state by mapViewModel.mapState.collectAsStateWithLifecycle()
+    val text by mapViewModel.searchText.collectAsStateWithLifecycle()
+    val searchState by mapViewModel.searchState.collectAsStateWithLifecycle()
 
     val mapProperties = MapProperties(
         mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json)
@@ -166,12 +190,20 @@ fun MapContent(
         }
     }
 
+
+    Log.d("Scren", "search size = ${searchState.size}")
+    Log.d("Scren", "Column: ${searchState.forEach { 
+        Log.d("Scren", "Column: ${it.primaryText.toAnnotatedString(predictionsHighlightStyle)}")
+    }}")
+
+
     // Novo launcher para resolução do LocationSettings (esse é o que você precisa)
     val resolutionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
             mapViewModel.fetchUserLocation()
+            Log.d("ATENÇAO", "CAIU AQUI resolutionLauncher")
         }
     }
 
@@ -180,7 +212,7 @@ fun MapContent(
             when (event) {
                 is MapUiEvent.OnCenterLocationClick -> {
                     Log.d("ATENÇAO", "CAIU AQUI")
-                    state.value.userLocation?.let { latLng ->
+                    state.userLocation?.let { latLng ->
                         cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(latLng, 15f)
                         )
@@ -238,7 +270,7 @@ fun MapContent(
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
            // locationSource = myLocationSource
         ) {
-            state.value.userLocation?.let { latLng ->
+            state.userLocation?.let { latLng ->
                 Marker(
                     state = rememberUpdatedMarkerState(position = latLng),
                     title = "Minha localização",
@@ -252,14 +284,11 @@ fun MapContent(
                 .align(Alignment.TopCenter)
                 .padding(horizontal = 10.dp)
                 .zIndex(1f),
-            state = LocationUiState(
-                query = "",
-                address = "Av. Paulista, 1234",
-                subtitle = "Bela Vista, São Paulo - SP",
-                distance = "2.5 km"
-            ),
+            state = searchState,
+            searchText = text,
             cameraPositionState,
-            onQueryChange = {},
+            onQueryChanged = { mapViewModel.onQueryChange(it) },
+            onConfirmPlace = { mapViewModel.onConfirmPlace(it) },
             onMenuClick = {},
             goToUserLocation = {
                 mapViewModel.onCenterLocationClick()
@@ -316,109 +345,26 @@ fun MapContent(
     }
 }
 
-/*ElevatedCard(
-    modifier = Modifier
-        .align(Alignment.BottomCenter)
-        .fillMaxWidth()
-        .padding(16.dp)
-        .onGloballyPositioned {
-            cardHeight = with(density) {
-                it.size.height.toDp()
-            }
-        },
-    shape = RoundedCornerShape(28.dp)
-) {
-
-    Column(
-        modifier = Modifier.padding(20.dp)
-    ) {
-
-        Text(
-            text = "Local selecionado",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                Icons.Default.LocationOn,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(Modifier.width(8.dp))
-
-            Column {
-                Text(
-                    text = state.address,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = state.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        AssistChip(
-            onClick = {},
-            label = { Text("Distância: ${state.distance}") },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.NearMe,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        )
-
-        Spacer(Modifier.height(20.dp))
-
-        Button(
-            onClick = onConfirmClick,
-            modifier = Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(36.dp))
-                .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.secondary,
-                        MaterialTheme.colorScheme.background
-                    ),
-                    endX = 1200f
-                )
-            ),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.background
-            )
-        ) {
-            Text("Confirmar localização")
-        }
-    }
-}*/
+private fun MapViewModel.onConfirmPlace(it: String) {
+//todo}
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopSearchSection(
     modifier: Modifier = Modifier,
-    state: LocationUiState,
+    state: List<PlaceSuggestion>,
+    searchText: String,
     cameraPositionState: CameraPositionState,
-    onQueryChange: (String) -> Unit,
+    onQueryChanged: (String) -> Unit,
+    onConfirmPlace: (String) -> Unit,
     onMenuClick: () -> Unit,
     goToUserLocation: () -> Unit,
 ) {
-    var isSearchActive by remember { mutableStateOf(false) }
+    var isSearchActive by remember { mutableStateOf(state.isNotEmpty()) }
     val scope = rememberCoroutineScope()
+
 
     Column(
         modifier = modifier,
@@ -426,15 +372,14 @@ fun TopSearchSection(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         SearchBar(
+            modifier = Modifier.fillMaxWidth(),
+            expanded = isSearchActive,
+            onExpandedChange = { isSearchActive = it },
             inputField = {
                 SearchBarDefaults.InputField(
-                    query = state.query,
-                    onQueryChange = onQueryChange,
-                    onSearch = {},
-                    colors = SearchBarDefaults.inputFieldColors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                        focusedContainerColor = MaterialTheme.colorScheme.background,
-                    ),
+                    query = searchText,
+                    onQueryChange = onQueryChanged,
+                    onSearch = { /* Você pode fechar ao pesquisar: isSearchActive = false */ },
                     expanded = isSearchActive,
                     onExpandedChange = { isSearchActive = it },
                     placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
@@ -445,9 +390,7 @@ fun TopSearchSection(
                                 contentDescription = stringResource(R.string.search_icon_description),
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.surface.copy(
-                                            0.4f
-                                        ),
+                                        color = MaterialTheme.colorScheme.surface.copy(0.4f),
                                         shape = CircleShape
                                     )
                                     .padding(6.dp)
@@ -462,32 +405,24 @@ fun TopSearchSection(
                             }
                         }
                     },
-                    trailingIcon = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            VerticalDivider(
-                                modifier = Modifier.padding(vertical = 10.dp)
-                            )
-                            IconButton(onClick = onMenuClick) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = stringResource(
-                                        R.string.icon_navigation_back
-                                    )
-                                )
-                            }
-                        }
-                    }
+                    trailingIcon = { /* Seu código de menu e divider aqui */ },
+
                 )
             },
-            expanded = false,
-            onExpandedChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {}
-
-
+            colors = SearchBarDefaults.colors(
+                containerColor = Color.Transparent,
+                dividerColor = Color.Transparent
+            ),
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp,
+        ) {
+            SuggestionsContent(
+                places = state,
+                onPlaceClick = {
+                    isSearchActive = false
+                }
+            )
+        }
         SmallFloatingActionButton(
             onClick = {
                 scope.launch {
@@ -549,6 +484,8 @@ fun TopSearchSection(
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimatedSavedSheet(
@@ -574,7 +511,7 @@ fun AnimatedSavedSheet(
         Place("Tate Modern", "South Bank", "Cultura")
     )
 
-    var containerHeight by remember { mutableStateOf(0) }
+    var containerHeight by remember { mutableIntStateOf(0) }
     val offsetY by animateFloatAsState(
         targetValue = if (visible) 0f else containerHeight.toFloat(),
         animationSpec = tween(300, easing = FastOutSlowInEasing),
@@ -864,6 +801,116 @@ fun SuggestionItem(place: Place) {
     }
 }
 
+@Composable
+fun SuggestionsContent(
+    places: List<PlaceSuggestion>,
+    onPlaceClick: (PlaceSuggestion) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        tonalElevation = 6.dp,
+        shadowElevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+        ) {
+
+            // 🔹 HEADER
+            Text(
+                text = "SUGGESTIONS",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            // 🔹 LISTA
+            places.forEach { place ->
+                AutocompletePlacesItem(
+                    place = place,
+                    onClick = { onPlaceClick(place) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 🔹 FOOTER
+            Text(
+                text = "See all results →",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { /* ação */ }
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun AutocompletePlacesItem(
+    place: PlaceSuggestion,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        // 🔹 ÍCONE
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // 🔹 TEXTOS
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = place.primaryText.toAnnotatedString(predictionsHighlightStyle),
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                text = place.secondaryText.toAnnotatedString(predictionsHighlightStyle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // 🔹 DISTÂNCIA (opcional)
+        place.distance?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
 
 
 @Preview(showSystemUi = true)

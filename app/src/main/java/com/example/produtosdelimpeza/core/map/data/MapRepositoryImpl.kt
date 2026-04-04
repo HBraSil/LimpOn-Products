@@ -15,14 +15,19 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 
 
 @Singleton
 class MapRepositoryImpl @Inject constructor(
+    private val placesClient: PlacesClient,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     @param:ApplicationContext private val context: Context
 ) : MapRepository {
@@ -41,7 +46,6 @@ class MapRepositoryImpl @Inject constructor(
                  val lastLocation = fusedLocationProviderClient.lastLocation.await()
 
                  if (lastLocation != null) {
-                    Log.d("ATENÇAO1", "CAIU AQUI: ${lastLocation.latitude} ${lastLocation.longitude}")
                      return MapResponse.Success(
                          lastLocation.latitude,
                          lastLocation.longitude
@@ -52,13 +56,12 @@ class MapRepositoryImpl @Inject constructor(
                      .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                      .await()
 
-                 Log.d("ATENÇAO1", "CAIU AQUI2: ${currentLocation.latitude} ${currentLocation.longitude}")
                  return MapResponse.Success(currentLocation.latitude, currentLocation.longitude)
              } else {
-                 MapResponse.Error("true")
+                 MapResponse.MissingPermission
              }
          } catch (e: Exception) {
-             MapResponse.Error("Location permission is not granted.")
+             MapResponse.Error("Something went wrong: ${e.message}")
          }
      }
 
@@ -83,4 +86,21 @@ class MapRepositoryImpl @Inject constructor(
             }
         }
     }
-}
+
+    override suspend fun searchPlaces(query: String): List<AutocompletePrediction> {
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setQuery(query)
+            .build()
+
+        return try {
+            val response = placesClient.findAutocompletePredictions(request).await()
+            Log.d("MapRepositoryImpl", "Response: ${response.autocompletePredictions.size}")
+            response.autocompletePredictions
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.d("MapRepositoryImpl", "Error: ${e.message}")
+            emptyList()
+        }
+    }
+
+}//15:51:20.410

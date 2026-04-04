@@ -6,5 +6,7 @@ sealed class MapResponse {
         val longitude: Double
     ) : MapResponse()
 
+    object MissingPermission : MapResponse()
+
     data class Error(val errorMessage: String) : MapResponse()
 }
