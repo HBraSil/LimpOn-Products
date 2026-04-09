@@ -1,6 +1,6 @@
 package com.example.produtosdelimpeza.core.map.presentation
 
-import com.example.produtosdelimpeza.core.map.data.PlaceSuggestion
+import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 import com.google.android.gms.maps.model.LatLng
 
 

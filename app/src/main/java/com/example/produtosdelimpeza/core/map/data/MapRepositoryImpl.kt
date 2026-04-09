@@ -7,9 +7,13 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toDomain
+import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toEntity
 import com.example.produtosdelimpeza.core.map.domain.LocationSettingsResult
 import com.example.produtosdelimpeza.core.map.domain.MapRepository
 import com.example.produtosdelimpeza.core.map.domain.MapResponse
+import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
@@ -28,6 +32,9 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -36,6 +43,7 @@ import kotlinx.coroutines.withContext
 class MapRepositoryImpl @Inject constructor(
     private val placesClient: PlacesClient,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val savedMapPlacesLocalStorage: SavedPlacesLocalStorage,
     @param:ApplicationContext private val context: Context
 ) : MapRepository {
 
@@ -127,7 +135,7 @@ class MapRepositoryImpl @Inject constructor(
         val builder = FindAutocompletePredictionsRequest.builder()
         userLatLng?.let { latLng ->
             try {
-                val bounds = createBounds(latLng, 1000.0)
+                val bounds = createBounds(latLng, 50.0)
                 builder.setLocationBias(bounds)
             } catch (e: Exception) {
                 Log.e("MapRepositoryImpl", "Erro ao criar bounds: ${e.message}")
@@ -173,4 +181,14 @@ class MapRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun savePlace(place: PlaceSuggestion) {
+        val placeEntity = place.toEntity()
+        savedMapPlacesLocalStorage.savePlace(placeEntity)
+    }
+
+    override fun getSavedPlaces(): Flow<List<PlaceSuggestion>> = savedMapPlacesLocalStorage.getPlaces().map { entities ->
+        entities.map { it.toDomain() }
+    }
+
 }

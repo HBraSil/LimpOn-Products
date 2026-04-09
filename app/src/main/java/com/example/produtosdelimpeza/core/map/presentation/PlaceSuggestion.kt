@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.core.map.data
+package com.example.produtosdelimpeza.core.map.presentation
 
 import android.text.Spannable
 

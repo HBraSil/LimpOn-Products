@@ -5,7 +5,8 @@ import android.text.style.StyleSpan
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.core.map.data.PlaceSuggestion
+import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toDomain
+import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 import com.example.produtosdelimpeza.core.map.domain.LocationSettingsResult
 import com.example.produtosdelimpeza.core.map.domain.MapRepository
 import com.example.produtosdelimpeza.core.map.domain.MapResponse
@@ -42,24 +43,22 @@ class MapViewModel @Inject constructor(
     private val _mapState = MutableStateFlow(MapUiState())
     val mapState: StateFlow<MapUiState> = _mapState.asStateFlow()
 
-
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
     val predictions =
         _searchText.debounce(300)
-        .mapLatest { query ->
-            if(query.isBlank()) emptyList()
-            else mapRepository.searchPlaces(query, mapState.value.userLocation)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+            .mapLatest { query ->
+                if(query.isBlank()) emptyList()
+                else mapRepository.searchPlaces(query, mapState.value.userLocation)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     val searchState =
         predictions.map { predictionsLits ->
-            Log.d("ViewModel", "ALGO ACONTECEU na val search: ${predictionsLits.size}")
             predictionsLits.map {
             Log.d("ViewModel", "ALGO ACONTECEU na val search: ${it.placeId} ${it.getPrimaryText(predictionStyleSpan)} ${it.getSecondaryText(null) }")
                 PlaceSuggestion(
@@ -73,6 +72,15 @@ class MapViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
+    private val _savedPlaces = MutableStateFlow<List<PlaceSuggestion>>(emptyList())
+    val savedPlaces = mapRepository.getSavedPlaces()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
+
 
 
     init {
@@ -153,6 +161,13 @@ class MapViewModel @Inject constructor(
 
                 else -> {}
             }
+        }
+    }
+
+    fun savePlace(place: PlaceSuggestion) {
+        viewModelScope.launch {
+            Log.d("TESTE", "RESULTADO dentro do savePlace: ${place.primaryText}")
+            mapRepository.savePlace(place)
         }
     }
 }

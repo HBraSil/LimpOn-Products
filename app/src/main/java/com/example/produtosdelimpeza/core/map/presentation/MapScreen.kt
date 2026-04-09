@@ -87,7 +87,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -113,14 +112,12 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.map.data.PlaceSuggestion
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.launch
 import kotlin.collections.forEach
 
 internal val predictionsHighlightStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.Bold)
-
 internal fun Spannable.toAnnotatedString(spanStyle: SpanStyle?): AnnotatedString {
     return buildAnnotatedString {
         if (spanStyle == null) {
@@ -144,6 +141,7 @@ internal fun Spannable.toAnnotatedString(spanStyle: SpanStyle?): AnnotatedString
         }
     }
 }
+
 @Composable
 fun MapScreen(
 /*    state: LocationUiState,
@@ -187,6 +185,7 @@ fun MapContent(
     val state by mapViewModel.mapState.collectAsStateWithLifecycle()
     val text by mapViewModel.searchText.collectAsStateWithLifecycle()
     val searchState by mapViewModel.searchState.collectAsStateWithLifecycle()
+    val savedPlaces by mapViewModel.savedPlaces.collectAsStateWithLifecycle()
 
     val mapProperties = MapProperties(
         mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json)
@@ -307,15 +306,17 @@ fun MapContent(
 
         if (state.place != null) {
             LocationCard(
-                state = state.place!!,
+                place = state.place!!,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 90.dp),
                 onConfirmClick = {},
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 90.dp)
+                savePlace = { mapViewModel.savePlace(it) }
             )
         }
 
         AnimatedSavedSheet(
             visible = isBottomCardVisible,
             onClose = { isSheetOpen = false },
+            placeList = savedPlaces,
             modifier = Modifier.zIndex(2f)
         )
 
@@ -327,7 +328,6 @@ fun MapContent(
                     isBottomCardVisible = true
                     selected = it
                 } else {
-                    isBottomCardVisible = false
                     selected = it
                 }
             },
@@ -501,9 +501,10 @@ fun TopSearchSection(
 
 @Composable
 fun LocationCard(
-    state: PlaceSuggestion,
+    place: PlaceSuggestion,
     onConfirmClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    savePlace: (PlaceSuggestion) -> Unit
 ) {
     Card(
         modifier = modifier.padding(20.dp),
@@ -528,12 +529,12 @@ fun LocationCard(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = state.primaryText.toAnnotatedString(predictionsHighlightStyle),
+                        text = place.primaryText.toAnnotatedString(predictionsHighlightStyle),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = state.secondaryText.toAnnotatedString(predictionsHighlightStyle),
+                        text = place.secondaryText.toAnnotatedString(predictionsHighlightStyle),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -556,8 +557,8 @@ fun LocationCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                DistanceBadge(distanceKm = state.distance?.toDouble() ?: 0.0)
-                EtaCard(etaMinutes = state.etaMinutes)
+                DistanceBadge(distanceKm = place.distance?.toDouble() ?: 0.0)
+                EtaCard(etaMinutes = place.etaMinutes)
 
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -612,7 +613,7 @@ fun LocationCard(
                 }
 
                 IconButton(
-                    onClick = {},
+                    onClick = { savePlace(place) },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary.copy(0.2f),
                     ),
@@ -688,6 +689,7 @@ private fun DistanceBadge(distanceKm: Double) {
 fun AnimatedSavedSheet(
     modifier: Modifier,
     visible: Boolean,
+    placeList: List<PlaceSuggestion>,
     onClose: () -> Unit
 ) {
     val favorites = listOf(
@@ -695,16 +697,12 @@ fun AnimatedSavedSheet(
         Place("Work", "One Canary Wharf, Floor 42", icon = Icons.Default.Work)
     )
 
-    val savedLists = listOf(
-        SavedList("Hidden Cafes", 12, "2.4 km away"),
-        SavedList("Weekend Spots", 8, "4.5 km away")
-    )
-
     val suggestions = listOf(
         Place("Roast & Brew", "Soho, London", "Cafeteria"),
         Place("Sky Garden", "City of London", "Natureza"),
         Place("Tate Modern", "South Bank", "Cultura")
     )
+
 
     val density = LocalDensity.current
     val navBarHeight = WindowInsets.navigationBars.getBottom(density)
@@ -743,7 +741,7 @@ fun AnimatedSavedSheet(
         ) {
             SavedPlacesContent(
                 favorites = favorites,
-                savedLists = savedLists,
+                savedPlaces = placeList,
                 suggestions = suggestions
             )
         }
@@ -755,7 +753,7 @@ fun AnimatedSavedSheet(
 fun SavedPlacesContent(
     modifier: Modifier = Modifier,
     favorites: List<Place>,
-    savedLists: List<SavedList>,
+    savedPlaces: List<PlaceSuggestion>,
     suggestions: List<Place>
 ) {
     LazyColumn(
@@ -774,11 +772,11 @@ fun SavedPlacesContent(
             }
         }
 
-        if (savedLists.isNotEmpty()) {
+        if (savedPlaces.isNotEmpty()) {
             item { SectionTitle("Saved Lists") }
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(savedLists) { list ->
+                    items(savedPlaces) { list ->
                         SavedListCard(list)
                     }
                 }
@@ -934,7 +932,7 @@ fun FavoriteItem(place: Place) {
 }
 
 @Composable
-fun SavedListCard(list: SavedList) {
+fun SavedListCard(place: PlaceSuggestion) {
     Column(
         modifier = Modifier
             .width(220.dp)
@@ -948,7 +946,7 @@ fun SavedListCard(list: SavedList) {
                 .background(MaterialTheme.colorScheme.background)
         ) {
             Text(
-                "${list.count} items",
+                "something goes here items",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
@@ -960,8 +958,8 @@ fun SavedListCard(list: SavedList) {
         }
 
         Column(Modifier.padding(12.dp)) {
-            Text(list.name, style = MaterialTheme.typography.bodyLarge)
-            Text(list.distance, style = MaterialTheme.typography.bodySmall)
+            Text(place.primaryText.toAnnotatedString(predictionsHighlightStyle), style = MaterialTheme.typography.bodyLarge)
+            Text(place.distance ?: "Distância não calculada", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -1078,7 +1076,6 @@ fun AutocompletePlacesItem(
             Text(
                 text = place.secondaryText.toAnnotatedString(predictionsHighlightStyle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
