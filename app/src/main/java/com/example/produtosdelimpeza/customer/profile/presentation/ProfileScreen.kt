@@ -59,8 +59,6 @@ fun ProfileScreen(
     val user by profileViewModel.user.collectAsState()
     val profiles by profileViewModel.allStores.collectAsState()
 
-
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -380,14 +378,18 @@ fun AccountFooterSection(
 
 
 @Composable
-fun HeaderSection(userName: String, userInitials: String, onClickEditUserProfile: () -> Unit = {}) {
+fun HeaderSection(
+    userName: String,
+    userInitials: String,
+    onClickEditUserProfile: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClickEditUserProfile),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // Destaque com sombra
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier

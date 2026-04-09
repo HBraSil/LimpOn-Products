@@ -22,7 +22,7 @@ object GoogleModule {
         Log.d("GOOGLE_API_KEY", "ALOHAPlace")
         if (!Places.isInitialized()) {
             Log.d("GOOGLE_API_KEY", BuildConfig.X_SECRET_KEY)
-            Places.initialize(context, BuildConfig.X_SECRET_KEY)
+            Places.initializeWithNewPlacesApiEnabled(context, BuildConfig.X_SECRET_KEY)
         }
         return Places.createClient(context)
     }

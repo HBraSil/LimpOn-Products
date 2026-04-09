@@ -30,10 +30,10 @@ class MainActivity : ComponentActivity() {
             }
         }
         enableEdgeToEdge()
-
         setContent {
             ProdutosDeLimpezaTheme {
                 val startProfile by sessionViewModel.lastUserMode.collectAsState()
+
                 startProfile?.let { profileMode ->
                     val startDestination = when (profileMode) {
                         is ProfileMode.LoggedIn.StoreSection -> NavGraph.STORE_MAIN.route

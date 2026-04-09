@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.produtosdelimpeza"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -137,6 +137,7 @@ dependencies {
     implementation(libs.maps)
     implementation(libs.maps.compose)
     implementation(libs.places)
+    implementation(libs.kotlinx.coroutines.play.services)
 }
 
 

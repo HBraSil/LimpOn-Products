@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.core.data
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -22,26 +21,26 @@ private const val NAVIGATION_PREFERENCES_NAME = "profile_mode"
 val Context.navigationDataStore: DataStore<Preferences> by preferencesDataStore(name = NAVIGATION_PREFERENCES_NAME)
 @Singleton
 class LastUserModeLocalStorage @Inject constructor(@ApplicationContext context: Context) {
-    private val navigationDataStore = context.navigationDataStore
+    private val navigation = context.navigationDataStore
 
     companion object {
         val LAST_ACTIVE_PROFILE = stringPreferencesKey("last_active_profile")
         val LAST_ACTIVE_STORE_ID = stringPreferencesKey("last_active_store_id")
     }
 
-    val lastActiveProfile: Flow<ProfileMode> = navigationDataStore.data.map { preferences ->
+    val lastActiveProfile: Flow<ProfileMode> = navigation.data.map { preferences ->
         val storedValue = preferences[LAST_ACTIVE_PROFILE] ?: ProfileModeKey.LOGGED_OUT.name
         ProfileModeKey.valueOf(storedValue).toProfileMode(
             preferences[LAST_ACTIVE_STORE_ID]
         )
     }
 
-    val storeId: Flow<String?> = navigationDataStore.data.map { preferences ->
+    val storeId: Flow<String?> = navigation.data.map { preferences ->
         preferences[LAST_ACTIVE_STORE_ID]
     }
 
     suspend fun saveLastUserMode(profileMode: ProfileMode) {
-        navigationDataStore.edit { prefs ->
+        navigation.edit { prefs ->
 
             prefs[LAST_ACTIVE_PROFILE] = profileMode.toProfileModeKey().name
 

@@ -132,4 +132,6 @@
     <string name="add_new_address">Adicionar novo enderenço</string>
     <string name="search_placeholder">Digite um endereço</string>
     <string name="search_icon_description">Ícone de busca</string>
+    <string name="close_component">Fechar</string>
+    <string name="confirm_location">Confirmar localização</string>
 </resources>

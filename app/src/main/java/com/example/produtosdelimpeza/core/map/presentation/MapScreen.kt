@@ -44,9 +44,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -57,20 +61,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -83,9 +96,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -164,6 +179,7 @@ fun MapContent(
 
     var selected by remember { mutableStateOf(BottomNavItem.Explore) }
     var isSheetOpen by remember { mutableStateOf(false) }
+    var isLocationSelected by remember { mutableStateOf(false) }
     var withoutPermission by remember { mutableStateOf(false) }
     var isBottomCardVisible by remember { mutableStateOf(false) }
 
@@ -190,13 +206,6 @@ fun MapContent(
         }
     }
 
-
-    Log.d("Scren", "search size = ${searchState.size}")
-    Log.d("Scren", "Column: ${searchState.forEach { 
-        Log.d("Scren", "Column: ${it.primaryText.toAnnotatedString(predictionsHighlightStyle)}")
-    }}")
-
-
     // Novo launcher para resolução do LocationSettings (esse é o que você precisa)
     val resolutionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -211,10 +220,11 @@ fun MapContent(
         events.collect { event ->
             when (event) {
                 is MapUiEvent.OnCenterLocationClick -> {
-                    Log.d("ATENÇAO", "CAIU AQUI")
                     state.userLocation?.let { latLng ->
+                        Log.d("TESTE", "RESULTADO dentro do Launched: ${latLng.latitude} ${latLng.longitude}")
                         cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+                            CameraUpdateFactory.newLatLngZoom(latLng, 15f),
+                            600
                         )
                     }
                 }
@@ -261,14 +271,14 @@ fun MapContent(
     }
 
 
-
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()
+        .padding(WindowInsets.navigationBars.asPaddingValues())
+    ) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = mapProperties,
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
-           // locationSource = myLocationSource
         ) {
             state.userLocation?.let { latLng ->
                 Marker(
@@ -288,21 +298,29 @@ fun MapContent(
             searchText = text,
             cameraPositionState,
             onQueryChanged = { mapViewModel.onQueryChange(it) },
-            onConfirmPlace = { mapViewModel.onConfirmPlace(it) },
+            onConfirmPlace = { mapViewModel.onPlaceSelected(it) },
             onMenuClick = {},
             goToUserLocation = {
                 mapViewModel.onCenterLocationClick()
             }
         )
 
+        if (state.place != null) {
+            LocationCard(
+                state = state.place!!,
+                onConfirmClick = {},
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 90.dp)
+            )
+        }
+
         AnimatedSavedSheet(
             visible = isBottomCardVisible,
-            sheetState = sheetState,
             onClose = { isSheetOpen = false },
             modifier = Modifier.zIndex(2f)
         )
 
-        ModernBottomBar(
+
+        MapBottomNavigationBar(
             selected = selected,
             onItemSelected = {
                 if (selected != it && it == BottomNavItem.Saved) {
@@ -313,16 +331,14 @@ fun MapContent(
                     selected = it
                 }
             },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp).zIndex(3f)
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
         )
     }
 
 
     if (withoutPermission) {
         AlertDialog(
-            onDismissRequest = {
-
-            },
+            onDismissRequest = {},
             confirmButton = {},
             dismissButton = {
                 Button(
@@ -345,9 +361,6 @@ fun MapContent(
     }
 }
 
-private fun MapViewModel.onConfirmPlace(it: String) {
-//todo}
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -358,7 +371,7 @@ fun TopSearchSection(
     searchText: String,
     cameraPositionState: CameraPositionState,
     onQueryChanged: (String) -> Unit,
-    onConfirmPlace: (String) -> Unit,
+    onConfirmPlace: (PlaceSuggestion) -> Unit,
     onMenuClick: () -> Unit,
     goToUserLocation: () -> Unit,
 ) {
@@ -379,7 +392,7 @@ fun TopSearchSection(
                 SearchBarDefaults.InputField(
                     query = searchText,
                     onQueryChange = onQueryChanged,
-                    onSearch = { /* Você pode fechar ao pesquisar: isSearchActive = false */ },
+                    onSearch = {},
                     expanded = isSearchActive,
                     onExpandedChange = { isSearchActive = it },
                     placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
@@ -419,10 +432,12 @@ fun TopSearchSection(
             SuggestionsContent(
                 places = state,
                 onPlaceClick = {
+                    onConfirmPlace(it)
                     isSearchActive = false
                 }
             )
         }
+
         SmallFloatingActionButton(
             onClick = {
                 scope.launch {
@@ -484,17 +499,197 @@ fun TopSearchSection(
     }
 }
 
+@Composable
+fun LocationCard(
+    state: PlaceSuggestion,
+    onConfirmClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.padding(20.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+        ) {
+            Row {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "SELECTED LOCATION",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary.copy(blue = 1f)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = state.primaryText.toAnnotatedString(predictionsHighlightStyle),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = state.secondaryText.toAnnotatedString(predictionsHighlightStyle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
 
+                IconButton(
+                   onClick = {},
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(0.2f),
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.close_component)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                DistanceBadge(distanceKm = state.distance?.toDouble() ?: 0.0)
+                EtaCard(etaMinutes = state.etaMinutes)
+
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.LightGray)
+                ) {
+                    Text(
+                        text = "Street View",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.DarkGray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row {
+                Button(
+                    onClick = onConfirmClick,
+                    modifier = Modifier.weight(1f)
+                        .clip(
+                            RoundedCornerShape(20.dp),
+                        ).background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.secondary,
+                                    MaterialTheme.colorScheme.primary.copy(0.4f)
+                                ),
+                                startX = 100f
+                            )
+                        ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
+                    Text("Confirmar Localização")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.NavigateNext,
+                        contentDescription = stringResource(R.string.confirm_location),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(
+                    onClick = {},
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(0.2f),
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BookmarkBorder,
+                        contentDescription = stringResource(R.string.close_component)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EtaCard(etaMinutes: String) {
+    Row (
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFFE7EBFF))
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Icon(
+            imageVector = Icons.Default.AccessTime,
+            contentDescription = null,
+            tint = Color(0xFF4A4AE6)
+        )
+        Text(
+            text = "ETA",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray
+        )
+        Text(
+            text = "$etaMinutes min",
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF4A4AE6)
+        )
+    }
+}
+
+@Composable
+private fun DistanceBadge(distanceKm: Double) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFFE7EBFF))
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Straighten,
+            contentDescription = null,
+            tint = Color(0xFF4A4AE6)
+        )
+        Text(
+            text = String.format("%.1f", distanceKm),
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF4A4AE6)
+        )
+        Text(
+            text = "KM",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color(0xFF4A4AE6)
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimatedSavedSheet(
     modifier: Modifier,
     visible: Boolean,
-    sheetState: SheetState,
     onClose: () -> Unit
 ) {
-
     val favorites = listOf(
         Place("Home", "221B Baker Street, London", icon = Icons.Default.Home),
         Place("Work", "One Canary Wharf, Floor 42", icon = Icons.Default.Work)
@@ -511,22 +706,24 @@ fun AnimatedSavedSheet(
         Place("Tate Modern", "South Bank", "Cultura")
     )
 
+    val density = LocalDensity.current
+    val navBarHeight = WindowInsets.navigationBars.getBottom(density)
     var containerHeight by remember { mutableIntStateOf(0) }
+
     val offsetY by animateFloatAsState(
-        targetValue = if (visible) 0f else containerHeight.toFloat(),
+        targetValue = if (visible) 0f else (containerHeight + navBarHeight).toFloat(),
         animationSpec = tween(300, easing = FastOutSlowInEasing),
         label = "sheetOffset"
     )
+
 
     val scrimAlpha by animateFloatAsState(
         targetValue = if (visible) 0.3f else 0f,
         animationSpec = tween(300),
         label = "scrim"
     )
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
 
+    Box(modifier = modifier.fillMaxSize()) {
         if (scrimAlpha > 0f) {
             Box(
                 Modifier
@@ -535,17 +732,13 @@ fun AnimatedSavedSheet(
                     .clickable { onClose() }
             )
         }
-
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .offset { IntOffset(0, offsetY.toInt()) }
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .onSizeChanged {
-                    containerHeight = it.height
-                }
-
+                .onSizeChanged { containerHeight = it.height }
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             SavedPlacesContent(
@@ -557,8 +750,52 @@ fun AnimatedSavedSheet(
     }
 }
 
+
 @Composable
-fun ModernBottomBar(
+fun SavedPlacesContent(
+    modifier: Modifier = Modifier,
+    favorites: List<Place>,
+    savedLists: List<SavedList>,
+    suggestions: List<Place>
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(20.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        item {
+            Header()
+        }
+
+        if (favorites.isNotEmpty()) {
+            item { SectionTitle("Favorites") }
+            items(favorites) { place ->
+                FavoriteItem(place)
+            }
+        }
+
+        if (savedLists.isNotEmpty()) {
+            item { SectionTitle("Saved Lists") }
+            item {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(savedLists) { list ->
+                        SavedListCard(list)
+                    }
+                }
+            }
+        }
+
+        if (suggestions.isNotEmpty()) {
+            item { SectionTitle("Suggestions for You") }
+            items(suggestions) { place ->
+                SuggestionItem(place)
+            }
+        }
+    }
+}
+
+@Composable
+fun MapBottomNavigationBar(
     modifier: Modifier = Modifier,
     selected: BottomNavItem,
     onItemSelected: (BottomNavItem) -> Unit
@@ -567,14 +804,14 @@ fun ModernBottomBar(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentWidth()
-            .padding(bottom = 16.dp),
+            .padding(bottom = 20.dp)
+            .zIndex(3f),
         shape = RoundedCornerShape(32.dp),
         tonalElevation = 4.dp,
         color = MaterialTheme.colorScheme.background
     ) {
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 BottomItem(
@@ -641,49 +878,6 @@ private fun BottomItem(
     }
 }
 
-
-
-@Composable
-fun SavedPlacesContent(
-    favorites: List<Place>,
-    savedLists: List<SavedList>,
-    suggestions: List<Place>
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(20.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        item {
-            Header()
-        }
-
-        if (favorites.isNotEmpty()) {
-            item { SectionTitle("Favorites") }
-            items(favorites) { place ->
-                FavoriteItem(place)
-            }
-        }
-
-        if (savedLists.isNotEmpty()) {
-            item { SectionTitle("Saved Lists") }
-            item {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(savedLists) { list ->
-                        SavedListCard(list)
-                    }
-                }
-            }
-        }
-
-        if (suggestions.isNotEmpty()) {
-            item { SectionTitle("Suggestions for You") }
-            items(suggestions) { place ->
-                SuggestionItem(place)
-            }
-        }
-    }
-}
 
 @Composable
 fun Header() {
@@ -836,19 +1030,6 @@ fun SuggestionsContent(
                     onClick = { onPlaceClick(place) }
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 🔹 FOOTER
-            Text(
-                text = "See all results →",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* ação */ }
-                    .padding(16.dp)
-            )
         }
     }
 }
