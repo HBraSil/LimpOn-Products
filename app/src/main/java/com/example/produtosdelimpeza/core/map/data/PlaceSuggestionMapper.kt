@@ -1,6 +1,7 @@
 package com.example.produtosdelimpeza.core.map.data
 
 import android.text.SpannableString
+import com.example.produtosdelimpeza.core.domain.model.Address
 import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 
 object PlaceSuggestionMapper {
@@ -20,6 +21,18 @@ object PlaceSuggestionMapper {
             primaryText = SpannableString(primaryText),
             secondaryText = SpannableString(secondaryText),
             etaMinutes = etaMinutes,
+            distance = distance
+        )
+    }
+
+    fun PlaceSuggestionEntity.toAddress(): Address {
+        return Address(
+            id = placeId,
+            city = primaryText,
+            state = secondaryText,
+            label = "",
+            street = "",
+            zip = "",
             distance = distance
         )
     }

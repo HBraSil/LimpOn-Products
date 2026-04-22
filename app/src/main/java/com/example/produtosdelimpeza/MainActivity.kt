@@ -1,8 +1,10 @@
 package com.example.produtosdelimpeza
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -29,7 +31,12 @@ class MainActivity : ComponentActivity() {
                 sessionViewModel.lastUserMode.value == null
             }
         }
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                scrim = Color.TRANSPARENT,
+                darkScrim = Color.TRANSPARENT
+            )
+        )
         setContent {
             ProdutosDeLimpezaTheme {
                 val startProfile by sessionViewModel.lastUserMode.collectAsState()

@@ -60,7 +60,7 @@ fun InfoTab() {
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(35.dp)
     ) {
-        Address()
+        AddressTab()
         OpeningHours()
         PaymentMethods()
     }
@@ -68,7 +68,7 @@ fun InfoTab() {
 
 
 @Composable
-fun Address() {
+fun AddressTab() {
     Text(
         text = "Endereço",
         fontSize = 20.sp,

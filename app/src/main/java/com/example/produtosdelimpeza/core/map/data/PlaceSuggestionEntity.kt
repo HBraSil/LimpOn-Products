@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.core.map.data
 
-import android.text.Spannable
 
 data class PlaceSuggestionEntity(
     val placeId: String,

@@ -4,10 +4,14 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.os.Build
+import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toDomain
 import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toEntity
 import com.example.produtosdelimpeza.core.map.domain.LocationSettingsResult
@@ -16,11 +20,14 @@ import com.example.produtosdelimpeza.core.map.domain.MapResponse
 import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.RectangularBounds
@@ -32,18 +39,18 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Locale
+import kotlin.coroutines.resume
 
 
 @Singleton
 class MapRepositoryImpl @Inject constructor(
     private val placesClient: PlacesClient,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
-    private val savedMapPlacesLocalStorage: SavedPlacesLocalStorage,
+    private val savedMapPlacesLocalStorage: AddressLocalStorage,
     @param:ApplicationContext private val context: Context
 ) : MapRepository {
 
@@ -71,14 +78,16 @@ class MapRepositoryImpl @Inject constructor(
                      )
                  }
 
+                 val cts = CancellationTokenSource()
                  val currentLocation = fusedLocationProviderClient
-                     .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                     .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
                      .await()
 
-                 if (currentLocation != null) {
+
+                 return if (currentLocation != null) {
                      MapResponse.Success(currentLocation.latitude, currentLocation.longitude)
                  } else {
-                     MapResponse.Error("Localização indisponível no momento.")
+                     fetchLocationViaCallback()
                  }
              } else {
                  MapResponse.MissingPermission
@@ -88,6 +97,43 @@ class MapRepositoryImpl @Inject constructor(
          }
      }
 
+    private suspend fun fetchLocationViaCallback(): MapResponse =
+        suspendCancellableCoroutine { cont ->
+            val request = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY, 1000L
+            ).setMaxUpdates(1).build()
+
+            val callback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    fusedLocationProviderClient.removeLocationUpdates(this)
+                    val loc = result.lastLocation
+                    if (loc != null) {
+                        cont.resume(MapResponse.Success(loc.latitude, loc.longitude))
+                    } else {
+                        cont.resume(MapResponse.Error("Localização indisponível."))
+                    }
+                }
+            }
+
+            try {
+                if (ContextCompat.checkSelfPermission(
+                        context, ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    fusedLocationProviderClient.requestLocationUpdates(
+                        request, callback, Looper.getMainLooper()
+                    )
+                } else {
+                    cont.resume(MapResponse.MissingPermission)
+                }
+            } catch (e: SecurityException) {
+                cont.resume(MapResponse.MissingPermission)
+            }
+
+            cont.invokeOnCancellation {
+                fusedLocationProviderClient.removeLocationUpdates(callback)
+            }
+        }
 
     override suspend fun checkLocationSettings(): LocationSettingsResult {
         val locationRequest = LocationRequest.Builder(
@@ -131,9 +177,16 @@ class MapRepositoryImpl @Inject constructor(
         return RectangularBounds.newInstance(southwest, northeast)
     }
 
-    override suspend fun searchPlaces(query: String, userLatLng: LatLng?): List<AutocompletePrediction> {
+    override suspend fun searchPlaces(query: String, latitude: Double?, longitude: Double?): List<AutocompletePrediction> {
         val builder = FindAutocompletePredictionsRequest.builder()
+
+        val userLatLng = if (latitude != null && longitude != null) {
+            LatLng(latitude, longitude)
+        } else {
+            null
+        }
         userLatLng?.let { latLng ->
+            Log.e("MapRepositoryImpl", "userLatLng: $latLng")
             try {
                 val bounds = createBounds(latLng, 50.0)
                 builder.setLocationBias(bounds)
@@ -149,6 +202,8 @@ class MapRepositoryImpl @Inject constructor(
 
         return try {
             val response = placesClient.findAutocompletePredictions(request).await()
+
+            Log.e("MapRepositoryImpl", "userLatLng: $response")
             response.autocompletePredictions
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -156,7 +211,7 @@ class MapRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPlaceLatLng(placeId: String): Place {
+    override suspend fun getPlaceWithId(placeId: String): Place {
         val placeFields = listOf(
             Place.Field.ID,
             Place.Field.ADDRESS_COMPONENTS,
@@ -182,13 +237,60 @@ class MapRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun savePlace(place: PlaceSuggestion) {
+
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override suspend fun getPrimaryAndSecondaryFromLatLng(
+        latitude: Double,
+        longitude: Double
+    ): PlaceSuggestion? = suspendCancellableCoroutine { continuation ->
+            val geocoder = Geocoder(context, Locale.getDefault())
+
+            geocoder.getFromLocation(
+                latitude,
+                longitude,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<Address>) {
+                        if (addresses.isNotEmpty()) {
+                            val address = addresses[0]
+
+                            val primaryText = address.thoroughfare ?: "Local desconhecido"
+
+                            val secondaryText = buildString {
+                                address.subLocality?.let { append(it); append(", ") }
+                                address.subAdminArea?.let { append(it) }
+                                if (isNotEmpty() && address.adminArea != null) append(" - ")
+                                address.adminArea?.let { append(it) }
+                            }.trim().ifEmpty { address.countryName ?: "" }
+
+                            val placeSuggestion = PlaceSuggestionEntity(
+                                placeId = "${latitude}_${longitude}",
+                                primaryText = primaryText,
+                                secondaryText = secondaryText
+                            )
+
+                            continuation.resume(placeSuggestion.toDomain())
+                        } else {
+                            continuation.resume(null)
+                        }
+                    }
+
+                    override fun onError(errorMessage: String?) {
+                        continuation.resume(null)
+                    }
+                }
+            )
+        }
+
+
+    override suspend fun savePlace(place: PlaceSuggestion): Result<Boolean> {
         val placeEntity = place.toEntity()
-        savedMapPlacesLocalStorage.savePlace(placeEntity)
+        val result = savedMapPlacesLocalStorage.savePlace(placeEntity)
+        return if (result.isSuccess) {
+            Result.success(true)
+        } else{
+            Result.failure(result.exceptionOrNull() ?: Exception("Erro desconhecido"))
+        }
     }
-
-    override fun getSavedPlaces(): Flow<List<PlaceSuggestion>> = savedMapPlacesLocalStorage.getPlaces().map { entities ->
-        entities.map { it.toDomain() }
-    }
-
 }

@@ -138,6 +138,12 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.places)
     implementation(libs.kotlinx.coroutines.play.services)
+
+
+    //RETROFIT
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.okttp3.logging.interceptor)
 }
 
 

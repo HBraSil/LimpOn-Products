@@ -1,12 +1,11 @@
 package com.example.produtosdelimpeza.core.map.presentation
 
 import android.graphics.Typeface
+import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.produtosdelimpeza.core.map.data.PlaceSuggestionMapper.toDomain
-import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 import com.example.produtosdelimpeza.core.map.domain.LocationSettingsResult
 import com.example.produtosdelimpeza.core.map.domain.MapRepository
 import com.example.produtosdelimpeza.core.map.domain.MapResponse
@@ -43,14 +42,17 @@ class MapViewModel @Inject constructor(
     private val _mapState = MutableStateFlow(MapUiState())
     val mapState: StateFlow<MapUiState> = _mapState.asStateFlow()
 
+
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
     val predictions =
         _searchText.debounce(300)
             .mapLatest { query ->
+                val location = mapState.value.userLocation
+
                 if(query.isBlank()) emptyList()
-                else mapRepository.searchPlaces(query, mapState.value.userLocation)
+                else mapRepository.searchPlaces(query, location?.latitude, location?.longitude)
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -60,7 +62,6 @@ class MapViewModel @Inject constructor(
     val searchState =
         predictions.map { predictionsLits ->
             predictionsLits.map {
-            Log.d("ViewModel", "ALGO ACONTECEU na val search: ${it.placeId} ${it.getPrimaryText(predictionStyleSpan)} ${it.getSecondaryText(null) }")
                 PlaceSuggestion(
                     it.placeId,
                     it.getPrimaryText(predictionStyleSpan),
@@ -72,15 +73,6 @@ class MapViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
-
-    private val _savedPlaces = MutableStateFlow<List<PlaceSuggestion>>(emptyList())
-    val savedPlaces = mapRepository.getSavedPlaces()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
-
 
 
     init {
@@ -122,9 +114,30 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    fun onCameraMove(latLng: LatLng) {
+        viewModelScope.launch {
+            val userLocation = mapState.value.userLocation ?: return@launch
+            if (latLng.latitude != userLocation.latitude && latLng.longitude != userLocation.longitude) {
+                val place = mapRepository.getPrimaryAndSecondaryFromLatLng(latLng.latitude, latLng.longitude)
+                if (place != null) {
+                    Log.d("onCameraMove", "RESULTADO: ${place.primaryText} - ${place.secondaryText}")
+                    _mapState.update {
+                        it.copy(
+                            place = PlaceSuggestion(
+                                place.placeId,
+                                SpannableString(place.primaryText),
+                                SpannableString(place.secondaryText)
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun onPlaceSelected(placeSelected: PlaceSuggestion) {
         viewModelScope.launch {
-            val place = mapRepository.getPlaceLatLng(placeSelected.placeId)
+            val place = mapRepository.getPlaceWithId(placeSelected.placeId)
             place.location?.let { loc ->
                 _mapState.update {
                     it.copy(
@@ -154,11 +167,9 @@ class MapViewModel @Inject constructor(
                 is LocationSettingsResult.ResolutionNeeded -> {
                     _mapUiEvent.emit(MapUiEvent.RequestLocationResolution(result.exception))
                 }
-
                 is LocationSettingsResult.Enabled -> {
                     fetchUserLocation()
                 }
-
                 else -> {}
             }
         }
@@ -166,8 +177,20 @@ class MapViewModel @Inject constructor(
 
     fun savePlace(place: PlaceSuggestion) {
         viewModelScope.launch {
-            Log.d("TESTE", "RESULTADO dentro do savePlace: ${place.primaryText}")
-            mapRepository.savePlace(place)
+            val result = mapRepository.savePlace(place)
+            if(result.isSuccess) {
+                _mapState.update {
+                    it.copy(
+                        placeSavedSuccessfully = true
+                    )
+                }
+            } else {
+                _mapState.update {
+                    it.copy(
+                        error = "Erro ao salvar local: ${result.exceptionOrNull()}"
+                    )
+                }
+            }
         }
     }
 }

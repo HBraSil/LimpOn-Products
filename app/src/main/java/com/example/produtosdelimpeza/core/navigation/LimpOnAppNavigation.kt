@@ -65,8 +65,7 @@ import com.example.produtosdelimpeza.core.presentation.DeepLinkViewModel
 import com.example.produtosdelimpeza.customer.cart.presentation.CartScreen
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 import com.example.produtosdelimpeza.customer.profile.presentation.ProfileScreen
-import com.example.produtosdelimpeza.customer.profile.presentation.address.AddressesScreen
-import com.example.produtosdelimpeza.customer.profile.presentation.address.SetLocationScreenContainer
+import com.example.produtosdelimpeza.customer.profile.address.presentation.AddressScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.coupons.CouponsScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.header_profile_screen.EditUserProfileScreen
 import com.example.produtosdelimpeza.customer.profile.presentation.help.HelpScreen
@@ -540,25 +539,24 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         }
 
         composable(route = CustomerScreen.CUSTOMER_ADDRESS.route) {
-            AddressesScreen(
+            AddressScreen(
                 onGoToAddNewAddressScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route)
                 },
-                onBackNavigation = { navController.navigateUp() }
-            )
-        }
-
-        composable(route = CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route) {
-            SetLocationScreenContainer(
-                onSelectMapClick = {
+                onBackNavigation = { navController.navigateUp() },
+                goToMap = {
                     navController.navigate(CustomerScreen.CUSTOMER_SET_LOCATION.route)
-                },
-                onBackNavigation = { navController.navigateUp() }
+                }
             )
         }
 
         composable(route = CustomerScreen.CUSTOMER_SET_LOCATION.route) {
             MapScreen(
+                goToAddressScreen = {
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route) {
+                        popUpTo(CustomerScreen.CUSTOMER_ADDRESS.route) { inclusive = true }
+                    }
+                }
                 /*state = LocationUiState(
                  *//*   query = "",
                     address = "Av. Paulista, 1234",
