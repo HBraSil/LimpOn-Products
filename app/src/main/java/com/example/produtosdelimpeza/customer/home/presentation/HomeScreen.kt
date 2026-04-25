@@ -47,7 +47,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.South
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Badge
@@ -85,11 +84,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
+import com.example.produtosdelimpeza.core.domain.model.Address
+import com.example.produtosdelimpeza.core.domain.model.AddressType
 import com.example.produtosdelimpeza.core.domain.model.Store
+import com.example.produtosdelimpeza.core.domain.model.primaryLabel
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
@@ -112,6 +115,7 @@ private val sampleCategories = listOf(
     Category(5, "Pet", R.drawable.pet_icon, Color(0xFFFFE6E6)),
 )
 
+/*
 data class AddressItem(
     val id: String,
     val name: String? = null, // e.g., "Casa", "Trabalho"
@@ -120,6 +124,7 @@ data class AddressItem(
     val eta: String? = null, // e.g., "25-35 min"
     val distance: String? = null, // e.g., "1.2 km"
 )
+*/
 
 
 private val sampleProductEntities = listOf(
@@ -144,7 +149,8 @@ fun HomeScreen(
 ) {
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
     val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
-    val listOfStores by homeViewModel.listOfStores.collectAsState()
+    val listOfStores by homeViewModel.listOfStores.collectAsStateWithLifecycle()
+    val mainAddres by homeViewModel.mainAddress.collectAsStateWithLifecycle()
 
     var expandedCard by remember { mutableStateOf(false) }
     var shortcutSelected by remember { mutableStateOf("1") }
@@ -184,15 +190,9 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.TopCenter),
-                        address = AddressItem(
-                            id = shortcutSelected,
-                            name = "Casa",
-                            fullAddress = "Rua Arsenio Da Silva 1",
-                            eta = "25-35 min",
-                            distance = "1.2 km"
-                        ),
+                        address = mainAddres,
                         savedAddresses = listOf(
-                            AddressItem(
+                            /*AddressItem(
                                 id = "1",
                                 name = "Casa",
                                 fullAddress = "Rua Arsenio Da Silva 1"
@@ -201,7 +201,7 @@ fun HomeScreen(
                                 id = "2",
                                 name = "Trabalho",
                                 fullAddress = "Rua Arsenio Da Silva 2"
-                            )
+                            )*/
                         ),
                         userName = user.name,
                         isExpanded = expandedCard,
@@ -357,10 +357,10 @@ fun SectionHeader(
 fun CardDeLocalizacao(
     modifier: Modifier = Modifier,
     userName: String,
-    address: AddressItem? = null,
-    savedAddresses: List<AddressItem> = emptyList(),
+    address: Address? = null,
+    savedAddresses: List<Address> = emptyList(),
     isExpanded: Boolean,
-    onEditAddress: (AddressItem?) -> Unit = {},
+    onEditAddress: (Address?) -> Unit = {},
     onChangeAddress: () -> Unit = {},
     onSelectShortcut: (String) -> Unit = {},
     onNavigateToNotifications: () -> Unit,
@@ -372,9 +372,7 @@ fun CardDeLocalizacao(
         bottomStart = 16.dp,
         bottomEnd = 16.dp
     )
-    val titleSaved = "Endereço salvo"
     val addAddressCTA = "Adicionar endereço"
-    val etaPrefix = "Entrega ~ "
 
 
     Surface(
@@ -448,7 +446,7 @@ fun CardDeLocalizacao(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Rua Arsenio Da Silva 1",
+                    text = address?.neighborhood ?: address?.street ?: "Endereço não definido",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
                 )
@@ -507,26 +505,24 @@ fun CardDeLocalizacao(
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = address.name ?: titleSaved,
+                                        text = address.addressType?.label ?: AddressType.Other("").label,
                                         style = MaterialTheme.typography.titleMedium,
                                         maxLines = 1
                                     )
                                     Spacer(Modifier.weight(1f))
-                                    if (address.isDefault) {
-                                        Icon(
-                                            imageVector = Icons.Default.Star,
-                                            contentDescription = "Endereço padrão",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = address.icon,
+                                        contentDescription = "Endereço padrão",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
 
                                 Spacer(Modifier.height(8.dp))
 
                                 // Address body (selectable optional)
                                 Text(
-                                    text = address.fullAddress,
+                                    text = address.primaryLabel(),
                                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                                     maxLines = 4,
                                     overflow = TextOverflow.Ellipsis,
@@ -534,35 +530,15 @@ fun CardDeLocalizacao(
                                         .fillMaxWidth()
                                         .semantics {
                                             contentDescription =
-                                                "Endereço completo: ${address.fullAddress}"
+                                                "Endereço completo: ${address.primaryLabel()}"
                                         }
                                 )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                // ETA and distance row
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (!address.eta.isNullOrBlank()) {
-                                        Text(
-                                            text = "$etaPrefix${address.eta}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                    Spacer(Modifier.width(8.dp))
-                                    if (!address.distance.isNullOrBlank()) {
-                                        Text(
-                                            text = address.distance,
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                }
 
                                 Spacer(Modifier.height(12.dp))
 
                                 // Action buttons: Edit + Change
                                 AddressActions(
                                     onEdit = { onEditAddress(address) },
-                                    onChange = { onChangeAddress() }
                                 )
 
                                 HorizontalDivider(
@@ -584,7 +560,7 @@ fun CardDeLocalizacao(
                                         Row {
                                             savedAddresses.forEach { item ->
                                                 AddressShortcutChip(
-                                                    name = item.name ?: "Endereço",
+                                                    name = item.complement,
                                                     isSelected = item.id == address.id,
                                                     onClick = {
                                                         onSelectShortcut(
@@ -623,83 +599,9 @@ fun CardDeLocalizacao(
                                     }
                                 }
                             }
-                        } // end Column
-
-                        // Right: mini-map thumbnail or placeholder
-                        MapThumbnail(
-                            modifier = Modifier
-                                .size(width = 170.dp, height = 120.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentDescription = address?.fullAddress ?: "Mini mapa do endereço",
-                            hasAddress = address != null
-                        )
-                    } // end Row
+                        }
+                    }
                 }
-            }
-        }
-    }
-}
-
-
-@Composable
-private fun MapThumbnail(
-    modifier: Modifier = Modifier,
-    contentDescription: String,
-    hasAddress: Boolean,
-) {
-    Box(
-        modifier = modifier
-            .then(Modifier)
-            .background(
-                MaterialTheme.colorScheme.surface.copy(0.6f),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .semantics { this.contentDescription = contentDescription }
-    ) {
-        if (hasAddress) {
-            // Placeholder for a map preview. Replace with real image or Map snapshot.
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(6.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                // A fake thumbnail using icons/text to simulate real map preview
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Pin do mapa",
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "Mapa",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                Text(
-                    text = "Preview",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.End)
-                )
-            }
-        } else {
-            // Empty placeholder
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Placeholder mapa",
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(text = "Sem mapa", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -739,7 +641,6 @@ private fun AddressShortcutChip(
 @Composable
 private fun AddressActions(
     onEdit: () -> Unit,
-    onChange: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(

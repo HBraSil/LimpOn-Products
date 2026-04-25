@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.core.map.presentation
 
 import android.graphics.Typeface
-import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -62,6 +61,7 @@ class MapViewModel @Inject constructor(
     val searchState =
         predictions.map { predictionsLits ->
             predictionsLits.map {
+                Log.d("onPlaceSelected", "ID: ${it.placeId}")
                 PlaceSuggestion(
                     it.placeId,
                     it.getPrimaryText(predictionStyleSpan),
@@ -117,16 +117,25 @@ class MapViewModel @Inject constructor(
     fun onCameraMove(latLng: LatLng) {
         viewModelScope.launch {
             val userLocation = mapState.value.userLocation ?: return@launch
-            if (latLng.latitude != userLocation.latitude && latLng.longitude != userLocation.longitude) {
-                val place = mapRepository.getPrimaryAndSecondaryFromLatLng(latLng.latitude, latLng.longitude)
-                if (place != null) {
-                    Log.d("onCameraMove", "RESULTADO: ${place.primaryText} - ${place.secondaryText}")
+
+            if (
+                latLng.latitude != userLocation.latitude &&
+                latLng.longitude != userLocation.longitude
+            ) {
+                val predictions = mapRepository.getPrimaryAndSecondaryFromLatLng(
+                    latLng.latitude,
+                    latLng.longitude
+                )
+
+                val prediction = predictions?.firstOrNull()
+
+                if (prediction != null) {
                     _mapState.update {
                         it.copy(
                             place = PlaceSuggestion(
-                                place.placeId,
-                                SpannableString(place.primaryText),
-                                SpannableString(place.secondaryText)
+                                placeId = prediction.placeId,
+                                primaryText = prediction.getPrimaryText(null),
+                                secondaryText = prediction.getSecondaryText(null)
                             )
                         )
                     }
@@ -137,12 +146,13 @@ class MapViewModel @Inject constructor(
 
     fun onPlaceSelected(placeSelected: PlaceSuggestion) {
         viewModelScope.launch {
+            Log.d("onPlaceSelected", "onPLaceSelected: ${placeSelected.placeId}")
             val place = mapRepository.getPlaceWithId(placeSelected.placeId)
             place.location?.let { loc ->
                 _mapState.update {
                     it.copy(
-                        userLocation = LatLng(loc.latitude, loc.longitude),
-                        place = placeSelected
+                        place = placeSelected,
+                        userLocation = LatLng(loc.latitude, loc.longitude)
                     )
                 }
                 _mapUiEvent.emit(
@@ -150,9 +160,10 @@ class MapViewModel @Inject constructor(
                         centerLocation = LatLng(loc.latitude, loc.longitude)
                     )
                 )
-                Log.d("TESTE", "RESULTADO: ${loc.latitude} ${loc.longitude}")
+                Log.d("onPlaceSelected", "RESULTADO: ${loc.latitude} ${loc.longitude}")
+                Log.d("onPlaceSelected", "id: ${mapState.value.place?.placeId} ")
             } ?: run {
-                Log.d("ATENÇAO", "ALGO ACONTECEU")
+                Log.d("onPlaceSelected", "ALGO ACONTECEU")
             }
         }
     }
@@ -175,14 +186,13 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun savePlace(place: PlaceSuggestion) {
+    fun savePlace(id: String) {
         viewModelScope.launch {
-            val result = mapRepository.savePlace(place)
+            Log.d("TESTE", "IDMap: $id")
+            val result = mapRepository.savePlace(id)
             if(result.isSuccess) {
                 _mapState.update {
-                    it.copy(
-                        placeSavedSuccessfully = true
-                    )
+                    it.copy(placeSavedSuccessfully = true)
                 }
             } else {
                 _mapState.update {
@@ -191,6 +201,12 @@ class MapViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun closeCard() {
+        _mapState.update {
+            it.copy(place = null)
         }
     }
 }

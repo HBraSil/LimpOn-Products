@@ -48,7 +48,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
@@ -88,7 +87,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.MapUiSettings
 import kotlinx.coroutines.launch
-import kotlin.collections.forEach
 
 internal val predictionsHighlightStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.Bold)
 internal fun Spannable.toAnnotatedString(spanStyle: SpanStyle?): AnnotatedString {
@@ -147,7 +145,7 @@ fun MapContent(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(-23.5505, -46.6333),
-            10f
+            15f
         )
     }
     var withoutPermission by remember { mutableStateOf(false) }
@@ -156,27 +154,29 @@ fun MapContent(
     val state by mapViewModel.mapState.collectAsStateWithLifecycle()
     val text by mapViewModel.searchText.collectAsStateWithLifecycle()
     val searchState by mapViewModel.searchState.collectAsStateWithLifecycle()
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        )
+    }
 
-    val mapProperties = MapProperties(
-        mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json),
-        isMyLocationEnabled = true
-    )
+    val mapProperties = remember(hasLocationPermission) {
+        MapProperties(
+            mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_json),
+            isMyLocationEnabled = hasLocationPermission, // Agora é seguro!
+        )
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val fineLocationGranted =
-            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-
-        val coarseLocationGranted =
-            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-
-        if (fineLocationGranted && coarseLocationGranted) {
+    ) { _ ->
+        if (hasLocationPermission) {
             mapViewModel.fetchUserLocation()
         }
     }
 
-    // Novo launcher para resolução do LocationSettings (esse é o que você precisa)
+
     val resolutionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) {
@@ -203,7 +203,6 @@ fun MapContent(
             when (event) {
                 is MapUiEvent.OnCenterLocationClick -> {
                     state.userLocation?.let { latLng ->
-                        Log.d("TESTE", "RESULTADO dentro do Launched: ${latLng.latitude} ${latLng.longitude}")
                         cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(latLng, 15f),
                             600
@@ -253,14 +252,18 @@ fun MapContent(
     }
 
 
-    Box(modifier = Modifier.fillMaxSize()
-        .padding(WindowInsets.navigationBars.asPaddingValues())
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                WindowInsets.navigationBars.asPaddingValues()
+            )
     ) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = mapProperties,
-            uiSettings = MapUiSettings(zoomControlsEnabled = false),
+            uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false)
         )
 
         Icon(
@@ -282,23 +285,31 @@ fun MapContent(
             state = searchState,
             searchText = text,
             cameraPositionState,
-            onQueryChanged = { mapViewModel.onQueryChange(it) },
-            onConfirmPlace = { mapViewModel.onPlaceSelected(it) },
-            goToUserLocation = { mapViewModel.onCenterLocationClick() }
+            onQueryChanged = {
+                mapViewModel.onQueryChange(it)
+            },
+            onConfirmPlace = {
+                mapViewModel.onPlaceSelected(it)
+            },
+            goToUserLocation = {
+                mapViewModel.onCenterLocationClick()
+            }
         )
 
-        if (state.place != null /*&& state.userLocation != null*/) {
+        state.place?.let { place ->
+            Log.d("IdTet", "stateid: ${place.placeId}")
             ConfirmLocationCard(
-                place = state.place!!,
-                //userLocation = state.userLocation!!,
+                place = place,
                 modifier = Modifier
                     .wrapContentHeight()
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 40.dp),
-                onConfirmClick = {
+                onConfirmPlace = {
                     mapViewModel.savePlace(it)
                 },
-                closeCard = {},
+                closeCard = {
+                    mapViewModel.closeCard()
+                }
             )
         }
     }
@@ -339,7 +350,7 @@ fun TopSearchSection(
     onConfirmPlace: (PlaceSuggestion) -> Unit,
     goToUserLocation: () -> Unit,
 ) {
-    var isSearchActive by remember { mutableStateOf(state.isNotEmpty()) }
+    var isSearchActive by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Column(
@@ -365,71 +376,12 @@ fun TopSearchSection(
                         .padding(6.dp)
                 )
             },
-            containerColor = Color.Transparent
-        ) {
-            SuggestionsContent(
-                places = state,
-                onPlaceClick = {
-                    onConfirmPlace(it)
-                    isSearchActive = false
-                }
-            )
-        }
+            containerColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            mapState = state,
+            onConfirmPlace = onConfirmPlace
+        )
 
-
-        /*SearchBar(
-            modifier = Modifier.fillMaxWidth(),
-            expanded = isSearchActive,
-            onExpandedChange = { isSearchActive = it },
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = searchText,
-                    onQueryChange = onQueryChanged,
-                    onSearch = {},
-                    expanded = isSearchActive,
-                    onExpandedChange = { isSearchActive = it },
-                    placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
-                    leadingIcon = {
-                        if (!isSearchActive) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.search_icon_description),
-                                modifier = Modifier
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surface.copy(0.4f),
-                                        shape = CircleShape
-                                    )
-                                    .padding(6.dp)
-                            )
-                        } else {
-                            IconButton(onClick = { isSearchActive = false }) {
-                                Icon(
-                                    Icons.Default.ArrowBackIosNew,
-                                    null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    },
-                    trailingIcon = { *//* Seu código de menu e divider aqui *//* },
-
-                )
-            },
-            colors = SearchBarDefaults.colors(
-                containerColor = Color.Transparent,
-                dividerColor = Color.Transparent
-            ),
-            tonalElevation = 0.dp,
-            shadowElevation = 0.dp,
-        ) {
-            SuggestionsContent(
-                places = state,
-                onPlaceClick = {
-                    onConfirmPlace(it)
-                    isSearchActive = false
-                }
-            )
-        }*/
 
         SmallFloatingActionButton(
             onClick = {
@@ -495,9 +447,8 @@ fun TopSearchSection(
 @Composable
 fun ConfirmLocationCard(
     modifier: Modifier = Modifier,
-    //userLocation: LatLng,
     place: PlaceSuggestion,
-    onConfirmClick: (PlaceSuggestion) -> Unit,
+    onConfirmPlace: (String) -> Unit,
     closeCard: () -> Unit,
 ) {
     Card(
@@ -544,7 +495,10 @@ fun ConfirmLocationCard(
             }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
-                onClick = { onConfirmClick(place) },
+                onClick = {
+                    Log.d("TESTE", "ID: ${place.placeId}")
+                    onConfirmPlace(place.placeId)
+                          },
                 modifier = Modifier.fillMaxWidth()
                     .clip(
                         RoundedCornerShape(20.dp),
@@ -574,45 +528,6 @@ fun ConfirmLocationCard(
     }
 }
 
-
-@Composable
-fun SuggestionsContent(
-    places: List<PlaceSuggestion>,
-    onPlaceClick: (PlaceSuggestion) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        tonalElevation = 6.dp,
-        shadowElevation = 8.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp)
-        ) {
-
-            // 🔹 HEADER
-            Text(
-                text = "SUGGESTIONS",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-
-            // 🔹 LISTA
-            places.forEach { place ->
-                AutocompletePlacesItem(
-                    place = place,
-                    onClick = { onPlaceClick(place) }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun AutocompletePlacesItem(
@@ -658,15 +573,6 @@ fun AutocompletePlacesItem(
             Text(
                 text = place.secondaryText.toAnnotatedString(predictionsHighlightStyle),
                 style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-
-        // 🔹 DISTÂNCIA (opcional)
-        place.distance?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelMedium
             )
         }
     }

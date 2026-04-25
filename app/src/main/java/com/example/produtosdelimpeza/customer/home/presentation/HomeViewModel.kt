@@ -32,6 +32,12 @@ class HomeViewModel @Inject constructor(
             User()
         )
 
+    val mainAddress = homeRepository.getMainAddress().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
+    )
+
     private val _listOfStores = MutableStateFlow<List<Store>>(emptyList())
     val listOfStores: StateFlow<List<Store>> = _listOfStores
 

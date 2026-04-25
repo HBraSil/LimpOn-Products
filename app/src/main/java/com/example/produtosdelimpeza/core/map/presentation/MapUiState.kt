@@ -7,6 +7,7 @@ data class MapUiState(
     val isLoading: Boolean = false,
     val userLocation: LatLng? = null,
     val place: PlaceSuggestion? = null,
+    //val address: Address? = null,
     val placeSavedSuccessfully: Boolean = false,
     val error: String? = null
 )

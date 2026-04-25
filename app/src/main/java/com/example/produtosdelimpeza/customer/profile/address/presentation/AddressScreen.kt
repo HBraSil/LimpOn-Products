@@ -2,12 +2,21 @@ package com.example.produtosdelimpeza.customer.profile.address.presentation
 
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.icons.Icons
@@ -20,11 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -32,9 +44,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnSearchBar
 import com.example.produtosdelimpeza.core.domain.model.Address
+import com.example.produtosdelimpeza.core.domain.model.AddressType
+import com.example.produtosdelimpeza.core.domain.model.primaryLabel
+import com.example.produtosdelimpeza.core.domain.model.secondaryLabel
 import com.example.produtosdelimpeza.core.map.presentation.MapViewModel
 import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
-import com.example.produtosdelimpeza.core.map.presentation.SuggestionsContent
 
 
 private const val ANIMATION_DURATION = 300
@@ -51,18 +65,24 @@ fun AddressScreen(
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
     val searchText by mapViewModel.searchText.collectAsStateWithLifecycle()
-    val state by mapViewModel.searchState.collectAsStateWithLifecycle()
+    val mapState by mapViewModel.searchState.collectAsStateWithLifecycle()
+    val addressState by addressViewModel.addressState.collectAsStateWithLifecycle()
     val addresses by addressViewModel.getSavedPlaces.collectAsStateWithLifecycle()
     val mainAddress by addressViewModel.getSelectedAddress.collectAsStateWithLifecycle()
 
 
+
     AddressContent(
-        state = state,
+        mapState = mapState,
+        addressState = addressState,
         searchText = searchText,
         addresses = addresses,
         mainAddress = mainAddress,
         onConfirmPlace = {
-            mapViewModel.onPlaceSelected(it)
+            addressViewModel.addAddress(it)
+        },
+        onDeleteAddress = {
+            addressViewModel.deleteAddress(it)
         },
         onQueryChanged = {
             mapViewModel.onQueryChange(it)
@@ -77,20 +97,33 @@ fun AddressScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressContent(
-    state: List<PlaceSuggestion>,
+    mapState: List<PlaceSuggestion>,
+    addressState: AddressUiState,
     searchText: String,
     addressViewModel: AddressViewModel = hiltViewModel(),
     addresses: List<Address>,
     mainAddress: Address?,
-    onConfirmPlace: (PlaceSuggestion) -> Unit,
+    onConfirmPlace: (String) -> Unit,
+    onDeleteAddress: (String) -> Unit,
     onQueryChanged: (String) -> Unit,
     onGoToAddNewAddressScreen: () -> Unit,
     onBackNavigation: () -> Unit,
     goToMap: () -> Unit,
 ) {
-    var addressToEdit by remember { mutableStateOf<Address?>(null) }
     var addressToDelete by remember { mutableStateOf<Address?>(null) }
     var isSearchActive by remember { mutableStateOf(false) }
+    val addressToEdit by addressViewModel.addressState.collectAsStateWithLifecycle()
+    val editState by addressViewModel.addressState.collectAsStateWithLifecycle()
+
+
+    LaunchedEffect(addressState) {
+        if (addressState.addressSavedSuccessfully) {
+            isSearchActive = false
+        }
+    }
+
+
+
 
     Scaffold(
         topBar = { AddressesHeader(onBack = onBackNavigation) },
@@ -98,63 +131,73 @@ fun AddressContent(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .fillMaxSize()
                 .padding(paddingValues)
         ){
             LimpOnSearchBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                mapState = mapState,
                 searchText = searchText,
                 isSearchActive = isSearchActive,
                 onActiveChange = { isSearchActive = it },
                 onQueryChanged = onQueryChanged,
                 placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.search_icon_description),
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surface.copy(0.4f),
+                                shape = CircleShape
+                            )
+                            .padding(6.dp)
+                    )
+                },
                 containerColor = MaterialTheme.colorScheme.background,
-            ) {
-                SuggestionsContent(
-                    places = state,
-                    onPlaceClick = {
-                        onConfirmPlace(it)
-                        isSearchActive = false
-                    }
-                )
-            }
+                focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                onConfirmPlace = {
+                    onConfirmPlace(it.placeId)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(22.dp))
+            DividerLine()
+            Spacer(modifier = Modifier.height(20.dp))
+            AddressGoToMap(onGoToMapClick = goToMap)
+            Spacer(modifier = Modifier.height(20.dp))
+
             Column(
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 if (addresses.isEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Nenhum endereço cadastrado.",
+                    AddressTitleInfo(
+                        text = stringResource(R.string.without_address),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 } else {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DividerLine()
-                    AddressGoToMap(onGoToMapClick = goToMap)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = "Endereços Salvos",
+                    Spacer(modifier = Modifier.height(10.dp))
+                    AddressTitleInfo(
+                        text = stringResource(R.string.salved_addresses),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
+
                     addresses.reversed().forEach { address ->
-                        Log.d(
-                            "AddressesScreen",
-                            "Address: ${mainAddress?.id}, ${mainAddress?.city}"
-                        )
                         val isSelected = address.id == (mainAddress?.id ?: 1)
                         AddressCard(
                             address = address,
                             isSelected = isSelected,
                             onEdit = { address ->
-                                addressToEdit = address
-                                onGoToAddNewAddressScreen()
+                                addressViewModel.addressToEdit(address)
                             },
                             onDelete = { address ->
                                 addressToDelete = address
@@ -170,14 +213,17 @@ fun AddressContent(
     }
 
 
-    // Dialog de Confirmação de Exclusão
     addressToDelete?.let { address ->
         AlertDialog(
             onDismissRequest = { addressToDelete = null },
             title = { Text("Confirmar Exclusão") },
-            text = { Text("Tem certeza que deseja remover o endereço '${address.label}'?") },
+            text = { Text("Tem certeza que deseja remover o endereço '${address.addressType}'?") },
             confirmButton = {
-                Button(onClick = {}) {
+                Button(onClick = {
+                    Log.d("AddressScreen", "Address deleted: ${address.id}, ${address.city}")
+                    onDeleteAddress(address.id)
+                    addressToDelete = null
+                }) {
                     Text("Remover")
                 }
             },
@@ -188,16 +234,59 @@ fun AddressContent(
             }
         )
     }
+
+
+
+    addressToEdit.address?.let { address ->
+        AddressEditBottomSheet(
+            address = address,
+            addressType = editState.address?.addressType,
+            complement = editState.address?.complement ?: "",
+            isButtonEnabled = editState.isAddressTypeFilled || editState.isAddressComponentFilled,
+            onDismiss = {
+                addressViewModel.addressToEdit(null)
+            },
+            onTypeSelected = { id, type ->
+                addressViewModel.updateAddressType(id, type)
+            },
+            /*onPlaceNameChange = { text ->
+                // uiState = uiState.copy(placeName = text)
+            },*/
+            onComplementChange = { id, text ->
+                addressViewModel.updateComplement(id, text)
+            },
+            onSaveClick = {
+                addressViewModel.saveEditButton()
+            }
+        )
+    }
+}
+
+@Composable
+fun AddressTitleInfo(
+    text: String,
+    style: TextStyle,
+    fontWeight: FontWeight = FontWeight.Normal,
+    color: Color
+) {
+    Text(
+        text = text,
+        style = style,
+        fontWeight = fontWeight,
+        color = color
+    )
 }
 
 @Composable
 fun DividerLine() {
     Row(verticalAlignment = Alignment.CenterVertically) {
         TabRowDefaults.Divider(modifier = Modifier.weight(1f))
+        Spacer(Modifier.width(16.dp))
         Text(
-            text = "  OR ENTER MANUALLY  ",
+            text = stringResource(R.string.insert_manually),
             style = MaterialTheme.typography.labelMedium
         )
+        Spacer(Modifier.width(16.dp))
         TabRowDefaults.Divider(modifier = Modifier.weight(1f))
     }
 }
@@ -223,8 +312,13 @@ fun AddressesHeader(onBack: () -> Unit) {
 fun AddressGoToMap(
     onGoToMapClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
-        modifier = Modifier.clickable { onGoToMapClick() },
+        modifier = Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null
+        ) { onGoToMapClick() },
         verticalAlignment = Alignment.CenterVertically
     ){
         Icon(
@@ -305,7 +399,7 @@ fun AddressCard(
             .scale(animatedScale)
             .padding(vertical = 8.dp)
             .semantics {
-                contentDescription = "Endereço: ${address.label}. Clique para selecionar."
+                contentDescription = "Endereço: ${address.addressType}. Clique para selecionar."
             }
             .clickable { onToggleDefault(address.id) }
     ) {
@@ -315,7 +409,10 @@ fun AddressCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.Top
+                ) {
                     Icon(
                         imageVector = address.icon,
                         contentDescription = "Ícone endereço",
@@ -325,16 +422,25 @@ fun AddressCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = address.city,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
-                            )
+                            val primary = address.primaryLabel()
+                            if (primary.isNotBlank()) {
+                                Text(
+                                    text = primary,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha),
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 1
+                                )
+                            } else {
+                                // fallback sem texto (evita mostrar linhas vazias como ", ,")
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                             if (isSelected) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 AssistChip(
                                     onClick = {},
-                                    label = { Text("Padrão") },
+                                    label = { Text(text = "Padrão", maxLines = 1) },
                                     colors = AssistChipDefaults.assistChipColors(
                                         labelColor = MaterialTheme.colorScheme.surfaceVariant,
                                         containerColor = MaterialTheme.colorScheme.background
@@ -343,36 +449,39 @@ fun AddressCard(
                             }
                         }
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = address.state,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
-                        )
-                        Text(
-                            text = address.cityStateZip,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
-                        )
+                        val secondary = address.secondaryLabel()
+                        if (secondary.isNotBlank()) {
+                            Text(
+                                text = secondary,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha * 0.9f)
+                            )
+                        }
                     }
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
                     IconButton(onClick = { onEdit(address) }) {
                         Icon(
-                            Icons.Default.Edit,
+                            imageVector = Icons.Default.Edit,
                             contentDescription = "Editar",
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
                         )
                     }
                     IconButton(onClick = { onDelete(address) }) {
                         Icon(
-                            Icons.Default.Delete,
+                            imageVector = Icons.Default.Delete,
                             contentDescription = "Remover",
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
                         )
                     }
                 }
             }
+            Text(
+                text = address.complement,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
+            )
             Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -390,5 +499,228 @@ fun AddressCard(
                 )
             }
         }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddressEditBottomSheet(
+    address: Address,
+    addressType: AddressType? = null,
+    complement: String = "",
+    onDismiss: () -> Unit,
+    onTypeSelected: (String, AddressType) -> Unit,
+    //onPlaceNameChange: (String, String) -> Unit = {},
+    onComplementChange: (String, String) -> Unit,
+    onSaveClick: () -> Unit,
+    isButtonEnabled: Boolean
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var otherAddressType by remember { mutableStateOf("") }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            HeaderSection(address.street, onDismiss)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "TIPO DE ENDEREÇO",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            AddressTypeSection(
+                selectedType = addressType,
+                onTypeSelected = { onTypeSelected(address.id, it) }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            AnimatedVisibility(
+                visible = addressType == AddressType.Other(""),
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column {
+                    RoundedInput(
+                        value = otherAddressType,
+                        onValueChange = { otherAddressType = it },
+                        placeholder = "Nomeie este lugar (ex: Academia)",
+                    )
+
+                    Spacer(modifier = Modifier.height(22.dp))
+                }
+            }
+
+            RoundedInput(
+                value = complement,
+                onValueChange = { onComplementChange(address.id, it) },
+                placeholder = "Complemento (opcional)"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Ex: Bloco B, Apartamento 42",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(modifier = Modifier.height(26.dp))
+
+            SaveButton(isButtonEnabled = isButtonEnabled, onSaveClick)
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+    }
+}
+
+@Composable
+fun HeaderSection(
+    addressName: String,
+    onDismiss: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text(
+                text = "Editar Endereço",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = addressName,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+
+        IconButton(onClick = onDismiss) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun AddressTypeSection(
+    selectedType: AddressType?,
+    onTypeSelected: (AddressType) -> Unit
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        AddressTypeChip(
+            label = AddressType.Home.label,
+            icon = Icons.Default.Home,
+            selected = selectedType == AddressType.Home,
+            onClick = { onTypeSelected(AddressType.Home) }
+        )
+
+        AddressTypeChip(
+            label = AddressType.Work.label,
+            icon = Icons.Default.Work,
+            selected = selectedType == AddressType.Work,
+            onClick = { onTypeSelected(AddressType.Work) }
+        )
+
+        AddressTypeChip(
+            label = AddressType.Other("").label,
+            icon = Icons.Default.LocationOn,
+            selected = selectedType == AddressType.Other(""),
+            onClick = { onTypeSelected(AddressType.Other("")) }
+        )
+    }
+}
+
+@Composable
+fun AddressTypeChip(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val bg =
+        if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+
+    val content =
+        if (selected) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.primary
+
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = bg,
+            contentColor = content
+        )
+    ) {
+        Icon(icon, contentDescription = null)
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(label)
+    }
+}
+
+@Composable
+fun RoundedInput(
+    value: String,
+    onValueChange: ((String) -> Unit)? = null,
+    placeholder: String
+) {
+    if (onValueChange != null) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(22.dp),
+            placeholder = { Text(placeholder) },
+            singleLine = true
+        )
+    }
+}
+
+
+@Composable
+fun SaveButton(isButtonEnabled: Boolean = false, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        enabled = isButtonEnabled,
+        shape = RoundedCornerShape(32.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.background
+        )
+    ) {
+        Text(
+            text = "Salvar Endereço",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null
+        )
     }
 }

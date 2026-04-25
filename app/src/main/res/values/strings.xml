@@ -135,4 +135,7 @@
     <string name="close_component">Fechar</string>
     <string name="confirm_location">Confirmar localização</string>
     <string name="center_location_icon">Ícone de centralizar da localização</string>
+    <string name="salved_addresses">Endereços Salvos</string>
+    <string name="without_address">Nenhum endereço cadastrado.</string>
+    <string name="insert_manually">OU INSIRA MANUALMENTE</string>
 </resources>
