@@ -4,10 +4,8 @@ import SwipeableCardOne
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -38,8 +36,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
@@ -47,17 +43,13 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.South
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
@@ -81,7 +73,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -90,9 +81,7 @@ import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.model.Address
-import com.example.produtosdelimpeza.core.domain.model.AddressType
 import com.example.produtosdelimpeza.core.domain.model.Store
-import com.example.produtosdelimpeza.core.domain.model.primaryLabel
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
@@ -145,15 +134,13 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onCardSellerClick: (String) -> Unit = {},
     onSeeAllClick: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {},
+    navigateToNotifications: () -> Unit = {},
+    navigateToAddressScreen: () -> Unit = {}
 ) {
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
     val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
     val listOfStores by homeViewModel.listOfStores.collectAsStateWithLifecycle()
     val mainAddres by homeViewModel.mainAddress.collectAsStateWithLifecycle()
-
-    var expandedCard by remember { mutableStateOf(false) }
-    var shortcutSelected by remember { mutableStateOf("1") }
 
     val user by homeViewModel.user.collectAsState()
 
@@ -191,25 +178,10 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .align(Alignment.TopCenter),
                         address = mainAddres,
-                        savedAddresses = listOf(
-                            /*AddressItem(
-                                id = "1",
-                                name = "Casa",
-                                fullAddress = "Rua Arsenio Da Silva 1"
-                            ),
-                            AddressItem(
-                                id = "2",
-                                name = "Trabalho",
-                                fullAddress = "Rua Arsenio Da Silva 2"
-                            )*/
-                        ),
                         userName = user.name,
-                        isExpanded = expandedCard,
-                        onSelectShortcut = { shortcutSelected = it },
-                        onNavigateToNotifications = onNavigateToNotifications
-                    ) {
-                        expandedCard = !expandedCard
-                    }
+                        onNavigateToNotifications = navigateToNotifications,
+                        onGoToAddressScreen = navigateToAddressScreen
+                    )
                 }
             }
 
@@ -358,13 +330,8 @@ fun CardDeLocalizacao(
     modifier: Modifier = Modifier,
     userName: String,
     address: Address? = null,
-    savedAddresses: List<Address> = emptyList(),
-    isExpanded: Boolean,
-    onEditAddress: (Address?) -> Unit = {},
-    onChangeAddress: () -> Unit = {},
-    onSelectShortcut: (String) -> Unit = {},
     onNavigateToNotifications: () -> Unit,
-    onToggleExpand: () -> Unit,
+    onGoToAddressScreen: () -> Unit,
 ) {
     val roundedCornerShapeONne = RoundedCornerShape(
         topStart = 0.dp,
@@ -372,7 +339,6 @@ fun CardDeLocalizacao(
         bottomStart = 16.dp,
         bottomEnd = 16.dp
     )
-    val addAddressCTA = "Adicionar endereço"
 
 
     Surface(
@@ -385,7 +351,7 @@ fun CardDeLocalizacao(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onToggleExpand() }
+            ) { onGoToAddressScreen() }
     ) {
         Column(
             modifier = Modifier
@@ -418,7 +384,7 @@ fun CardDeLocalizacao(
                     text = "Olá, $userName!",
                     modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
 
@@ -445,232 +411,33 @@ fun CardDeLocalizacao(
                 modifier = Modifier.padding(bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = address?.neighborhood ?: address?.street ?: "Endereço não definido",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
-                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
-                )
-                Spacer(Modifier.width(20.dp))
                 Icon(
-                    imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                    imageVector = address?.icon ?: Icons.Default.LocationOn,
+                    contentDescription = "Localização",
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = address?.street ?: address?.neighborhood ?: address?.city ?: "Endereço não definido",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(Modifier.width(30.dp))
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.colorScheme.onSurface
 
                 )
             }
-
-
-            // Animação para expandir/colapsar o conteúdo extra
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                // Transição de Saída (Ao Retrair)
-                exit = fadeOut() + shrinkVertically(
-                    shrinkTowards = Alignment.Top,
-                    animationSpec = tween(500)
-                ) // Efeito de retração
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics {
-                            contentDescription =
-                                if (address != null) "Painel de endereço expandido" else "Painel de adicionar endereço"
-                        },
-                    shape = RoundedCornerShape(0.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Left: content column
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                        ) {
-                            if (address != null) {
-                                // Title row: icon + title + optional default star
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.LocationOn,
-                                        contentDescription = "Ícone de endereço",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(
-                                        text = address.addressType?.label ?: AddressType.Other("").label,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 1
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    Icon(
-                                        imageVector = address.icon,
-                                        contentDescription = "Endereço padrão",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                Spacer(Modifier.height(8.dp))
-
-                                // Address body (selectable optional)
-                                Text(
-                                    text = address.primaryLabel(),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                                    maxLines = 4,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            contentDescription =
-                                                "Endereço completo: ${address.primaryLabel()}"
-                                        }
-                                )
-
-                                Spacer(Modifier.height(12.dp))
-
-                                // Action buttons: Edit + Change
-                                AddressActions(
-                                    onEdit = { onEditAddress(address) },
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(vertical = 12.dp)
-                                )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                // Shortcuts chips (optional)
-                                if (savedAddresses.isNotEmpty()) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = "Local de entrega",
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-
-                                        Row {
-                                            savedAddresses.forEach { item ->
-                                                AddressShortcutChip(
-                                                    name = item.complement,
-                                                    isSelected = item.id == address.id,
-                                                    onClick = {
-                                                        onSelectShortcut(
-                                                            item.id
-                                                        )
-                                                    }
-                                                )
-
-                                                Spacer(Modifier.width(18.dp))
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Empty state UI
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalAlignment = Alignment.Start
-                                ) {
-                                    Text(
-                                        text = "Nenhum endereço salvo",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = "Adicione um endereço para ver informações de entrega, ETA e selecionar rapidamente em futuras compras.",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    Spacer(Modifier.height(12.dp))
-                                    Button(
-                                        onClick = { /* wiring: open add address flow */ },
-                                        modifier = Modifier
-                                            .semantics { contentDescription = "Adicionar endereço" }
-                                    ) {
-                                        Text(text = addAddressCTA)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
 
-
-@Composable
-private fun AddressShortcutChip(
-    name: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    val tonalColor =
-        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-    AssistChip(
-        onClick = onClick,
-        label = {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = "Atalho $name",
-                modifier = Modifier.size(16.dp),
-                tint = if (isSelected) MaterialTheme.colorScheme.background.copy(0.7f) else MaterialTheme.colorScheme.background
-            )
-        },
-        colors = AssistChipDefaults.assistChipColors(containerColor = tonalColor)
-    )
-}
-
-
-@Composable
-private fun AddressActions(
-    onEdit: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End
-    ) {
-        // Edit button (primary)
-        ElevatedButton(
-            onClick = onEdit,
-            modifier = Modifier.height(40.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(0.2f)
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Editar endereço",
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "Editar",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
 
 @Composable
 fun BannerDeOfertas(modifier: Modifier = Modifier) {
@@ -696,7 +463,7 @@ fun CartBottomBarScaffoldStyle(
     AnimatedVisibility(
         visible = items > 0,
         enter = slideInVertically(
-            initialOffsetY = { it /* começa abaixo */ },
+            initialOffsetY = { it },
             animationSpec = tween(400)
         ) + fadeIn(animationSpec = tween(200)),
         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(250)) + fadeOut(),

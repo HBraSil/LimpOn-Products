@@ -30,7 +30,6 @@ import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.api.net.kotlin.awaitFetchPlace
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -293,28 +292,28 @@ class MapRepositoryImpl @Inject constructor(
     override suspend fun savePlace(id: String): Result<Boolean> {
         val place = placesClient.awaitFetchPlace(
             id,
-            listOf(Place.Field.ID, Place.Field.ADDRESS_COMPONENTS)
+            listOf(Place.Field.ID, Place.Field.FORMATTED_ADDRESS, Place.Field.ADDRESS_COMPONENTS)
         ).place
         Log.d("MapRepositoryImpl", "Address: $place")
 
 
         val id = place.id ?: return Result.failure(Exception("ID não encontrado"))
-        val streetNumber = place.getComponent("street_number")
-        val street = place.getComponent("route")
-        val neighborhood = place.getComponent("sublocality_level_1")
-        val city = place.getComponent("administrative_area_level_2")
-        val state = place.getComponent("administrative_area_level_1")
+        val formattedAddress = place.formattedAddress ?: "Endereço não formatado"
+        val streetNumber = place.getComponent("street_number") ?: ""
+        val street = place.getComponent("route") ?: ""
+        val neighborhood = place.getComponent("sublocality_level_1") ?: ""
+        val city = place.getComponent("administrative_area_level_2") ?: ""
+        val state = place.getComponent("administrative_area_level_1") ?: ""
 
         val address = com.example.produtosdelimpeza.core.domain.model.Address(
             id = id,
-            streetNumber = streetNumber ?: "",
-            street = street ?: "",
-            neighborhood = neighborhood ?: "",
-            city = city ?: "",
-            state = state ?: ""
+            streetNumber = streetNumber,
+            street = street,
+            neighborhood = neighborhood,
+            city = city,
+            state = state,
+            formattedAddress = formattedAddress
         )
-        Log.d("MapRepositoryImpl", "Address: $address")
-
 
         val result = savedMapPlacesLocalStorage.savePlace(address)
         return if (result.isSuccess) {
@@ -328,24 +327,6 @@ class MapRepositoryImpl @Inject constructor(
             ?.asList()
             ?.firstOrNull { type in it.types }
             ?.name
-    }
-
-
-    suspend fun getPlaceIdFromLatLng(
-        latitude: Double,
-        longitude: Double
-    ): String? = withContext(Dispatchers.IO) {
-
-        val placeFields = listOf(Place.Field.ID)
-        val request = FindCurrentPlaceRequest.newInstance(placeFields) // ainda deprecado, mas sem alternativa
-        try {
-            val response = placesClient.findCurrentPlace(request).await()
-            response.placeLikelihoods.firstOrNull()?.place?.id
-        } catch (e: SecurityException) {
-            null // ou trate conforme necessário
-        } catch (e: Exception) {
-            null
-        }
     }
 
 

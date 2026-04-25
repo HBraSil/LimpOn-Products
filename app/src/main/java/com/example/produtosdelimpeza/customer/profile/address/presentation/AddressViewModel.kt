@@ -86,10 +86,12 @@ class AddressViewModel @Inject constructor(
     fun addressToEdit(address: Address?) {
         addressState.update {
             it.copy(
-                address = address
+                address = address,
+                editedSuccessfully = false // possível gambiarra
             )
         }
     }
+
 
     private fun validateAddress(address: AddressType?): Boolean {
         if (address == null) return false
@@ -109,15 +111,26 @@ class AddressViewModel @Inject constructor(
         viewModelScope.launch {
             val state = addressState.value
             val address = state.address ?: return@launch
+            var result: Result<Boolean> = Result.failure(Exception("Address is null"))
 
             if (state.isAddressTypeFilled) {
                 address.addressType?.let {
-                    addressRepository.updateAddressType(address.id, it)
+                    result = addressRepository.updateAddressType(address.id, it)
+                }
+                addressState.update {
+                    it.copy(
+                        editedSuccessfully = result.isSuccess
+                    )
                 }
             }
 
             if (state.isAddressComponentFilled) {
-                addressRepository.updateComplement(address.id, address.complement)
+                result = addressRepository.updateComplement(address.id, address.complement)
+                addressState.update {
+                    it.copy(
+                        editedSuccessfully = result.isSuccess
+                    )
+                }
             }
         }
     }

@@ -41,16 +41,16 @@ val PrimaryColor = Color(0xFF007AFF) // Azul vibrante para destaque
 
 @Composable
 fun ProfileScreen(
-    paddingValues: PaddingValues ,
-    onNotificationsScreenClick: () -> Unit = {},
-    onEditUserProfileScreenClick: () -> Unit = {},
-    onPaymentMethodsScreenClick: () -> Unit = {},
-    onCouponsScreenClick: () -> Unit = {},
+    paddingValues: PaddingValues,
+    navigateToNotificationsScreen: () -> Unit = {},
+    navigateToEditUserProfileScreen: () -> Unit = {},
+    navigateToPaymentMethodsScreen: () -> Unit = {},
+    navigateToCouponsScreen: () -> Unit = {},
     onSellInTheApp: () -> Unit = {},
-    onMyAddressesScreenClick: () -> Unit = {},
-    onAboutScreenClick: () -> Unit = {},
-    onHelpScreenClick: () -> Unit = {},
-    onOrderScreenClick: () -> Unit = {},
+    navigateToAddressScreen: () -> Unit = {},
+    navigateToAboutScreen: () -> Unit = {},
+    navigateToHelpScreen: () -> Unit = {},
+    navigateToOrderScreen: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
     onSwitchProfileClick: () -> Unit = {},
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
@@ -70,15 +70,15 @@ fun ProfileScreen(
                 HeaderSection(
                     userName = user.name,
                     userInitials = "HB",
-                    onClickEditUserProfile = onEditUserProfileScreenClick
+                    onClickEditUserProfile = navigateToEditUserProfileScreen
                 )
             }
 
             item {
                 QuickActionsSection(
-                    onClickNotificationsScreen = onNotificationsScreenClick,
-                    onClickHelpScreen = onHelpScreenClick,
-                    onClickPaymentMethods = onPaymentMethodsScreenClick,
+                    onClickNotificationsScreen = navigateToNotificationsScreen,
+                    onClickHelpScreen = navigateToHelpScreen,
+                    onClickPaymentMethods = navigateToPaymentMethodsScreen,
                 )
             }
 
@@ -99,7 +99,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.Default.Discount,
                         text = "Cupons",
-                        onClick = onCouponsScreenClick
+                        onClick = navigateToCouponsScreen
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(start = 48.dp),
@@ -120,7 +120,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.Default.LocationOn,
                         text = "Meus Endereços",
-                        onClick = onMyAddressesScreenClick
+                        onClick = navigateToAddressScreen
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(start = 48.dp),
@@ -130,7 +130,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.Default.CreditCard,
                         text = "Formas de Pagamento",
-                        onClick = onPaymentMethodsScreenClick
+                        onClick = navigateToPaymentMethodsScreen
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(start = 48.dp),
@@ -140,7 +140,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.Default.History,
                         text = "Histórico de Pedidos",
-                        onClick = onOrderScreenClick
+                        onClick = navigateToOrderScreen
                     )
                 }
             }
@@ -151,7 +151,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.AutoMirrored.Filled.Help,
                         text = "Ajuda e FAQ",
-                        onClick = onHelpScreenClick
+                        onClick = navigateToHelpScreen
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(start = 48.dp),
@@ -171,7 +171,7 @@ fun ProfileScreen(
                     InfoItem(
                         icon = Icons.Default.Policy,
                         text = stringResource(R.string.about),
-                        onClick = onAboutScreenClick
+                        onClick = navigateToAboutScreen
                     )
                 }
             }

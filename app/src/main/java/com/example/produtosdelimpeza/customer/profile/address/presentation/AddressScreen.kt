@@ -36,17 +36,18 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnSearchBar
 import com.example.produtosdelimpeza.core.domain.model.Address
 import com.example.produtosdelimpeza.core.domain.model.AddressType
-import com.example.produtosdelimpeza.core.domain.model.primaryLabel
-import com.example.produtosdelimpeza.core.domain.model.secondaryLabel
 import com.example.produtosdelimpeza.core.map.presentation.MapViewModel
 import com.example.produtosdelimpeza.core.map.presentation.PlaceSuggestion
 
@@ -58,7 +59,6 @@ private val ANIMATION_EASING = FastOutSlowInEasing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressScreen(
-    onGoToAddNewAddressScreen: () -> Unit,
     onBackNavigation: () -> Unit,
     goToMap: () -> Unit,
     addressViewModel: AddressViewModel = hiltViewModel(),
@@ -87,7 +87,6 @@ fun AddressScreen(
         onQueryChanged = {
             mapViewModel.onQueryChange(it)
         },
-        onGoToAddNewAddressScreen = onGoToAddNewAddressScreen,
         onBackNavigation = onBackNavigation,
         goToMap = goToMap
     )
@@ -106,12 +105,13 @@ fun AddressContent(
     onConfirmPlace: (String) -> Unit,
     onDeleteAddress: (String) -> Unit,
     onQueryChanged: (String) -> Unit,
-    onGoToAddNewAddressScreen: () -> Unit,
     onBackNavigation: () -> Unit,
     goToMap: () -> Unit,
 ) {
     var addressToDelete by remember { mutableStateOf<Address?>(null) }
     var isSearchActive by remember { mutableStateOf(false) }
+    var editSavedAlertDialog by remember { mutableStateOf(false) }
+
     val addressToEdit by addressViewModel.addressState.collectAsStateWithLifecycle()
     val editState by addressViewModel.addressState.collectAsStateWithLifecycle()
 
@@ -120,9 +120,11 @@ fun AddressContent(
         if (addressState.addressSavedSuccessfully) {
             isSearchActive = false
         }
+
+        if (addressState.editedSuccessfully) {
+            editSavedAlertDialog = true
+        }
     }
-
-
 
 
     Scaffold(
@@ -217,13 +219,19 @@ fun AddressContent(
         AlertDialog(
             onDismissRequest = { addressToDelete = null },
             title = { Text("Confirmar Exclusão") },
-            text = { Text("Tem certeza que deseja remover o endereço '${address.addressType}'?") },
+            text = { Text("Tem certeza que deseja remover o endereço '${address.street}'?") },
             confirmButton = {
-                Button(onClick = {
-                    Log.d("AddressScreen", "Address deleted: ${address.id}, ${address.city}")
-                    onDeleteAddress(address.id)
-                    addressToDelete = null
-                }) {
+                Button(
+                    onClick = {
+                        Log.d("AddressScreen", "Address deleted: ${address.id}, ${address.city}")
+                        onDeleteAddress(address.id)
+                        addressToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.background
+                    )
+                ) {
                     Text("Remover")
                 }
             },
@@ -231,7 +239,8 @@ fun AddressContent(
                 TextButton(onClick = { addressToDelete = null }) {
                     Text("Cancelar")
                 }
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.background
         )
     }
 
@@ -255,8 +264,17 @@ fun AddressContent(
             onComplementChange = { id, text ->
                 addressViewModel.updateComplement(id, text)
             },
-            onSaveClick = {
+            onSaveChangeClick = {
                 addressViewModel.saveEditButton()
+            }
+        )
+    }
+
+    if (editSavedAlertDialog) {
+        AddressUpdatedDialog(
+            onDismiss = {
+                editSavedAlertDialog = false
+                addressViewModel.addressToEdit(null)
             }
         )
     }
@@ -397,22 +415,21 @@ fun AddressCard(
         modifier = modifier
             .fillMaxWidth()
             .scale(animatedScale)
-            .padding(vertical = 8.dp)
             .semantics {
                 contentDescription = "Endereço: ${address.addressType}. Clique para selecionar."
             }
             .clickable { onToggleDefault(address.id) }
     ) {
+        val primary = address.primaryLabel()
+        val secondary = address.secondaryLabel()
+
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.Top
-                ) {
+                Row(modifier = Modifier.weight(1f)) {
                     Icon(
                         imageVector = address.icon,
                         contentDescription = "Ícone endereço",
@@ -422,7 +439,6 @@ fun AddressCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            val primary = address.primaryLabel()
                             if (primary.isNotBlank()) {
                                 Text(
                                     text = primary,
@@ -432,10 +448,9 @@ fun AddressCard(
                                     modifier = Modifier.weight(1f),
                                     maxLines = 1
                                 )
-                            } else {
-                                // fallback sem texto (evita mostrar linhas vazias como ", ,")
+                            }/* else {
                                 Spacer(modifier = Modifier.weight(1f))
-                            }
+                            }*/
                             if (isSelected) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 AssistChip(
@@ -449,7 +464,6 @@ fun AddressCard(
                             }
                         }
                         Spacer(modifier = Modifier.height(6.dp))
-                        val secondary = address.secondaryLabel()
                         if (secondary.isNotBlank()) {
                             Text(
                                 text = secondary,
@@ -457,31 +471,46 @@ fun AddressCard(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha * 0.9f)
                             )
                         }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        if (address.complement.isNotBlank()) {
+                            Text(
+                                text = "Complemento: ${address.complement}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = animatedContentAlpha)
+                            )
+                        }
                     }
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
-                    IconButton(onClick = { onEdit(address) }) {
+                    IconButton(
+                        onClick = { onEdit(address) },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.background.copy(alpha = animatedContentAlpha),
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = animatedContentAlpha)
+                        )
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Editar",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
                         )
                     }
-                    IconButton(onClick = { onDelete(address) }) {
+                    IconButton(
+                        onClick = { onDelete(address) },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error.copy(alpha = animatedContentAlpha),
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = animatedContentAlpha)
+                        )
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Remover",
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
                         )
                     }
                 }
             }
-            Text(
-                text = address.complement,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha)
-            )
             Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -511,9 +540,8 @@ fun AddressEditBottomSheet(
     complement: String = "",
     onDismiss: () -> Unit,
     onTypeSelected: (String, AddressType) -> Unit,
-    //onPlaceNameChange: (String, String) -> Unit = {},
     onComplementChange: (String, String) -> Unit,
-    onSaveClick: () -> Unit,
+    onSaveChangeClick: () -> Unit,
     isButtonEnabled: Boolean
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -522,7 +550,7 @@ fun AddressEditBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -532,12 +560,15 @@ fun AddressEditBottomSheet(
         ) {
             HeaderSection(address.street, onDismiss)
 
+            Spacer(modifier = Modifier.height(6.dp))
+
+            HorizontalDivider()
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "TIPO DE ENDEREÇO",
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -580,7 +611,7 @@ fun AddressEditBottomSheet(
 
             Spacer(modifier = Modifier.height(26.dp))
 
-            SaveButton(isButtonEnabled = isButtonEnabled, onSaveClick)
+            SaveButton(isButtonEnabled = isButtonEnabled, onSaveChangeClick)
 
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -589,7 +620,7 @@ fun AddressEditBottomSheet(
 
 @Composable
 fun HeaderSection(
-    addressName: String,
+    addressName: String?,
     onDismiss: () -> Unit,
 ) {
     Row(
@@ -603,10 +634,11 @@ fun HeaderSection(
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary
             )
-
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = addressName,
-                style = MaterialTheme.typography.bodyLarge
+                text = addressName ?: "Endereço não selecionado",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -663,8 +695,8 @@ fun AddressTypeChip(
         else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
 
     val content =
-        if (selected) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.primary
+        if (selected) MaterialTheme.colorScheme.onSecondary
+        else MaterialTheme.colorScheme.onBackground.copy(0.6f)
 
     Button(
         onClick = onClick,
@@ -722,5 +754,92 @@ fun SaveButton(isButtonEnabled: Boolean = false, onClick: () -> Unit) {
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null
         )
+    }
+}
+@Composable
+fun AddressUpdatedDialog(
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            shape = RoundedCornerShape(32.dp),
+            color = Color.White,
+            tonalElevation = 2.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 32.dp)
+                    .widthIn(min = 280.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(92.dp)
+                        .background(
+                            color = Color(0xFFEDEEFF),
+                            shape = CircleShape
+                        )
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(
+                                color = Color(0xFF2F49F5),
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(34.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                Text(
+                    text = "Endereço Atualizado",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1A1A1A),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "As alterações no seu endereço foram salvas com sucesso.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF666666),
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2F49F5)
+                    )
+                ) {
+                    Text(
+                        text = "OK",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
     }
 }

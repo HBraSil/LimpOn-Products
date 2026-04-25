@@ -58,7 +58,12 @@ fun LimpOnSearchBar(
                 leadingIcon = leadingIcon,
                 trailingIcon = {
                     if (isSearchActive) {
-                        IconButton(onClick = { onActiveChange(false) }) {
+                        IconButton(
+                            onClick = {
+                                onActiveChange(false)
+                                onQueryChanged("")
+                            }
+                        ) {
                             Icon(
                                 Icons.Default.Close,
                                 stringResource(R.string.close_component),

@@ -561,7 +561,6 @@ fun AutocompletePlacesItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // 🔹 TEXTOS
         Column(
             modifier = Modifier.weight(1f)
         ) {

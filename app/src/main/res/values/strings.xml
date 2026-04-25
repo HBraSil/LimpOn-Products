@@ -138,4 +138,5 @@
     <string name="salved_addresses">Endereços Salvos</string>
     <string name="without_address">Nenhum endereço cadastrado.</string>
     <string name="insert_manually">OU INSIRA MANUALMENTE</string>
+    <string name="address_icon">Ícone de endereço</string>
 </resources>

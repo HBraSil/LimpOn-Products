@@ -5,6 +5,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -402,8 +404,11 @@ fun NavGraphBuilder.homeGraph(
                 onSeeAllClick = {
                     navController.navigate(CustomerScreen.HIGHLIGHTS.route)
                 },
-                onNavigateToNotifications = {
+                navigateToNotifications = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
+                },
+                navigateToAddressScreen = {
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/true")
                 }
             )
         }
@@ -485,31 +490,31 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         composable(route = CustomerScreen.CUSTOMER_PROFILE.route) {
             ProfileScreen(
                 paddingValues = innerPadding,
-                onNotificationsScreenClick = {
+                navigateToNotificationsScreen = {
                     navController.navigate(CustomerScreen.MANAGEMENT_NOTIFICATION.route)
                 },
-                onEditUserProfileScreenClick = {
+                navigateToEditUserProfileScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_EDIT_PROFILE.route)
                 },
-                onPaymentMethodsScreenClick = {
+                navigateToPaymentMethodsScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_PAYMENT_METHODS.route)
                 },
-                onCouponsScreenClick = {
+                navigateToCouponsScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_COUPON.route)
                 },
-                onMyAddressesScreenClick = {
-                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route)
+                navigateToAddressScreen = {
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/false")
                 },
-                onAboutScreenClick = {
+                navigateToAboutScreen = {
                     navController.navigate(CustomerScreen.ABOUT.route)
                 },
                 onSellInTheApp = {
                     navController.navigate(StoreScreen.SELLER_ENTRY_POINT.route)
                 },
-                onHelpScreenClick = {
+                navigateToHelpScreen = {
                     navController.navigate(CustomerScreen.HELP.route)
                 },
-                onOrderScreenClick = {
+                navigateToOrderScreen = {
                     navController.navigate(CustomerScreen.CUSTOMER_ORDER_LIST.route)
                 },
                 onSwitchProfileClick = {
@@ -538,11 +543,40 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
             CouponsScreen()
         }
 
-        composable(route = CustomerScreen.CUSTOMER_ADDRESS.route) {
+        composable(
+            route = CustomerScreen.CUSTOMER_ADDRESS.route + "/{fromHome}",
+            arguments = listOf(
+                navArgument("fromHome") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            ),
+            enterTransition = {
+                val fromMap = targetState.arguments?.getBoolean("fromHome") ?: false
+
+                if (fromMap) {
+                    slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(350)
+                    )
+                } else {
+                    null
+                }
+            },
+            popExitTransition = {
+                val fromMap = initialState.arguments?.getBoolean("fromHome") ?: false
+
+                if (fromMap) {
+                    slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(550)
+                    )
+                } else {
+                    null
+                }
+            }
+        ) {
             AddressScreen(
-                onGoToAddNewAddressScreen = {
-                    navController.navigate(CustomerScreen.CUSTOMER_ADD_NEW_ADDRESS.route)
-                },
                 onBackNavigation = { navController.navigateUp() },
                 goToMap = {
                     navController.navigate(CustomerScreen.CUSTOMER_SET_LOCATION.route)
@@ -553,19 +587,10 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         composable(route = CustomerScreen.CUSTOMER_SET_LOCATION.route) {
             MapScreen(
                 goToAddressScreen = {
-                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route) {
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/false") {
                         popUpTo(CustomerScreen.CUSTOMER_ADDRESS.route) { inclusive = true }
                     }
                 }
-                /*state = LocationUiState(
-                 *//*   query = "",
-                    address = "Av. Paulista, 1234",
-                    subtitle = "Bela Vista, São Paulo - SP",
-                    distance = "2.5 km"
-                ),
-                onQueryChange = {},
-                onConfirmClick = {},
-                onMenuClick = {}*/
             )
         }
 

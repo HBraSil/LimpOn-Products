@@ -1,7 +1,6 @@
 package com.example.produtosdelimpeza.core.map.data
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -106,8 +105,8 @@ class AddressLocalStorage @Inject constructor(@param:ApplicationContext private 
         }
     }
 
-    suspend fun updateComplement(addressId: String, complement: String) {
-        try {
+    suspend fun updateComplement(addressId: String, complement: String): Result<Boolean> {
+        return try {
             context.datastore.edit { preferences ->
                 val json = preferences[PLACE_KEY] ?: return@edit
                 val list = gson.fromJson<List<Address>>(json, listType)
@@ -118,16 +117,16 @@ class AddressLocalStorage @Inject constructor(@param:ApplicationContext private 
                     updatedList[index] = updatedList[index].copy(complement = complement)
                     preferences[PLACE_KEY] = gson.toJson(updatedList)
                 }
-
-                Log.d("AddressLocalStorage", "Chegou aqui, Updated list: $list")
             }
+
+            Result.success(true)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Result.failure(e)
         }
     }
 
-    suspend fun updateAddressType(id: String, address: AddressType) {
-        try {
+    suspend fun updateAddressType(id: String, address: AddressType): Result<Boolean> {
+        return try {
             context.datastore.edit { preferences ->
                 val json = preferences[PLACE_KEY] ?: return@edit
                 val list = gson.fromJson<List<Address>>(json, listType)
@@ -138,8 +137,9 @@ class AddressLocalStorage @Inject constructor(@param:ApplicationContext private 
                     preferences[PLACE_KEY] = gson.toJson(updatedList)
                 }
             }
+            Result.success(true)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Result.failure(e)
         }
     }
 }

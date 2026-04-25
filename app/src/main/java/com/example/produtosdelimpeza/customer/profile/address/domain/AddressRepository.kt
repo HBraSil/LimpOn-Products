@@ -9,9 +9,9 @@ interface AddressRepository {
     fun getMainAddress(): Flow<Address?>
     suspend fun selectMainAddress(id: String)
 
-    suspend fun updateComplement(id: String,complement: String)
+    suspend fun updateComplement(id: String,complement: String): Result<Boolean>
 
-    suspend fun updateAddressType(id: String, address: AddressType)
+    suspend fun updateAddressType(id: String, address: AddressType): Result<Boolean>
 /*    suspend fun updateAddress(address: Address)
     suspend fun deleteAddress(address: Address)*/
 }

@@ -6,6 +6,7 @@ data class AddressUiState(
     val address: Address? = null,
     val error: String? = null,
     val isLoading: Boolean = false,
+    val editedSuccessfully: Boolean = false,
     val isAddressTypeFilled: Boolean = false,
     val isAddressComponentFilled: Boolean = false,
     val addressSavedSuccessfully: Boolean = false,

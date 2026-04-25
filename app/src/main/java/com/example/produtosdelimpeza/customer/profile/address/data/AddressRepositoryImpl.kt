@@ -25,11 +25,11 @@ class AddressRepositoryImpl @Inject constructor(
         addressLocalStorage.selectMainAddress(id)
     }
 
-    override suspend fun updateComplement(id: String, complement: String) {
-        addressLocalStorage.updateComplement(id, complement)
+    override suspend fun updateComplement(id: String, complement: String): Result<Boolean> {
+        return addressLocalStorage.updateComplement(id, complement)
     }
 
-    override suspend fun updateAddressType(id: String, address: AddressType) {
-        addressLocalStorage.updateAddressType(id, address)
+    override suspend fun updateAddressType(id: String, address: AddressType): Result<Boolean> {
+        return addressLocalStorage.updateAddressType(id, address)
     }
 }
