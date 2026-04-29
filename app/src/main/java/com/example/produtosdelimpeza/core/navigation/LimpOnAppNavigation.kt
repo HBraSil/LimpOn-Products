@@ -587,9 +587,7 @@ fun NavGraphBuilder.profileGraph(innerPadding: PaddingValues, navController: Nav
         composable(route = CustomerScreen.CUSTOMER_SET_LOCATION.route) {
             MapScreen(
                 goToAddressScreen = {
-                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/false") {
-                        popUpTo(CustomerScreen.CUSTOMER_ADDRESS.route) { inclusive = true }
-                    }
+                    navController.popBackStack()
                 }
             )
         }

@@ -188,8 +188,9 @@ class MapRepositoryImpl @Inject constructor(
         } else {
             null
         }
+
         userLatLng?.let { latLng ->
-            Log.d("MapRepositoryImpl", "userLatLng: $latLng")
+            Log.d("MapRepositoryImpl", "userLatLng latlng: $latLng")
             try {
                 val bounds = createBounds(latLng, 50.0)
                 builder.setLocationBias(bounds)
@@ -203,13 +204,16 @@ class MapRepositoryImpl @Inject constructor(
             .setQuery(query)
             .build()
 
+        Log.d("MapRepositoryImpl", "userLatLng request: $request")
+
         return try {
             val response = placesClient.findAutocompletePredictions(request).await()
+            Log.d("MapRepositoryImpl", "userLatLng response: $response.")
 
-            Log.e("MapRepositoryImpl", "userLatLng: $response")
             response.autocompletePredictions
         } catch (e: Exception) {
-            if (e is CancellationException) throw e
+            if (e is CancellationException) Log.d("MapRepositoryImpl", "userLatLng response: ${e.message}")
+            Log.d("MapRepositoryImpl", "userLatLng response: ${e.message}")
             emptyList()
         }
     }
@@ -245,6 +249,7 @@ class MapRepositoryImpl @Inject constructor(
         longitude: Double,
     ): List<AutocompletePrediction>? = suspendCancellableCoroutine { continuation ->
         val geocoder = Geocoder(context, Locale.getDefault())
+        Log.d("getPrimaryAndSecondaryFromLatLng", "params: $latitude $longitude")
 
         geocoder.getFromLocation(
             latitude,
@@ -255,6 +260,7 @@ class MapRepositoryImpl @Inject constructor(
                 override fun onGeocode(addresses: MutableList<Address>) {
                     if (addresses.isNotEmpty()) {
                         val address = addresses.firstOrNull()
+                        Log.d("getPrimaryAndSecondaryFromLatLng", "address: $address")
 
                         if (address == null) {
                             continuation.resume(null)
@@ -262,8 +268,10 @@ class MapRepositoryImpl @Inject constructor(
                         }
 
                         val query = address.getAddressLine(0)
+                        Log.d("getPrimaryAndSecondaryFromLatLng", "query outer: $query")
 
-                        CoroutineScope(Dispatchers.IO).launch {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Log.d("getPrimaryAndSecondaryFromLatLng", "query inner: $query")
                             try {
                                 val predictions = searchPlaces(
                                     query = query,
@@ -271,8 +279,10 @@ class MapRepositoryImpl @Inject constructor(
                                     longitude = longitude
                                 )
 
+                                Log.d("getPrimaryAndSecondaryFromLatLng", "predictions: $predictions")
                                 continuation.resume(predictions)
                             } catch (e: Exception) {
+                                Log.e("getPrimaryAndSecondaryFromLatLng", "error: ${e.message}")
                                 continuation.resume(null)
                             }
                         }

@@ -96,10 +96,10 @@ fun AddressScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressContent(
+    addressViewModel: AddressViewModel = hiltViewModel(),
     mapState: List<PlaceSuggestion>,
     addressState: AddressUiState,
     searchText: String,
-    addressViewModel: AddressViewModel = hiltViewModel(),
     addresses: List<Address>,
     mainAddress: Address?,
     onConfirmPlace: (String) -> Unit,
@@ -258,9 +258,6 @@ fun AddressContent(
             onTypeSelected = { id, type ->
                 addressViewModel.updateAddressType(id, type)
             },
-            /*onPlaceNameChange = { text ->
-                // uiState = uiState.copy(placeName = text)
-            },*/
             onComplementChange = { id, text ->
                 addressViewModel.updateComplement(id, text)
             },
@@ -346,7 +343,7 @@ fun AddressGoToMap(
         )
         Spacer(Modifier.width(16.dp))
         Text(
-            text = "Selecionar no mapa"
+            text = stringResource(R.string.select_location),
         )
         Spacer(Modifier.weight(1f))
         Icon(
@@ -430,40 +427,40 @@ fun AddressCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(modifier = Modifier.weight(1f)) {
-                    Icon(
-                        imageVector = address.icon,
-                        contentDescription = "Ícone endereço",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha),
-                        modifier = Modifier.size(24.dp)
-                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Column {
+                    Column(verticalArrangement = Arrangement.Top) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = address.icon,
+                                contentDescription = "Ícone endereço",
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha),
+                                modifier = Modifier.size(24.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
                             if (primary.isNotBlank()) {
                                 Text(
                                     text = primary,
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = animatedContentAlpha),
-                                    overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f),
+                                    overflow = TextOverflow.Ellipsis,
                                     maxLines = 1
                                 )
-                            }/* else {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }*/
+                            }
                             if (isSelected) {
-                                Spacer(modifier = Modifier.width(8.dp))
                                 AssistChip(
                                     onClick = {},
                                     label = { Text(text = "Padrão", maxLines = 1) },
                                     colors = AssistChipDefaults.assistChipColors(
                                         labelColor = MaterialTheme.colorScheme.surfaceVariant,
                                         containerColor = MaterialTheme.colorScheme.background
-                                    )
+                                    ),
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         if (secondary.isNotBlank()) {
                             Text(
                                 text = secondary,
@@ -483,6 +480,8 @@ fun AddressCard(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.width(14.dp))
 
                 Column(horizontalAlignment = Alignment.End) {
                     IconButton(
@@ -511,7 +510,6 @@ fun AddressCard(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
                     selected = isSelected,

@@ -45,18 +45,18 @@ class MapViewModel @Inject constructor(
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
-    val predictions =
-        _searchText.debounce(300)
-            .mapLatest { query ->
-                val location = mapState.value.userLocation
+    val predictions = _searchText
+        .debounce(300)
+        .mapLatest { query ->
+            val location = mapState.value.userLocation
 
-                if(query.isBlank()) emptyList()
-                else mapRepository.searchPlaces(query, location?.latitude, location?.longitude)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
+            if(query.isBlank()) emptyList()
+            else mapRepository.searchPlaces(query, location?.latitude, location?.longitude)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     val searchState =
         predictions.map { predictionsLits ->
@@ -103,10 +103,10 @@ class MapViewModel @Inject constructor(
     fun onCenterLocationClick() {
         viewModelScope.launch {
             with(_mapState.value) {
-                if (this.userLocation != null) {
+                if (userLocation != null) {
                     _mapUiEvent.emit(
                         MapUiEvent.OnCenterLocationClick(
-                            centerLocation = LatLng(this.userLocation.latitude, this.userLocation.longitude)
+                            centerLocation = LatLng(userLocation.latitude, userLocation.longitude)
                         )
                     )
                 }
@@ -118,6 +118,7 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             val userLocation = mapState.value.userLocation ?: return@launch
 
+            Log.d("onCameraMove", "camera moving: $latLng")
             if (
                 latLng.latitude != userLocation.latitude &&
                 latLng.longitude != userLocation.longitude
