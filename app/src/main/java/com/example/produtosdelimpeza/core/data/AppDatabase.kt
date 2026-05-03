@@ -12,7 +12,7 @@ import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.data.entity.StoreEntity
 import com.example.produtosdelimpeza.core.data.entity.UserEntity
 import com.example.produtosdelimpeza.customer.cart.data.CartItemEntity
-import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
+import com.example.produtosdelimpeza.core.data.dao.StoreDao
 
 @TypeConverters(Converters::class)
 @Database(

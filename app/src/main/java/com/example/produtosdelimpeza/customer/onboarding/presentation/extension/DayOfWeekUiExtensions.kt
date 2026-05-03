@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding.presentation.extension
+package com.example.produtosdelimpeza.customer.onboarding.presentation.extension
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

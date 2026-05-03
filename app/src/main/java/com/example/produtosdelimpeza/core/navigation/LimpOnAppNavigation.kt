@@ -45,8 +45,8 @@ import com.example.produtosdelimpeza.customer.catalog.presentation.CatalogScreen
 import com.example.produtosdelimpeza.customer.catalog.presentation.profile.StoreProfileScreen
 import com.example.produtosdelimpeza.core.auth.presentation.signup.SignupScreen
 import com.example.produtosdelimpeza.core.navigation.bottom_nav.AutonomousBottomNavConfig
-import com.example.produtosdelimpeza.store.onboarding.EnterInviteKeyScreen
-import com.example.produtosdelimpeza.store.onboarding.SignupStoreScreen
+import com.example.produtosdelimpeza.customer.onboarding.presentation.EnterInviteKeyScreen
+import com.example.produtosdelimpeza.customer.onboarding.presentation.store.SignupStoreScreen
 import com.example.produtosdelimpeza.store.registration_coupon.presentation.CouponRegistrationScreen
 import com.example.produtosdelimpeza.store.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScreen
@@ -79,10 +79,10 @@ import com.example.produtosdelimpeza.store.dashboard.presentation.PRODUCT
 import com.example.produtosdelimpeza.store.dashboard.presentation.PROMOTION
 import com.example.produtosdelimpeza.store.dashboard.StoreAnalyticsScreen
 import com.example.produtosdelimpeza.store.registration_product.presentation.ProductRegistrationScreen
-import com.example.produtosdelimpeza.store.onboarding.AutonomousRequestScreen
-import com.example.produtosdelimpeza.store.onboarding.ChoicePartnerScreen
-import com.example.produtosdelimpeza.store.onboarding.SellerType
-import com.example.produtosdelimpeza.store.onboarding.StoreRequestScreen
+import com.example.produtosdelimpeza.customer.onboarding.presentation.autonomous.AutonomousRequestScreen
+import com.example.produtosdelimpeza.customer.onboarding.presentation.ChoicePartnerScreen
+import com.example.produtosdelimpeza.customer.onboarding.presentation.SellerType
+import com.example.produtosdelimpeza.customer.onboarding.presentation.store.StoreRequestScreen
 
 
 @Composable
@@ -144,7 +144,7 @@ fun LimpOnAppNavigation(
 }
 
 
-private fun NavGraphBuilder.storeMainGraph( b76innerPadding: PaddingValues, navController: NavHostController) {
+private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navController: NavHostController) {
     navigation(
         route = NavGraph.STORE_MAIN.route,
         startDestination = StoreScreen.DASHBOARD.route

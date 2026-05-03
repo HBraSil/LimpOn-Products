@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding.data
+package com.example.produtosdelimpeza.core.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

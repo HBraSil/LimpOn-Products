@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding
+package com.example.produtosdelimpeza.customer.onboarding.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -35,7 +35,6 @@ fun EnterInviteKeyScreen(
     var code by remember { mutableStateOf(List(6) { "" }) }
     val focusRequesters = List(6) { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    var inviteKey by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier

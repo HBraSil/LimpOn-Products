@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding.domain
+package com.example.produtosdelimpeza.customer.onboarding.domain
 
 
 data class SignUpStoreUiState(

@@ -1,7 +1,7 @@
-package com.example.produtosdelimpeza.store.onboarding.di
+package com.example.produtosdelimpeza.customer.onboarding.di
 
-import com.example.produtosdelimpeza.store.onboarding.data.SignupStoreRepositoryImpl
-import com.example.produtosdelimpeza.store.onboarding.domain.SignupStoreRepository
+import com.example.produtosdelimpeza.customer.onboarding.data.SignupStoreRepositoryImpl
+import com.example.produtosdelimpeza.customer.onboarding.domain.SignupStoreRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

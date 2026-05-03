@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding
+package com.example.produtosdelimpeza.customer.onboarding.presentation.store
 
 import com.example.produtosdelimpeza.R
 import android.net.Uri
@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -345,11 +344,4 @@ fun SectionHeader(title: String, icon: ImageVector) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
-}
-
-
-@Preview
-@Composable
-fun teste() {
-    StoreRequestScreen({}, {})
 }

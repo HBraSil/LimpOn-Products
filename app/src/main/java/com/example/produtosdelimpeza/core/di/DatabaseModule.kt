@@ -12,7 +12,7 @@ import com.example.produtosdelimpeza.core.data.system.NetworkChecker
 import com.example.produtosdelimpeza.core.data.AppDatabase
 import com.example.produtosdelimpeza.core.data.dao.UserDao
 import com.example.produtosdelimpeza.customer.cart.data.CartProductsDAO
-import com.example.produtosdelimpeza.store.onboarding.data.StoreDao
+import com.example.produtosdelimpeza.core.data.dao.StoreDao
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module

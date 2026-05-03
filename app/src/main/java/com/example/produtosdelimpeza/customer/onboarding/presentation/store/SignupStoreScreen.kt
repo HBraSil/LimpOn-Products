@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding
+package com.example.produtosdelimpeza.customer.onboarding.presentation.store
 
 import android.os.Build
 import android.util.Log
@@ -63,7 +63,7 @@ import com.example.produtosdelimpeza.core.component.SimpleTimePicker
 import com.example.produtosdelimpeza.core.domain.model.BusinessHours
 import com.example.produtosdelimpeza.core.domain.model.DayOfWeek
 import com.example.produtosdelimpeza.core.ui.util.asString
-import com.example.produtosdelimpeza.store.onboarding.presentation.extension.displayName
+import com.example.produtosdelimpeza.customer.onboarding.presentation.extension.displayName
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 

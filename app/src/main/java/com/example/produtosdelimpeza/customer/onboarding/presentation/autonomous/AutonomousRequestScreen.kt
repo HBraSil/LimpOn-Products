@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding
+package com.example.produtosdelimpeza.customer.onboarding.presentation.autonomous
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

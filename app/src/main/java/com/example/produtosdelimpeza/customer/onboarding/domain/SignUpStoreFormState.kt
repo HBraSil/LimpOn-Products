@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding.domain
+package com.example.produtosdelimpeza.customer.onboarding.domain
 
 import com.example.produtosdelimpeza.core.domain.model.DayOfWeek
 import com.example.produtosdelimpeza.core.presentation.FieldState

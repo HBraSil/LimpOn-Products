@@ -1,9 +1,9 @@
-package com.example.produtosdelimpeza.store.onboarding.data
+package com.example.produtosdelimpeza.customer.onboarding.data
 
 import com.example.produtosdelimpeza.core.data.StoreRemoteDataSource
 import com.example.produtosdelimpeza.core.domain.model.Store
+import com.example.produtosdelimpeza.customer.onboarding.domain.SignupStoreRepository
 import com.example.produtosdelimpeza.store.dashboard.data.toDto
-import com.example.produtosdelimpeza.store.onboarding.domain.SignupStoreRepository
 import jakarta.inject.Inject
 
 

@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.onboarding
+package com.example.produtosdelimpeza.customer.onboarding.presentation.store
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -12,9 +12,9 @@ import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.presentation.FieldState
 import com.example.produtosdelimpeza.core.validation.EmailValidator
 import com.example.produtosdelimpeza.core.validation.NameValidator
-import com.example.produtosdelimpeza.store.onboarding.domain.SignUpStoreFormState
-import com.example.produtosdelimpeza.store.onboarding.domain.SignUpStoreUiState
-import com.example.produtosdelimpeza.store.onboarding.domain.SignupStoreRepository
+import com.example.produtosdelimpeza.customer.onboarding.domain.SignUpStoreFormState
+import com.example.produtosdelimpeza.customer.onboarding.domain.SignUpStoreUiState
+import com.example.produtosdelimpeza.customer.onboarding.domain.SignupStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +36,6 @@ class SignUpStoreViewModel @Inject constructor(
             )
         }
     )
-    val weeklySchedule = _weeklySchedule.asStateFlow()
 
 
     private val _uiState = MutableStateFlow(SignUpStoreUiState())
