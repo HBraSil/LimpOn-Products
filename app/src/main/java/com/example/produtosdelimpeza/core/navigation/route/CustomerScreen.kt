@@ -5,6 +5,7 @@ enum class CustomerScreen(val route: String, val showBottomBar: Boolean = false)
     MANAGEMENT_NOTIFICATION("management_notification"),
     NOTIFICATIONS("notifications"),
     CUSTOMER_STORE_PROFILE("customer_store_profile"),
+    CUSTOMER_PROFESSIONAL_PROFILE("customer_professional_profile"),
     CART("cart"),
     CUSTOMER_ORDER_DETAIL("customer_order_detail"),
     CUSTOMER_ORDER_LIST("customer_order_list"),

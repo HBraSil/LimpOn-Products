@@ -59,7 +59,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-
+import androidx.compose.ui.tooling.preview.Preview
 
 
 val Navy = Color(0xFF0F172A)
@@ -70,8 +70,9 @@ val SoftEmerald = Color(0xFF10B981)
 val NavyBlue = Color(0xFF0A3D62)
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-fun AutonomousDashboardScreen(onNavigateToServiceSettings: () -> Unit) {
+fun AutonomousDashboardScreen() {
     var servicesDesc by remember { mutableStateOf("Especialista em automação residencial, instalações elétricas de alto padrão e manutenção preventiva.") }
     var expLevelMoreThanOne by remember { mutableStateOf(false) }
     var yearsOfExp by remember { mutableFloatStateOf(1f) }
@@ -95,7 +96,7 @@ fun AutonomousDashboardScreen(onNavigateToServiceSettings: () -> Unit) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = onNavigateToServiceSettings,
+                onClick = {},
                 containerColor = Navy,
                 contentColor = Color.White,
                 expanded = isExpanded,

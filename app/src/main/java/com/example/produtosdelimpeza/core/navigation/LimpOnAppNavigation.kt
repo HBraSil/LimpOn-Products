@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.core.navigation
 
+import ProfessionalProfileScreen
 import SellerEntryPointScreen
 import android.net.Uri
 import android.util.Log
@@ -143,7 +144,7 @@ fun LimpOnAppNavigation(
 }
 
 
-private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navController: NavHostController) {
+private fun NavGraphBuilder.storeMainGraph( b76innerPadding: PaddingValues, navController: NavHostController) {
     navigation(
         route = NavGraph.STORE_MAIN.route,
         startDestination = StoreScreen.DASHBOARD.route
@@ -401,14 +402,14 @@ fun NavGraphBuilder.homeGraph(
                     val encoded = Uri.encode(storeId)
                     navController.navigate("${CustomerScreen.CUSTOMER_PRODUCTS.route}/$encoded")
                 },
-                onSeeAllClick = {
-                    navController.navigate(CustomerScreen.HIGHLIGHTS.route)
-                },
                 navigateToNotifications = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
                 },
                 navigateToAddressScreen = {
-                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/true")
+                    navController.navigate(CustomerScreen.CUSTOMER_ADDRESS.route + "/false")
+                },
+                goToProfessionalProfile = {
+                    navController.navigate(CustomerScreen.CUSTOMER_PROFESSIONAL_PROFILE.route)
                 }
             )
         }
@@ -434,6 +435,15 @@ fun NavGraphBuilder.homeGraph(
         composable(route = CustomerScreen.CUSTOMER_STORE_PROFILE.route) {
             StoreProfileScreen()
         }
+
+        composable(route = CustomerScreen.CUSTOMER_PROFESSIONAL_PROFILE.route) {
+            ProfessionalProfileScreen(
+                onBackNaviagtion = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
 
         composable(route = CustomerScreen.HIGHLIGHTS.route) {
             HighlightsScreen(
@@ -648,9 +658,9 @@ fun NavGraphBuilder.autonomousMainGraph(navController: NavHostController) {
     ) {
         composable(route = AutonomousScreen.AUTONOMOUS_DASHBOARD.route) {
             AutonomousDashboardScreen(
-                onNavigateToServiceSettings = {
+                /*onNavigateToServiceSettings = {
                     navController.navigate(AutonomousScreen.SERVICE_SETTINGS.route)
-                }
+                }*/
             )
         }
 

@@ -6,6 +6,8 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material3.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -30,10 +32,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
@@ -50,9 +48,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,6 +68,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -78,9 +80,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.domain.model.ProfileMode
+import com.example.produtosdelimpeza.core.component.SectionHeader
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.model.Address
+import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
@@ -104,17 +107,6 @@ private val sampleCategories = listOf(
     Category(5, "Pet", R.drawable.pet_icon, Color(0xFFFFE6E6)),
 )
 
-/*
-data class AddressItem(
-    val id: String,
-    val name: String? = null, // e.g., "Casa", "Trabalho"
-    val fullAddress: String,
-    val isDefault: Boolean = false,
-    val eta: String? = null, // e.g., "25-35 min"
-    val distance: String? = null, // e.g., "1.2 km"
-)
-*/
-
 
 private val sampleProductEntities = listOf(
     ProductEntity(1, "Detergente Líquido"),
@@ -133,9 +125,9 @@ fun HomeScreen(
     cartViewModel: CartViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
     onCardSellerClick: (String) -> Unit = {},
-    onSeeAllClick: () -> Unit = {},
     navigateToNotifications: () -> Unit = {},
-    navigateToAddressScreen: () -> Unit = {}
+    navigateToAddressScreen: () -> Unit = {},
+    goToProfessionalProfile: () -> Unit
 ) {
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
     val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
@@ -187,25 +179,38 @@ fun HomeScreen(
 
             item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            item { SectionHeader(title = "Categorias") { } }
+            item { SectionHeader(title = R.string.categories) { } }
             item { CategoriesRow(categories = sampleCategories, onClick = {}) }
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
 
-            item {
-                SectionHeader(
-                    title = "Destaques para você",
-                    actionLabel = "Ver todos",
-                    onAction = onSeeAllClick,
-                    textColor = MaterialTheme.colorScheme.secondary.copy(blue = 1.5f)
-                )
-            }
+            item { SectionHeader(title = R.string.highlitghs, actionLabel = R.string.see_all) {} }
             item { FeaturedProductsRow(productEntities = sampleProductEntities, onAdd = {}) }
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
 
-            item { SectionHeader(title = "Vendedores", actionLabel = "") { } }
+            item { SectionHeader(title = R.string.services, actionLabel = R.string.see_all) { } }
+            item {
+                val provider = ServiceProvider(
+                    name = "João Silva",
+                    category = "Eletricista",
+                    rating = 4.8,
+                    distanceKm = 2.4,
+                    servicesDone = 12,
+                    description = "Especialista em quadros de força, instalações residenciais e manutenção preventiva.",
+                    isOnline = true
+                )
 
+                ServiceCard(
+                    provider = provider,
+                    onHireClick = { },
+                    goToProfessionalProfile = goToProfessionalProfile
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(30.dp)) }
+
+            item { SectionHeader(title = R.string.stores, actionLabel = R.string.see_all) { } }
             items(listOfStores) { item ->
                 ItemCard(store = item) {
                     onCardSellerClick(item.id)
@@ -295,34 +300,6 @@ fun SampleFeaturedProducts(
 }
 
 
-@Composable
-fun SectionHeader(
-    title: String,
-    actionLabel: String = "",
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    onAction: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge
-        )
-        TextButton(onClick = onAction) {
-            Text(
-                text = actionLabel,
-                style = MaterialTheme.typography.bodyMedium,
-                color = textColor,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
-    }
-}
 
 
 @Composable
@@ -665,5 +642,128 @@ private fun FavoriteButton() {
             contentDescription = null,
             tint = tint
         )
+    }
+}
+
+
+data class ServiceProvider(
+    val name: String,
+    val category: String,
+    val rating: Double,
+    val distanceKm: Double,
+    val servicesDone: Int,
+    val description: String,
+    val isOnline: Boolean
+)
+
+
+@Composable
+fun ServiceCard(
+    provider: ServiceProvider,
+    onHireClick: () -> Unit,
+    goToProfessionalProfile: () -> Unit
+) {
+    Card(
+        onClick = goToProfessionalProfile,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray)
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = provider.name,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Icon(
+                            imageVector = Icons.Default.Verified,
+                            contentDescription = null,
+                            tint = Color(0xFF2196F3),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    Text(
+                        text = provider.category,
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "${provider.servicesDone} anos exp.",
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = "⭐ ${provider.rating}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = stringResource(R.string.location_icon),
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        text = "${provider.distanceKm} km",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = provider.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.DarkGray
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onHireClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Text("Contratar Serviço")
+            }
+        }
     }
 }

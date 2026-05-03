@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.core.component.SectionHeader
 
 data class ProductDetail(
     val id: String,
@@ -155,7 +158,7 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
                         modifier =
                             Modifier.height(24.dp)
                     )
-                    SectionHeader(title = "Sobre o produto") {
+                    SectionHeader(title = R.string.about_this_product, actionLabel = R.string.about) {
                         showEditBottomSheet = true
                     }
                     Text(
@@ -165,7 +168,7 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    SectionHeader(title = "Inventário") {
+                    SectionHeader(title = R.string.product_details) {
                         showEditBottomSheet = true
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -251,21 +254,6 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
 }
 
 
-@Composable
-fun SectionHeader(title: String, onEdit: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        TextButton(onClick = onEdit) { Text("Editar") }
-    }
-}
 
 @Composable
 fun ProductStatusChips(
@@ -318,7 +306,7 @@ fun ProductPerformanceRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             PerformanceItem("Vendidos", soldAmount.toString())
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .height(32.dp)
                     .width(1.dp)
