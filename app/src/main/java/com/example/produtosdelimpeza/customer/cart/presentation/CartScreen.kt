@@ -40,10 +40,30 @@ fun CartScreen(
     val cartList by cartViewModel.cartItemsList.collectAsState()
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
 
+    CartContent(
+        cartList = cartList,
+        totalPrice = totalPrice,
+        onEvent = cartViewModel::onEvent,
+        clearCart = {
+            cartViewModel.clearCart()
+        },
+        onBackNavigation = onBackNavigation
+    )
+}
+
+@Composable
+fun CartContent(
+    cartList: List<CartItem> = emptyList(),
+    totalPrice: Double = 0.0,
+    onEvent: (CartScreenEvent) -> Unit = {},
+    clearCart: () -> Unit = {},
+    onBackNavigation: () -> Unit = {},
+) {
+
     Scaffold(
         topBar = {
             CartTopBar(onBackNavigation) {
-                cartViewModel.clearCart()
+                clearCart()
             }
         },
         bottomBar = { },
@@ -61,13 +81,13 @@ fun CartScreen(
                     CartItemSection(
                         items = cartList,
                         onRemoveItem = { item ->
-                            cartViewModel.removeItem(item)
+                            onEvent(CartScreenEvent.RemoveItem(item))
                         },
                         onAdd = {
-                            cartViewModel.increaseQuantity(it)
+                            onEvent(CartScreenEvent.IncreaseQuantity(it))
                         },
                         onSub = {
-                            cartViewModel.decreaseQuantity(it)
+                            onEvent(CartScreenEvent.DecreaseQuantity(it))
                         }
                     )
                 }
@@ -77,9 +97,7 @@ fun CartScreen(
             item {
                 ObservationField(
                     currentObservation = "Observation goes here",
-                    onObservationChange = { newObs ->
-
-                    }
+                    onObservationChange = {}
                 )
             }
             item { ValueSummarySection(totalPrice) }
@@ -521,14 +539,13 @@ fun CheckoutButton(
     }
 }
 
-// --- 5. Preview ---
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewCartScreen() {
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary = Color(0xFF0087B0), // Um verde vibrante de delivery
+            primary = Color(0xFF0087B0),
             secondary = Color(0xFFFFF422),
             surfaceVariant = Color(0xFFF1F1F1),
             primaryContainer = Color(0xFFE8F5E9), // Para a notificação
@@ -536,6 +553,6 @@ fun PreviewCartScreen() {
             error = Color(0xFFD32F2F),
         )
     ) {
-        CartScreen()
+        CartContent()
     }
 }

@@ -37,87 +37,15 @@ class CartViewModel @Inject constructor(
     }
 
 
-/*
-    init {
-        viewModelScope.launch {
-            loadCart()
+    fun onEvent(event: CartScreenEvent) {
+        when (event) {
+            is CartScreenEvent.AddProductToCart -> addProductToCart(event.product)
+            is CartScreenEvent.IncreaseQuantity -> increaseQuantity(event.item)
+            is CartScreenEvent.DecreaseQuantity -> decreaseQuantity(event.id)
+            is CartScreenEvent.RemoveItem -> removeItem(event.item)
+            is CartScreenEvent.ClearCart -> clearCart()
         }
     }
-
-    fun loadCart() {
-        viewModelScope.launch {
-            val products = repository.getAllProducts()
-
-            _cartItems.value = products
-            updateTotals(products)
-        }
-    }
-
-
-    fun addOrUpdateProduct(productEntity: Product) {
-        viewModelScope.launch {
-            val currentList = _cartItems.value.toMutableList()
-            val existingIndex = currentList.indexOfFirst { it.id == productEntity.id }
-
-            if (existingIndex >= 0) {
-                val existingItem = currentList[existingIndex]
-                val updated = existingItem.copy(quantity = existingItem.quantity + 1)
-                repository.updateProduct(updated)
-            } else {
-                repository.insertProduct(productEntity.copy(quantity = 1))
-            }
-            loadCart() // recarrega após salvar
-        }
-    }
-
-
-    fun deleteOrRemoveProduct(product: ProductEntity) {
-        viewModelScope.launch {
-            if (product.quantity > 1) {
-                val updatedProduct = product.copy(quantity = product.quantity - 1)
-
-                repository.updateProduct(updatedProduct)
-            } else {
-                repository.deleteProduct(product)
-            }
-            loadCart()
-        }
-    }
-*/
-
-/*
-    fun getTotalPriceForProduct(productId: Int): Double {
-        val product = _cartItems.value.find { it.id == productId }
-        val quantity = product?.quantity ?: 0
-        val totalPriceForThisProduct = product?.price?.times(quantity) ?: 0.0
-
-        return totalPriceForThisProduct
-    }
-
-    fun getProductForId(productId: Int): Product? {
-        return _cartItems.value.find { it.id == productId }
-    }
-
-    private fun updateTotals(listOfProducts: List<Product>) {
-        _totalQuantity.value = listOfProducts.sumOf { it.quantity }
-        _totalPrice.value = listOfProducts.sumOf { it.price * it.quantity }
-    }
-*/
-
-/*
-    fun changeToCartItemAndUpdate(product: Product) {
-        increaseQuantity(
-            CartItem(
-                productId = product.id,
-                name = product.name,
-                description = product.description,
-                price = product.price,
-                promotionalPrice = product.promotionalPrice,
-                quantity = 1
-            )
-        )
-    }
-*/
 
 
     fun decreaseQuantity(id: String) {

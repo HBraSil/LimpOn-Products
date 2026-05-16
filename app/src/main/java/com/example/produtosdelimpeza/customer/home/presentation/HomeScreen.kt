@@ -74,17 +74,18 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.SectionHeader
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.model.Address
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.domain.model.Store
+import com.example.produtosdelimpeza.core.domain.model.User
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
@@ -120,24 +121,61 @@ private val sampleProductEntities = listOf(
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues,
-    navController: NavHostController,
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
     cartViewModel: CartViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
     onCardSellerClick: (String) -> Unit = {},
     navigateToNotifications: () -> Unit = {},
     navigateToAddressScreen: () -> Unit = {},
-    goToProfessionalProfile: () -> Unit
+    goToProfessionalProfile: () -> Unit = {}
 ) {
+
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
     val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
+
     val listOfStores by homeViewModel.listOfStores.collectAsStateWithLifecycle()
     val mainAddres by homeViewModel.mainAddress.collectAsStateWithLifecycle()
-
     val user by homeViewModel.user.collectAsState()
 
+    HomeContent (
+        paddingValues = paddingValues,
+        user = user,
+        totalQtd = totalQtd,
+        totalPrice = totalPrice,
+        listOfStores = listOfStores,
+        mainAddres = mainAddres,
+        navigationLastUserModeViewModel = {
+            navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.CustomerSection)
+        },
+        onNavigateToCart = {
+            //TODO: Navegar para tela de carrinho
+        },
+        navigateToNotifications = navigateToNotifications,
+        navigateToAddressScreen = navigateToAddressScreen,
+        goToProfessionalProfile = goToProfessionalProfile,
+        onCardSellerClick = onCardSellerClick,
+    )
+}
+
+@Composable
+fun HomeContent(
+    paddingValues: PaddingValues = PaddingValues(),
+    user: User,
+    totalQtd: Int,
+    totalPrice: Double,
+    listOfStores: List<Store> = emptyList(),
+    mainAddres: Address? = null,
+    navigationLastUserModeViewModel: () -> Unit = {},
+    onNavigateToCart: () -> Unit = {},
+    navigateToNotifications: () -> Unit = {},
+    navigateToAddressScreen: () -> Unit = {},
+    goToProfessionalProfile: () -> Unit = {},
+    onCardSellerClick: (String) -> Unit = {}
+) {
+
+
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedIn.CustomerSection)
+        navigationLastUserModeViewModel()
     }
 
     Scaffold(
@@ -146,7 +184,7 @@ fun HomeScreen(
                 CartBottomBarScaffoldStyle(
                     items = totalQtd,
                     total = totalPrice,
-                    onNavigateToCart = { navController.navigate("cart") }
+                    onNavigateToCart = onNavigateToCart
                 )
             }
         },
@@ -766,4 +804,14 @@ fun ServiceCard(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun HomePreview() {
+    HomeContent(
+        user = User(),
+        totalQtd = 10,
+        totalPrice = 10.0,
+    )
 }
