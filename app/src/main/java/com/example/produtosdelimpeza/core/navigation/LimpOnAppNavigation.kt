@@ -50,7 +50,7 @@ import com.example.produtosdelimpeza.customer.onboarding.presentation.store.Sign
 import com.example.produtosdelimpeza.store.registration_coupon.presentation.CouponRegistrationScreen
 import com.example.produtosdelimpeza.store.managment.StoreManagementScreen
 import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScreen
-import com.example.produtosdelimpeza.store.managment.product_tab.ProductDetailScreen
+import com.example.produtosdelimpeza.store.managment.product_tab.StoreProductInfoScreen
 import com.example.produtosdelimpeza.store.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.store.order.StoreOrderScreen
 import com.example.produtosdelimpeza.store.profile.StoreProfileScreen
@@ -280,7 +280,7 @@ private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navContr
         }
 
         composable(StoreScreen.PRODUCT_DETAIL.route) {
-            ProductDetailScreen(
+            StoreProductInfoScreen(
                 onBackNavigation = {navController.navigateUp()}
             )
         }
@@ -396,7 +396,6 @@ fun NavGraphBuilder.homeGraph(
         composable(route = CustomerScreen.CUSTOMER_HOME.route) {
             HomeScreen(
                 paddingValues = innerPadding,
-                navController = navController,
                 cartViewModel = cartViewModel,
                 onCardSellerClick = { storeId ->
                     val encoded = Uri.encode(storeId)

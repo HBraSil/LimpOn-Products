@@ -23,7 +23,7 @@ fun ProductPrice(
 ) {
     Row(
         modifier = Modifier
-            .padding(start = 10.dp, bottom = 10.dp),
+            .padding(start = 16.dp, bottom = 10.dp),
         verticalAlignment = Alignment.Bottom
     ) {
         val hasPromotion = promotionalPrice > 0

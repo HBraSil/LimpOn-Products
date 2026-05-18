@@ -17,10 +17,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.component.SectionHeader
+import com.example.produtosdelimpeza.core.component.LimpOnSectionHeader
+import java.util.Locale
 
 data class ProductDetail(
     val id: String,
@@ -35,7 +37,7 @@ data class ProductDetail(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ProductDetailScreen(onBackNavigation: () -> Unit) {
+fun StoreProductInfoScreen(onBackNavigation: () -> Unit) {
     val product = ProductDetail(
         id = "1",
         name = "Hambúrguer Artesanal X-Monster",
@@ -128,7 +130,7 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
                             )
                         }
                         Text(
-                            text = "R$ ${ String.format("%.2f", currentProduct.price)}",
+                            text = "R$ ${String.format(locale = Locale.getDefault(), "%.2f", currentProduct.price)}",
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
@@ -158,7 +160,7 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
                         modifier =
                             Modifier.height(24.dp)
                     )
-                    SectionHeader(title = R.string.about_this_product, actionLabel = R.string.about) {
+                    LimpOnSectionHeader(title = R.string.about_this_product, actionLabel = R.string.about) {
                         showEditBottomSheet = true
                     }
                     Text(
@@ -168,7 +170,7 @@ fun ProductDetailScreen(onBackNavigation: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    SectionHeader(title = R.string.product_details) {
+                    LimpOnSectionHeader(title = R.string.product_details) {
                         showEditBottomSheet = true
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -349,4 +351,10 @@ fun ProductVisibilitySection(
             Switch(checked = isVisible, onCheckedChange = onChange)
         }
     }
+}
+
+@Preview
+@Composable
+fun StoreProductInfoScreenPreview() {
+    StoreProductInfoScreen(onBackNavigation = {})
 }

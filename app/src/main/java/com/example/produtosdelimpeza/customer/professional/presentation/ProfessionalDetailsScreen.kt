@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.component.SectionHeader
+import com.example.produtosdelimpeza.core.component.LimpOnSectionHeader
 
 
 @Composable
@@ -79,7 +79,7 @@ fun ProfessionalProfileContent(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SectionHeader(title = R.string.services, ) {}
+                LimpOnSectionHeader(title = R.string.services, ) {}
                 ServiceItem("Instalações elétricas completas")
                 ServiceItem("Manutenção e reforma de quadros de luz")
                 ServiceItem("Troca de fiação e aterramento")
@@ -87,7 +87,7 @@ fun ProfessionalProfileContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SectionHeader(title = R.string.images_gallery, actionLabel = R.string.see_all) {}
+                LimpOnSectionHeader(title = R.string.images_gallery, actionLabel = R.string.see_all) {}
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -99,7 +99,7 @@ fun ProfessionalProfileContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SectionHeader(title = R.string.reviews, actionLabel = R.string.see_all) {}
+                LimpOnSectionHeader(title = R.string.reviews, actionLabel = R.string.see_all) {}
                 ReviewItem(
                     reviewer = "Mariana Costa",
                     comment = "\"João foi extremamente pontual e resolveu o problema no meu quadro de luz rapidamente. Muito profissional e limpo.\""

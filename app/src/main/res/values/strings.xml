@@ -150,4 +150,6 @@
     <string name="services">Serviços</string>
     <string name="images_gallery">Galeria de imagens</string>
     <string name="reviews">Avaliações</string>
+    <string name="related_products">Mais produtos de %1$s</string>
+    <string name="product_presentation_image">imagem de apresentação do produto</string>
 </resources>

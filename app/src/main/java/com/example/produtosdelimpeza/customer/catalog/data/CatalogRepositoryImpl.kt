@@ -22,8 +22,6 @@ class CatalogRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchProduct(sellerId: String): Result<List<Product>> {
-        return productDataSource
-            .fetchAllProductsRemote(sellerId)
-
+        return productDataSource.fetchAllProductsRemote(sellerId)
     }
 }

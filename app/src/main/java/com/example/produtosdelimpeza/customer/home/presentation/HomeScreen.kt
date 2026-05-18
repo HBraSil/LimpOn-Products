@@ -1,6 +1,6 @@
 package com.example.produtosdelimpeza.customer.home.presentation
 
-import SwipeableCardOne
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -80,7 +80,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
-import com.example.produtosdelimpeza.core.component.SectionHeader
+import com.example.produtosdelimpeza.core.component.LimpOnSectionHeader
 import com.example.produtosdelimpeza.core.data.entity.ProductEntity
 import com.example.produtosdelimpeza.core.domain.model.Address
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
@@ -153,7 +153,10 @@ fun HomeScreen(
         navigateToNotifications = navigateToNotifications,
         navigateToAddressScreen = navigateToAddressScreen,
         goToProfessionalProfile = goToProfessionalProfile,
-        onCardSellerClick = onCardSellerClick,
+        onCardSellerClick = {
+            onCardSellerClick(it)
+            Log.d("HomeScreen", "HomeScreen: $it")
+        }
     )
 }
 
@@ -217,17 +220,17 @@ fun HomeContent(
 
             item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            item { SectionHeader(title = R.string.categories) { } }
+            item { LimpOnSectionHeader(title = R.string.categories) { } }
             item { CategoriesRow(categories = sampleCategories, onClick = {}) }
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
 
-            item { SectionHeader(title = R.string.highlitghs, actionLabel = R.string.see_all) {} }
+            item { LimpOnSectionHeader(title = R.string.highlitghs, actionLabel = R.string.see_all) {} }
             item { FeaturedProductsRow(productEntities = sampleProductEntities, onAdd = {}) }
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
 
-            item { SectionHeader(title = R.string.services, actionLabel = R.string.see_all) { } }
+            item { LimpOnSectionHeader(title = R.string.services, actionLabel = R.string.see_all) { } }
             item {
                 val provider = ServiceProvider(
                     name = "João Silva",
@@ -248,7 +251,7 @@ fun HomeContent(
 
             item { Spacer(modifier = Modifier.height(30.dp)) }
 
-            item { SectionHeader(title = R.string.stores, actionLabel = R.string.see_all) { } }
+            item { LimpOnSectionHeader(title = R.string.stores, actionLabel = R.string.see_all) { } }
             items(listOfStores) { item ->
                 ItemCard(store = item) {
                     onCardSellerClick(item.id)
@@ -338,8 +341,6 @@ fun SampleFeaturedProducts(
 }
 
 
-
-
 @Composable
 fun CardDeLocalizacao(
     modifier: Modifier = Modifier,
@@ -348,17 +349,14 @@ fun CardDeLocalizacao(
     onNavigateToNotifications: () -> Unit,
     onGoToAddressScreen: () -> Unit,
 ) {
-    val roundedCornerShapeONne = RoundedCornerShape(
-        topStart = 0.dp,
-        topEnd = 0.dp,
-        bottomStart = 16.dp,
-        bottomEnd = 16.dp
-    )
-
-
     Surface(
         shadowElevation = 12.dp,
-        shape = roundedCornerShapeONne,
+        shape = RoundedCornerShape(
+            topStart = 0.dp,
+            topEnd = 0.dp,
+            bottomStart = 16.dp,
+            bottomEnd = 16.dp
+        ),
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()

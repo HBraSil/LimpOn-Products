@@ -37,13 +37,13 @@ class CartViewModel @Inject constructor(
     }
 
 
-    fun onEvent(event: CartScreenEvent) {
+    fun onCartEvent(event: CartUiEvent) {
         when (event) {
-            is CartScreenEvent.AddProductToCart -> addProductToCart(event.product)
-            is CartScreenEvent.IncreaseQuantity -> increaseQuantity(event.item)
-            is CartScreenEvent.DecreaseQuantity -> decreaseQuantity(event.id)
-            is CartScreenEvent.RemoveItem -> removeItem(event.item)
-            is CartScreenEvent.ClearCart -> clearCart()
+            is CartUiEvent.AddProductToCart -> addProductToCart(event.product)
+            is CartUiEvent.IncreaseQuantity -> increaseQuantity(event.item)
+            is CartUiEvent.DecreaseQuantity -> decreaseQuantity(event.id)
+            is CartUiEvent.RemoveItem -> removeItem(event.item)
+            is CartUiEvent.ClearCart -> clearCart()
         }
     }
 
@@ -119,3 +119,4 @@ class CartViewModel @Inject constructor(
         }
     }
 }
+

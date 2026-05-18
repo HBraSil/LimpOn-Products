@@ -43,7 +43,7 @@ fun CartScreen(
     CartContent(
         cartList = cartList,
         totalPrice = totalPrice,
-        onEvent = cartViewModel::onEvent,
+        onEvent = cartViewModel::onCartEvent,
         clearCart = {
             cartViewModel.clearCart()
         },
@@ -55,7 +55,7 @@ fun CartScreen(
 fun CartContent(
     cartList: List<CartItem> = emptyList(),
     totalPrice: Double = 0.0,
-    onEvent: (CartScreenEvent) -> Unit = {},
+    onEvent: (CartUiEvent) -> Unit = {},
     clearCart: () -> Unit = {},
     onBackNavigation: () -> Unit = {},
 ) {
@@ -81,13 +81,13 @@ fun CartContent(
                     CartItemSection(
                         items = cartList,
                         onRemoveItem = { item ->
-                            onEvent(CartScreenEvent.RemoveItem(item))
+                            onEvent(CartUiEvent.RemoveItem(item))
                         },
                         onAdd = {
-                            onEvent(CartScreenEvent.IncreaseQuantity(it))
+                            onEvent(CartUiEvent.IncreaseQuantity(it))
                         },
                         onSub = {
-                            onEvent(CartScreenEvent.DecreaseQuantity(it))
+                            onEvent(CartUiEvent.DecreaseQuantity(it))
                         }
                     )
                 }

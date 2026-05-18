@@ -1,23 +1,17 @@
 package com.example.produtosdelimpeza.customer.catalog.presentation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,31 +28,22 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -68,41 +53,37 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnCardProducts
-import com.example.produtosdelimpeza.core.component.AddAndSubButton
-import com.example.produtosdelimpeza.core.component.ProductPrice
+import com.example.produtosdelimpeza.core.component.LimpOnSectionHeader
 import com.example.produtosdelimpeza.core.domain.Product
+import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.ui.formatter.currencyFormatter
+import com.example.produtosdelimpeza.customer.cart.domain.CartItem
+import com.example.produtosdelimpeza.customer.cart.presentation.CartUiEvent
 import com.example.produtosdelimpeza.customer.cart.presentation.CartViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreen(
     cartViewModel: CartViewModel,
@@ -118,6 +99,41 @@ fun CatalogScreen(
     val totalQtd by cartViewModel.cartQuantity.collectAsState(initial = 0)
     val totalPrice by cartViewModel.cartTotalPrice.collectAsState(initial = 0.0)
 
+
+    CatalogScreenContent(
+        store = store,
+        cartList = cartList,
+        totalQtd = totalQtd,
+        totalPrice = totalPrice,
+        allProducts = allProducts,
+        productDetail = productDetail,
+        onCartScreenClick = onCartScreenClick,
+        onCardStoreProfileClick = onCardStoreProfileClick,
+        onBackNavigation = onBackNavigation,
+        updateProductDetail = {
+            catalogViewModel.updateProductDetail(it)
+        },
+        onCatalogEvent = {
+            cartViewModel.onCartEvent(it)
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CatalogScreenContent(
+    store: Store = Store(),
+    cartList: List<CartItem> = emptyList(),
+    totalQtd: Int = 0,
+    totalPrice: Double = 0.0,
+    productDetail: Product = Product(),
+    allProducts: List<Product> = emptyList(),
+    onCardStoreProfileClick: () -> Unit = {},
+    onCartScreenClick: () -> Unit = {},
+    onBackNavigation: () -> Unit = {},
+    updateProductDetail: (Product) -> Unit = {},
+    onCatalogEvent: (CartUiEvent) -> Unit = {},
+) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetProductOpen by rememberSaveable { mutableStateOf(false) }
@@ -135,7 +151,7 @@ fun CatalogScreen(
             )
         },
         containerColor = Color.Transparent
-    ) {contentPadding ->
+    ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -146,90 +162,22 @@ fun CatalogScreen(
                 InformationCard(store.name, onCardStoreProfileClick, onBackNavigation)
             }
 
+            item { LimpOnSectionHeader(title = R.string.highlitghs) }
             item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                ) {
-                    Text(
-                        text = "Destaques",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp)
-                    ) {
-                        items(allProducts) { product ->
-                            ProductCard(
-                                product = product,
-                                //isFavorite = favorites[product.id] == true,
-                                onToggleFavorite = {  },
-                                onClick = {   },
-                                modifier = Modifier
-                                    .width(180.dp)
-                            )
-                        }
-                    }
-                }
+                StoreCatalogHighlights(
+                    allProducts = allProducts
+                )
             }
 
+            item { LimpOnSectionHeader(title = R.string.all_products, icon = Icons.Default.FilterList) }
             item {
-                Spacer(Modifier.height(20.dp))
-                Column(
-                    modifier = Modifier.padding(horizontal = 10.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.all_products),
-                            modifier = Modifier,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-
-                        Spacer(Modifier.weight(1f))
-
-                        IconButton(
-                            onClick = { isSheetFilterOpen = true },
-                            modifier = Modifier.semantics { contentDescription = "Abrir filtros" }
-                        ) {
-                            Icon(Icons.Default.FilterList, contentDescription = null)
-                        }
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    FlowRow(
-                        maxItemsInEachRow = 2,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(26.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        allProducts.forEachIndexed { _, product ->
-                            val qtd = cartList.find { it.productId == product.id }
-
-                            LimpOnCardProducts(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.48f)
-                                    .wrapContentHeight(),
-                                product = product,
-                                txtQuantity = qtd?.quantity ?: 0,
-                                subOfProducts = {
-                                    cartViewModel.decreaseQuantity(product.id)
-                                },
-                                sumOfProducts = {
-                                    cartViewModel.addProductToCart(product)
-                                },
-                                onClickProduct = {
-                                    isSheetProductOpen = true
-                                    catalogViewModel.updateProductDetail(product)
-                                }
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(20.dp))
-                }
+                ProductsCatalog(
+                    allProducts = allProducts,
+                    cartList = cartList,
+                    onCatalogEvent = onCatalogEvent,
+                    updateProductDetail = updateProductDetail,
+                    isSheetProductOpen = { isSheetProductOpen = it }
+                )
             }
         }
     }
@@ -250,246 +198,63 @@ fun CatalogScreen(
 
     if (isSheetProductOpen) {
         ModalBottomSheet(
-            onDismissRequest = {
-                isSheetProductOpen = false
-            },
+            onDismissRequest = { isSheetProductOpen = false },
             sheetState = sheetState,
             dragHandle = null,
             modifier = Modifier.statusBarsPadding()
         ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {},
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    isSheetProductOpen = false
-                                },
-                                colors = IconButtonDefaults.iconButtonColors(
-                                    containerColor = Color(0xFFD3D5DC)
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Close,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(30.dp)
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(
-                                onClick = {}
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.FavoriteBorder,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent
-                        ),
-                    )
-                },
-                bottomBar = {
-                    Surface(
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(72.dp)
-                    ) {
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AddAndSubButton()
-
-                            Spacer(Modifier.weight(1f))
-
-                            Button(
-                                onClick = {}
-                            ) {
-                                Text(
-                                    text = "Adicionar ao carrinho",
-                                    color = MaterialTheme.colorScheme.background
-                                )
-                            }
-                        }
-                    }
-                }
-            ) { contentPadding ->
-                var expanded by remember { mutableStateOf(false) }
-
-                val rotation by animateFloatAsState(
-                    targetValue = if (expanded) 180f else 0f,
-                    animationSpec = tween(durationMillis = 250)
-                )
-                val rowScrollState = rememberScrollState()
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rowScrollState)
-                        .padding(paddingValues = contentPadding),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.sabao_lava_roupa),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    )
-
-                    Spacer(Modifier.height(20.dp))
-
-                    Text(
-                        text = productDetail.name,
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = "5kg - (R$ 5,00/kg)",
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
-                    )
-
-                    ProductPrice(
-                        price = productDetail.price,
-                        promotionalPrice = productDetail.promotionalPrice
-                    )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.see_all_payment_methods),
-                            modifier = Modifier
-                                .padding(start = 26.dp)
-                                .clickable {},
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 26.dp, start = 10.dp, end = 10.dp, bottom = 20.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                color = Color(0xFFDCDBDB),
-                            )
-                    ) {
-
-                        Row(
-                            modifier = Modifier
-                                .clickable {
-                                    expanded = !expanded
-                                },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Description,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .padding(start = 12.dp)
-                            )
-
-                            Text(
-                                text = stringResource(R.string.product_description),
-                                modifier = Modifier.padding(start = 10.dp, top = 6.dp, bottom = 6.dp, end = 6.dp),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 18.sp,
-                                color = Color.DarkGray
-                            )
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            Icon(
-                                imageVector = Icons.Outlined.KeyboardArrowDown,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .rotate(rotation)
-                            )
-
-                        }
-                        AnimatedVisibility(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 6.dp),
-                            visible = expanded,
-                            enter = expandVertically(animationSpec = tween(250)) + fadeIn(),
-                            exit = shrinkVertically(animationSpec = tween(200)) + fadeOut()
-                        ) {
-
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = Color.Gray
-                            )
-
-                            Text(
-                                text = productDetail.description,
-                                style = MaterialTheme.typography.labelLarge,
-                                color = Color.DarkGray,
-                                fontWeight = FontWeight.Light,
-                                modifier = Modifier.padding(top = 12.dp, start = 10.dp)
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = "Mais produtos de ${store.name}",
-                        modifier = Modifier.padding(bottom = 10.dp, start = 16.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 20.sp,
-                        color = Color.DarkGray
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rowScrollState)
-                            .padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        allProducts.forEachIndexed { _, product ->
-                            LimpOnCardProducts(
-                                modifier = Modifier
-                                    .width(150.dp)
-                                    .wrapContentHeight()
-                                    .border(
-                                        width = 2.dp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(16.dp)
-                                    ),
-                                product = product,
-                                //isProductScreen = false,
-                                onClickProduct = {}
-                            )
-                        }
-                    }
-                }
-            }
+            ProductDetailScreen(
+                productDetail = productDetail,
+                store = store,
+                allProducts = allProducts,
+                isSheetProductOpen = { isSheetProductOpen = it }
+            )
         }
     }
 }
 
+@Composable
+fun ProductsCatalog(
+    allProducts: List<Product> = emptyList(),
+    cartList: List<CartItem> = emptyList(),
+    onCatalogEvent: (CartUiEvent) -> Unit = {},
+    updateProductDetail: (Product) -> Unit = {},
+    isSheetProductOpen: (Boolean) -> Unit = {},
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 10.dp)
+    ) {
+        FlowRow(
+            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(26.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            allProducts.forEachIndexed { _, product ->
+                val qtd = cartList.find { it.productId == product.id }
+
+                LimpOnCardProducts(
+                    modifier = Modifier
+                        .fillMaxWidth(0.48f)
+                        .wrapContentHeight(),
+                    product = product,
+                    txtQuantity = qtd?.quantity ?: 0,
+                    subOfProducts = {
+                        onCatalogEvent(CartUiEvent.DecreaseQuantity(product.id))
+                    },
+                    sumOfProducts = {
+                        onCatalogEvent(CartUiEvent.AddProductToCart(product))
+                    },
+                    onClickProduct = {
+                        isSheetProductOpen(true)
+                        updateProductDetail(product)
+                    }
+                )
+            }
+        }
+        Spacer(Modifier.height(20.dp))
+    }
+}
 
 @Composable
 fun ProductCard(
@@ -498,7 +263,7 @@ fun ProductCard(
     onToggleFavorite: (String) -> Unit,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    cardElevation: Dp = 6.dp
+    cardElevation: Dp = 6.dp,
 ) {
     Card(
         modifier = modifier
@@ -529,7 +294,7 @@ fun ProductCard(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        //.scale(favScale)
+                    //.scale(favScale)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
@@ -557,6 +322,33 @@ fun ProductCard(
     }
 }
 
+
+@Composable
+fun StoreCatalogHighlights(
+    allProducts: List<Product> = emptyList(),
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(allProducts) { product ->
+                ProductCard(
+                    product = product,
+                    //isFavorite = favorites[product.id] == true,
+                    onToggleFavorite = { },
+                    onClick = { },
+                    modifier = Modifier
+                        .width(180.dp)
+                )
+            }
+        }
+    }
+}
 
 
 @Composable
@@ -764,4 +556,46 @@ fun InformationCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StoreCatalogPreview() {
+    CatalogScreenContent(
+        allProducts = listOf(
+            Product(
+                id = "1",
+                storeId = "store_001",
+                name = "Wireless Mouse",
+                price = 89.90,
+                promotionalPrice = 69.90,
+                description = "Ergonomic wireless mouse with silent clicks.",
+                classification = "Electronics",
+                category = "Accessories",
+                stockCount = 25
+            ),
+            Product(
+                id = "2",
+                storeId = "store_001",
+                name = "Mechanical Keyboard",
+                price = 299.99,
+                promotionalPrice = 249.99,
+                description = "RGB mechanical keyboard with blue switches.",
+                classification = "Electronics",
+                category = "Accessories",
+                stockCount = 12
+            ),
+            Product(
+                id = "3",
+                storeId = "store_002",
+                name = "Gaming Headset",
+                price = 199.90,
+                promotionalPrice = 159.90,
+                description = "Surround sound gaming headset with noise cancellation.",
+                classification = "Electronics",
+                category = "Audio",
+                stockCount = 18
+            ),
+        )
+    )
 }

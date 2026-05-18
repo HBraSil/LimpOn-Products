@@ -75,6 +75,10 @@ class CatalogViewModel @Inject constructor(
                     result.getOrNull() ?: emptyList()
                 }
             }
+            productList.value.forEach {
+                Log.d("CatalogViewModel", "Products: $it")
+            }
+
         }
     }
 }

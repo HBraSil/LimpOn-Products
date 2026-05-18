@@ -1,3 +1,5 @@
+package com.example.produtosdelimpeza.customer.home.presentation
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -252,9 +253,6 @@ fun SwipeableCardHorizontalSubtle(
     ) {
         SampleCard(
             backgroundColor = item.color,
-            modifier = Modifier
-                .width(280.dp)
-                .height(180.dp),
             drawableResId = item.drawableResId,
             isPressed = isPressed
         )
@@ -264,7 +262,6 @@ fun SwipeableCardHorizontalSubtle(
 @Composable
 fun SampleCard(
     backgroundColor: Color = Color.White,
-    modifier: Modifier = Modifier,
     drawableResId: Int,
     isPressed: Boolean = false
 ) {
@@ -307,7 +304,6 @@ fun Modifier.swipeToBackOne(
     val offsetX = remember { Animatable(0f) }
     val rotateZ = remember { Animatable(0f) }
     var topSide by remember { mutableStateOf(true) }
-    var clearedHurdle by remember { mutableStateOf(false) }
 
     pointerInput(Unit) {
         val decay = splineBasedDecay<Float>(this)
@@ -316,7 +312,6 @@ fun Modifier.swipeToBackOne(
             while (true) {
                 offsetX.stop()
                 rotateZ.stop()
-                clearedHurdle = false
                 val velocityTracker = VelocityTracker()
 
 
@@ -394,7 +389,6 @@ fun Modifier.swipeToBackOne(
 
                     animationJobs.joinAll()// termina a coroutine local para reiniciar pointer handling
                     onMoveToBack(sign)
-                    clearedHurdle = true
                     return@coroutineScope
                 }
             }
