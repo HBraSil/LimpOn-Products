@@ -87,9 +87,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.store.dashboard.ShopStatusComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -121,6 +123,7 @@ const val PRODUCT = "Criar produto"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    paddingValues: PaddingValues,
     onNotificationsScreenClick: () -> Unit = {},
     onNavigateToAnalyticsScreenClick: () -> Unit = {},
     onNavigateToItemFab: (String) -> Unit = {},
@@ -129,107 +132,145 @@ fun DashboardScreen(
     val dashboardData by dashboardViewModel.dashboardData.collectAsState()
     val dashboardState by dashboardViewModel.dashboardUiState.collectAsState()
 
+    DashboardContent(
+        paddingValues = paddingValues,
+        dashboardData = dashboardData,
+        dashboardStateIsLoading = dashboardState,
+        onNotificationsScreenClick = onNotificationsScreenClick,
+        onNavigateToItemFab = onNavigateToItemFab,
+        onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+    )
+}
 
-    val listState = rememberLazyListState()
+@Composable
+fun DashboardContent(
+    paddingValues: PaddingValues = PaddingValues(),
+    dashboardData: Store? = null,
+    dashboardStateIsLoading: Boolean,
+    onNotificationsScreenClick: () -> Unit = {},
+    onNavigateToItemFab: (String) -> Unit = {},
+    onNavigateToAnalyticsScreenClick: () -> Unit = {},
+) {
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
         topBar = {
-                PremiumTopBar(
-                    goToNotificationsScreen = onNotificationsScreenClick,
-                    dashboardState = dashboardState
-                )
+            PremiumTopBar(
+                goToNotificationsScreen = onNotificationsScreenClick,
+                dashboardState = dashboardStateIsLoading
+            )
         },
         floatingActionButton = {
-            if (!dashboardState) {
+            if (!dashboardStateIsLoading) {
                 MultiFloatingButton {
                     onNavigateToItemFab(it)
                 }
             }
         },
-    ) { paddingValues ->
-        if (dashboardState) {
-            val infiniteTransition = rememberInfiniteTransition(label = "")
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(3) { index ->
-
-                        val alpha by infiniteTransition.animateFloat(
-                            initialValue = 0.1f,
-                            targetValue = 1f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(
-                                    durationMillis = 600,
-                                    delayMillis = index * 300
-                                ),
-                                repeatMode = RepeatMode.Reverse
-                            )
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .alpha(alpha)
-                                .background(
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    shape = CircleShape
-                                )
-                        )
-                    }
-                }
-            }
+        modifier = Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding()),
+        //contentWindowInsets = WindowInsets(0, 0, 0)
+    ) { innerPadding ->
+        if (dashboardStateIsLoading) {
+            DashboardCircularProgressIndicator()
         } else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White),
-                contentPadding = paddingValues,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                item {
-                    StoreProfileCardAdvanced(
-                        storeName = dashboardData?.name ?: "Loja",
-                        avatarRes = null,
-                        itemsActive = 24,
-                        avgResponseTime = "8m",
-                        recentFeedbackCount = 7,
-                        onClick = { }
+            DashboardBodyContent(
+                dashboardData = dashboardData,
+                paddingValues = innerPadding,
+                onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+            )
+        }
+    }
+}
+
+@Composable
+fun DashboardCircularProgressIndicator() {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            repeat(3) { index ->
+
+                val alpha by infiniteTransition.animateFloat(
+                    initialValue = 0.1f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(
+                            durationMillis = 600,
+                            delayMillis = index * 300
+                        ),
+                        repeatMode = RepeatMode.Reverse
                     )
-                }
+                )
 
-                item {
-                    KPIHeroRow(
-                        activeOrders = activeOrdersMock,
-                        onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
-                    )
-                }
-
-
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    SectionHeader(
-                        title = "Pedidos Recentes",
-                        actionText = "Ver tudo"
-                    ) { /* go to orders */ }
-                }
-
-                items(5) { idx ->
-                    OrderCompactCard(idx + 1)
-                }
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .alpha(alpha)
+                        .background(
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = CircleShape
+                        )
+                )
             }
         }
     }
 }
 
 
+@Composable
+fun DashboardBodyContent(
+    dashboardData: Store? = null,
+    paddingValues: PaddingValues = PaddingValues(),
+    onNavigateToAnalyticsScreenClick: () -> Unit,
+) {
+    LazyColumn(
+        state = rememberLazyListState(),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = paddingValues.calculateTopPadding(), bottom = 80.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            StoreProfileCardAdvanced(
+                storeName = dashboardData?.name ?: "Loja",
+                avatarRes = null,
+                itemsActive = 24,
+                avgResponseTime = "8m",
+                recentFeedbackCount = 7,
+                onClick = { }
+            )
+        }
+
+        item {
+            KPIHeroRow(
+                activeOrders = activeOrdersMock,
+                onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+            )
+        }
+
+
+        item {
+            Spacer(Modifier.height(16.dp))
+            SectionHeader(
+                title = "Pedidos Recentes",
+                actionText = "Ver tudo"
+            ) { /* go to orders */ }
+        }
+
+        items(5) { idx ->
+            OrderCompactCard(idx + 1)
+        }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PremiumTopBar(dashboardState: Boolean, goToNotificationsScreen: () -> Unit = {}) {
+fun PremiumTopBar(
+    dashboardState: Boolean,
+    goToNotificationsScreen: () -> Unit = {}
+) {
     CenterAlignedTopAppBar(
         navigationIcon = {
             Text(
@@ -259,7 +300,7 @@ fun PremiumTopBar(dashboardState: Boolean, goToNotificationsScreen: () -> Unit =
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            Color.White
+            MaterialTheme.colorScheme.background
         )
     )
 }
@@ -966,4 +1007,10 @@ fun MinFab(item: MinFabItem, onClick: (String) -> Unit = {}) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun DashboardPreview() {
+    DashboardContent(dashboardStateIsLoading = false)
 }

@@ -144,13 +144,17 @@ fun LimpOnAppNavigation(
 }
 
 
-private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navController: NavHostController) {
+private fun NavGraphBuilder.storeMainGraph(
+    innerPadding: PaddingValues,
+    navController: NavHostController
+) {
     navigation(
         route = NavGraph.STORE_MAIN.route,
         startDestination = StoreScreen.DASHBOARD.route
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
             DashboardScreen(
+                paddingValues = innerPadding,
                 onNotificationsScreenClick = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
                 },
@@ -254,6 +258,7 @@ private fun NavGraphBuilder.storeMainGraph(innerPadding: PaddingValues, navContr
 
         composable(StoreScreen.STORE_MANAGEMENT.route) {
             StoreManagementScreen(
+                paddingValues = innerPadding,
                 onNavigateToTabContentDetailScreenClick = { route ->
                     navController.navigate(route)
                 },

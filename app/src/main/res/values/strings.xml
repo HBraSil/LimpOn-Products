@@ -152,4 +152,7 @@
     <string name="reviews">Avaliações</string>
     <string name="related_products">Mais produtos de %1$s</string>
     <string name="product_presentation_image">imagem de apresentação do produto</string>
+    <string name="add">Adicionar</string>
+    <string name="create_coupon">Novo cupom</string>
+    <string name="create_promotion">Nova promoção</string>
 </resources>

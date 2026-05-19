@@ -44,13 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 import com.example.produtosdelimpeza.core.domain.Product
 
 @Composable
 fun ProductsTabContent(
     onNavigateToCreateProductScreenClick: () -> Unit = {},
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearchExpanded by remember { mutableStateOf(false) }
@@ -65,7 +66,6 @@ fun ProductsTabContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
                 .height(56.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -101,7 +101,7 @@ fun ProductsTabContent(
                     )
                 } else {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -110,15 +110,14 @@ fun ProductsTabContent(
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
-
                         IconButton(onClick = { isSearchExpanded = true }) {
                             Icon(Icons.Default.Search, contentDescription = "Pesquisar")
                         }
                     }
                 }
             }
-
         }
+        Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -144,7 +143,7 @@ fun ProductsTabContent(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 30.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val filteredList = mockProducts.filter {
@@ -164,11 +163,9 @@ fun ProductsTabContent(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = "",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
-
-                Spacer(Modifier.height(10.dp))
             }
             items(filteredList) { product ->
                 ProductListItem(product) {
@@ -180,7 +177,7 @@ fun ProductsTabContent(
             item {
                 Row(
                     modifier = Modifier
-                        .padding(top = 60.dp)
+                        .padding(top = 30.dp)
                         .fillMaxWidth()
                         .clickable {},
                     verticalAlignment = Alignment.CenterVertically,
@@ -191,11 +188,9 @@ fun ProductsTabContent(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = "",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
-
-                Spacer(Modifier.height(10.dp))
             }
             items(filteredList) { product ->
                 ProductListItem(product)
@@ -247,4 +242,10 @@ fun ProductListItem(product: Product, onClickItem: () -> Unit = {}) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProductsTabContentPreview() {
+    ProductsTabContent()
 }

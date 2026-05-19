@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.customer.home.presentation
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -137,7 +136,7 @@ fun HomeScreen(
     val mainAddres by homeViewModel.mainAddress.collectAsStateWithLifecycle()
     val user by homeViewModel.user.collectAsState()
 
-    HomeContent (
+    HomeContent(
         paddingValues = paddingValues,
         user = user,
         totalQtd = totalQtd,
@@ -155,7 +154,6 @@ fun HomeScreen(
         goToProfessionalProfile = goToProfessionalProfile,
         onCardSellerClick = {
             onCardSellerClick(it)
-            Log.d("HomeScreen", "HomeScreen: $it")
         }
     )
 }

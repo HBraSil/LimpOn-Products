@@ -14,19 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
@@ -35,7 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
+import com.example.produtosdelimpeza.store.managment.presentation.ManagementTabTitleComponent
 
 
 @Composable
@@ -51,38 +50,13 @@ fun CouponsTabContent(
         Coupon("PROMO30", "R$ 30,00 de desconto", "Cancelado", "Cancelado em 05/01/2026", "Mínimo R$ 100")
     )
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp).weight(1f)) {
-                Text(
-                    text = "Cupons",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    text = "Cupons inativos são exibidos apenas por 30 dias",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2
-                )
-            }
-            Button(
-                onClick = onNavigateToCreateCouponScreenClick,
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.background
-                )
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(Modifier.width(4.dp))
-                Text(text = "Novo")
-            }
-        }
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        ManagementTabTitleComponent(
+            titleTab = "Cupons",
+            label = "Cupons inativos são exibidos apenas por 30 dias",
+            createPromotionLabel = R.string.create_coupon,
+            createPromotion = onNavigateToCreateCouponScreenClick
+        )
         Spacer(Modifier.height(20.dp))
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -98,6 +72,8 @@ fun CouponsTabContent(
         }
     }
 }
+
+
 
 @Composable
 fun CouponCard(coupon: Coupon, onCardClick: (String) -> Unit) {
