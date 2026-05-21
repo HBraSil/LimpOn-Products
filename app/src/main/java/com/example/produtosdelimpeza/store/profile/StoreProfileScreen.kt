@@ -65,25 +65,21 @@ fun StoreProfileContent(
     onNavigateToOtherUser: (String) -> Unit = {},
     onItemProfileClick: (String) -> Unit= {}
 ) {
-    val scrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
+            .verticalScroll(rememberScrollState())
             .padding(paddingValues)
+            .padding(top = 26.dp),
+        verticalArrangement = Arrangement.spacedBy(36.dp)
     ) {
         HeaderSection()
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         SwitchProfileCard(
             onSwitchProfileClick = {screen ->
                 onNavigateToOtherUser(screen)
             }
         )
-
-        Spacer(modifier = Modifier.height(32.dp))
 
         MenuSection(
             onItemProfileClick = { route ->
@@ -92,6 +88,7 @@ fun StoreProfileContent(
         )
     }
 }
+
 
 @Composable
 fun HeaderSection() {
@@ -253,7 +250,7 @@ fun SwitchProfileCard(onSwitchProfileClick: (String) -> Unit, onSignOutClick: ()
 fun MenuSection(onItemProfileClick: (String) -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text("Gerenciamento", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         MenuItem(icon = Icons.Default.Edit, title = "Editar Perfil e Endereço") {onItemProfileClick(StoreScreen.STORE_EDIT_PROFILE.route)}
         MenuItem(icon = Icons.Default.Assessment, title = "Relatórios de Vendas") {onItemProfileClick(StoreScreen.ANALYTICS.route)}
@@ -291,7 +288,7 @@ fun MenuItem(icon: ImageVector, title: String, onItemProfileClick: () -> Unit) {
 }
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun StoreProfileScreenPreview() {
     StoreProfileContent()
