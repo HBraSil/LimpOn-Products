@@ -186,6 +186,7 @@ private fun NavGraphBuilder.storeMainGraph(
 
         composable(route = StoreScreen.STORE_PROFILE.route) {
             StoreProfileScreen(
+                paddingValues = innerPadding,
                 onNavigateToOtherUser = { screen ->
                     if (screen == StoreScreen.DASHBOARD.route) {
                         navController.navigate(NavGraph.STORE_MAIN.route) {

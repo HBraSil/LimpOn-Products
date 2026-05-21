@@ -39,56 +39,57 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.*
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StoreProfileScreen(onNavigateToOtherUser: (String) -> Unit, onItemProfileClick: (String) -> Unit) {
+fun StoreProfileScreen(
+    paddingValues: PaddingValues = PaddingValues(),
+    onNavigateToOtherUser: (String) -> Unit,
+    onItemProfileClick: (String) -> Unit
+) {
+    StoreProfileContent(
+        paddingValues = paddingValues,
+        onNavigateToOtherUser = onNavigateToOtherUser,
+        onItemProfileClick = onItemProfileClick
+    )
+}
+
+
+@Composable
+fun StoreProfileContent(
+    paddingValues: PaddingValues = PaddingValues(),
+    onNavigateToOtherUser: (String) -> Unit = {},
+    onItemProfileClick: (String) -> Unit= {}
+) {
     val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Conta",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(padding)
-        ) {
-            HeaderSection()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(paddingValues)
+    ) {
+        HeaderSection()
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            // Botão de Troca de Perfil (Destaque Visual)
-            SwitchProfileCard(
-                onSwitchProfileClick = {screen ->
-                    onNavigateToOtherUser(screen)
-                }
-            )
+        SwitchProfileCard(
+            onSwitchProfileClick = {screen ->
+                onNavigateToOtherUser(screen)
+            }
+        )
 
-            Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-            // Lista de Opções
-            MenuSection(
-                onItemProfileClick = { route ->
-                    onItemProfileClick(route)
-                }
-            )
-        }
+        MenuSection(
+            onItemProfileClick = { route ->
+                onItemProfileClick(route)
+            }
+        )
     }
 }
 
@@ -287,4 +288,11 @@ fun MenuItem(icon: ImageVector, title: String, onItemProfileClick: () -> Unit) {
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
         }
     }
+}
+
+
+@Preview
+@Composable
+fun StoreProfileScreenPreview() {
+    StoreProfileContent()
 }
