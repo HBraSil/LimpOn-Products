@@ -155,4 +155,6 @@
     <string name="add">Adicionar</string>
     <string name="create_coupon">Novo cupom</string>
     <string name="create_promotion">Nova promoção</string>
+    <string name="orders">Pedidos</string>
+    <string name="search_store_order_placeholder">Buscar pedido ou cliente</string>
 </resources>

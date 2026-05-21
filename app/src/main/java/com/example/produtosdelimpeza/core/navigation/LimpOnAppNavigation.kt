@@ -173,6 +173,7 @@ private fun NavGraphBuilder.storeMainGraph(
 
         composable(route = StoreScreen.STORE_ORDER.route) {
             StoreOrderScreen(
+                paddingValues = innerPadding,
                 onNavigateToStoreOrderDetailScreen = {
                     navController.navigate(StoreScreen.STORE_ORDER_DETAIL.route)
                 }

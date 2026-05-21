@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
@@ -30,14 +28,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.customer.order.OrderStatus
 
 
@@ -56,6 +56,18 @@ data class Order(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreOrderScreen(
+    paddingValues: PaddingValues = PaddingValues(),
+    onNavigateToStoreOrderDetailScreen: () -> Unit = {}
+) {
+    StoreOrderContent(
+        paddingValues = paddingValues,
+        onNavigateToStoreOrderDetailScreen = onNavigateToStoreOrderDetailScreen
+    )
+}
+
+@Composable
+fun StoreOrderContent(
+    paddingValues: PaddingValues = PaddingValues(),
     onNavigateToStoreOrderDetailScreen: () -> Unit = {}
 ) {
     var searchText by remember { mutableStateOf("") }
@@ -69,50 +81,50 @@ fun StoreOrderScreen(
             Order("#1234", "João Silva", "R$ 85,90", OrderStatus.RECEIVED, "19:00", "15 min", "2x Pizza Calabresa, 1x Coca-Cola"),
             Order("#1235", "Maria Oliveira", "R$ 42,00", OrderStatus.PREPARING, "18:45", "30 min", "1x Hamburguer Gourmet"),
             Order("#1236", "Carlos Souza", "R$ 120,50", OrderStatus.DELIVERED, "18:20", "Ontem", "3x Sushi Combo"),
+            Order("#1237", "Carlos Johnson", "R$ 1230,50", OrderStatus.DELIVERED, "18:20", "Ontem", "3x Sushi Combo"),
         )
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        ScreenTitle()
+        SearchBarAnimated(
+            text = searchText,
+            onTextChange = { searchText = it },
+            isFocused = isSearchFocused,
+            onFocusChanged = { isSearchFocused = it },
+            onCancel = {
+                isSearchFocused = false
+                searchText = ""
+                focusManager.clearFocus()
+            }
+        )
+        FilterRow(selectedFilter) { selectedFilter = it }
+        orders.forEachIndexed { _, order ->
+            OrderCard(
+                modifier = Modifier.padding(bottom = 12.dp),
+                order = order,
+                onNavigateToStoreOrderDetailScreen = onNavigateToStoreOrderDetailScreen
+            )
+        }
+    }
+}
 
-    Scaffold(
-        topBar = {
-           Row(
-               modifier = Modifier.fillMaxWidth().statusBarsPadding(),
-               horizontalArrangement = Arrangement.Center
-           ) {
-               Text(
-                   text = "Pedidos",
-                   modifier = Modifier.padding(16.dp),
-                   style = MaterialTheme.typography.titleLarge
-               )
-           }
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                Column {
-                    SearchBarAnimated(
-                        text = searchText,
-                        onTextChange = { searchText = it },
-                        isFocused = isSearchFocused,
-                        onFocusChanged = { isSearchFocused = it },
-                        onCancel = {
-                            isSearchFocused = false
-                            searchText = ""
-                            focusManager.clearFocus()
-                        }
-                    )
-                    FilterRow(selectedFilter) { selectedFilter = it }
-                }
-            }
-            items(orders) { order ->
-                OrderCard(order = order, onNavigateToStoreOrderDetailScreen = onNavigateToStoreOrderDetailScreen)
-            }
-        }
+@Composable
+fun ScreenTitle() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.orders),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
@@ -133,9 +145,10 @@ fun SearchBarAnimated(
             onValueChange = onTextChange,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 10.dp)
                 .onFocusChanged { onFocusChanged(it.isFocused) },
-            placeholder = { Text("Buscar pedido ou cliente") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            placeholder = { Text(stringResource(R.string.search_store_order_placeholder)) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_icon_description)) },
             shape = RoundedCornerShape(12.dp),
             singleLine = true,
             colors = TextFieldDefaults.colors(
@@ -165,7 +178,7 @@ fun SearchBarAnimated(
 fun FilterRow(selectedFilter: OrderStatus, onFilterSelected: (OrderStatus) -> Unit) {
     Row(
         modifier = Modifier
-            .padding(horizontal = 10.dp, vertical = 10.dp)
+            .padding(vertical = 10.dp, horizontal = 1.dp)
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -184,11 +197,16 @@ fun FilterRow(selectedFilter: OrderStatus, onFilterSelected: (OrderStatus) -> Un
 
 
 @Composable
-fun OrderCard(order: Order, onNavigateToStoreOrderDetailScreen: () -> Unit) {
+fun OrderCard(
+    modifier: Modifier = Modifier,
+    order: Order,
+    onNavigateToStoreOrderDetailScreen: () -> Unit
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clickable { onNavigateToStoreOrderDetailScreen() },
+            .clickable { onNavigateToStoreOrderDetailScreen() }
+            .padding(horizontal = 10.dp),
         elevation = CardDefaults.elevatedCardElevation(2.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -250,5 +268,5 @@ fun OrderCard(order: Order, onNavigateToStoreOrderDetailScreen: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun OrdersListScreenPreview() {
-    StoreOrderScreen()
+    StoreOrderContent()
 }
