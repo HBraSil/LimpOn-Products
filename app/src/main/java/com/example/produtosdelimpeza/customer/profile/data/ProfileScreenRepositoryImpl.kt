@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.customer.profile.data
 
-import android.util.Log
 import com.example.produtosdelimpeza.core.data.SigninWithGoogleApi
 import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.customer.profile.domain.ProfileScreenRepository
@@ -27,11 +26,8 @@ class ProfileScreenRepositoryImpl @Inject constructor(
         try {
             firebaseAuth.signOut()
             signInWithGoogleApi.singOut()
-
-            Log.d("ProfileScreenRepositoryImpl", "Usuário deslogado com sucesso.")
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.d("ProfileScreenRepositoryImpl", "Falha ao deslogar")
         }
     }
 }

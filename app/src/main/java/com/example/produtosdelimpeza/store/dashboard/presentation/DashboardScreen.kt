@@ -129,24 +129,26 @@ fun DashboardScreen(
     onNavigateToItemFab: (String) -> Unit = {},
     dashboardViewModel: DashboardViewModel = hiltViewModel()
 ) {
-    val dashboardData by dashboardViewModel.dashboardData.collectAsState()
-    val dashboardState by dashboardViewModel.dashboardUiState.collectAsState()
+    val dashboardState by dashboardViewModel.uiState.collectAsState()
 
-    DashboardContent(
-        paddingValues = paddingValues,
-        dashboardData = dashboardData,
-        dashboardStateIsLoading = dashboardState,
-        onNotificationsScreenClick = onNotificationsScreenClick,
-        onNavigateToItemFab = onNavigateToItemFab,
-        onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
-    )
+    if(dashboardState == null) {
+            DashboardCircularProgressIndicator()
+    } else {
+        DashboardContent(
+            paddingValues = paddingValues,
+            dashboardData = dashboardState,
+            onNotificationsScreenClick = onNotificationsScreenClick,
+            onNavigateToItemFab = onNavigateToItemFab,
+            onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+        )
+    }
+
 }
 
 @Composable
 fun DashboardContent(
     paddingValues: PaddingValues = PaddingValues(),
     dashboardData: Store? = null,
-    dashboardStateIsLoading: Boolean,
     onNotificationsScreenClick: () -> Unit = {},
     onNavigateToItemFab: (String) -> Unit = {},
     onNavigateToAnalyticsScreenClick: () -> Unit = {},
@@ -156,28 +158,21 @@ fun DashboardContent(
         topBar = {
             PremiumTopBar(
                 goToNotificationsScreen = onNotificationsScreenClick,
-                dashboardState = dashboardStateIsLoading
             )
         },
         floatingActionButton = {
-            if (!dashboardStateIsLoading) {
-                MultiFloatingButton {
-                    onNavigateToItemFab(it)
-                }
+            MultiFloatingButton {
+                onNavigateToItemFab(it)
             }
         },
         modifier = Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding()),
         //contentWindowInsets = WindowInsets(0, 0, 0)
     ) { innerPadding ->
-        if (dashboardStateIsLoading) {
-            DashboardCircularProgressIndicator()
-        } else {
-            DashboardBodyContent(
-                dashboardData = dashboardData,
-                paddingValues = innerPadding,
-                onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
-            )
-        }
+        DashboardBodyContent(
+            dashboardData = dashboardData,
+            paddingValues = innerPadding,
+            onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
+        )
     }
 }
 
@@ -268,7 +263,6 @@ fun DashboardBodyContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumTopBar(
-    dashboardState: Boolean,
     goToNotificationsScreen: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -280,22 +274,18 @@ fun PremiumTopBar(
             )
         },
         title = {
-            if (!dashboardState) {
                 ShopStatusComponent()
-            }
         },
         actions = {
-            if (!dashboardState) {
-                BadgedBox(
-                    badge = { Badge { Text("3") } },
-                    modifier = Modifier.padding(end = 12.dp)
-                ) {
-                    IconButton(onClick = goToNotificationsScreen) {
-                        Icon(
-                            Icons.Default.Notifications,
-                            contentDescription = "Notificações"
-                        )
-                    }
+            BadgedBox(
+                badge = { Badge { Text("3") } },
+                modifier = Modifier.padding(end = 12.dp)
+            ) {
+                IconButton(onClick = goToNotificationsScreen) {
+                    Icon(
+                        Icons.Default.Notifications,
+                        contentDescription = "Notificações"
+                    )
                 }
             }
         },
@@ -1012,5 +1002,5 @@ fun MinFab(item: MinFabItem, onClick: (String) -> Unit = {}) {
 @Preview
 @Composable
 fun DashboardPreview() {
-    DashboardContent(dashboardStateIsLoading = false)
+    DashboardContent()
 }

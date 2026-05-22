@@ -34,7 +34,7 @@ class StoreRemoteDataSource @Inject constructor(
     }
 
     suspend fun fetchStoreRemote(storeId: String): Result<StoreDto> {
-        return runCatching {
+        return try {
             val snapshot = firestore
                 .collection("stores")
                 .document(storeId)
@@ -48,7 +48,9 @@ class StoreRemoteDataSource @Inject constructor(
             val dto = snapshot.toObject(StoreDto::class.java)
                 ?: error("Erro ao converter dados da loja")
 
-            dto
+            Result.success(dto)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

@@ -53,7 +53,7 @@ import com.example.produtosdelimpeza.store.managment.coupon_tab.CouponDetailScre
 import com.example.produtosdelimpeza.store.managment.product_tab.StoreProductInfoScreen
 import com.example.produtosdelimpeza.store.managment.promotion_tab.PromotionDetailsScreen
 import com.example.produtosdelimpeza.store.order.StoreOrderScreen
-import com.example.produtosdelimpeza.store.profile.StoreProfileScreen
+import com.example.produtosdelimpeza.store.profile.presentation.StoreProfileScreen
 import com.example.produtosdelimpeza.store.order.StoreOrderDetailsScreen
 import com.example.produtosdelimpeza.store.profile.edit_profile.EditProfileScreen
 import com.example.produtosdelimpeza.store.profile.logistic.OperationScreen

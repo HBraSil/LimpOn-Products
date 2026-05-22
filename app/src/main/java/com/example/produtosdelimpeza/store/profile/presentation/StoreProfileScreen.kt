@@ -1,4 +1,4 @@
-package com.example.produtosdelimpeza.store.profile
+package com.example.produtosdelimpeza.store.profile.presentation
 
 
 import androidx.compose.foundation.background
@@ -37,9 +37,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.*
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.produtosdelimpeza.core.domain.model.Store
 import com.example.produtosdelimpeza.core.navigation.route.CustomerScreen
 import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 
@@ -49,9 +52,13 @@ import com.example.produtosdelimpeza.core.navigation.route.StoreScreen
 fun StoreProfileScreen(
     paddingValues: PaddingValues = PaddingValues(),
     onNavigateToOtherUser: (String) -> Unit,
-    onItemProfileClick: (String) -> Unit
+    onItemProfileClick: (String) -> Unit,
+    storeProfileViewModel: StoreProfileViewModel = hiltViewModel()
 ) {
+    val store by storeProfileViewModel.storeProfile.collectAsStateWithLifecycle()
+
     StoreProfileContent(
+        store = store ?: Store(),
         paddingValues = paddingValues,
         onNavigateToOtherUser = onNavigateToOtherUser,
         onItemProfileClick = onItemProfileClick
@@ -61,6 +68,7 @@ fun StoreProfileScreen(
 
 @Composable
 fun StoreProfileContent(
+    store: Store,
     paddingValues: PaddingValues = PaddingValues(),
     onNavigateToOtherUser: (String) -> Unit = {},
     onItemProfileClick: (String) -> Unit= {}
@@ -73,7 +81,7 @@ fun StoreProfileContent(
             .padding(top = 26.dp),
         verticalArrangement = Arrangement.spacedBy(36.dp)
     ) {
-        HeaderSection()
+        HeaderSection(store)
 
         SwitchProfileCard(
             onSwitchProfileClick = {screen ->
@@ -91,7 +99,9 @@ fun StoreProfileContent(
 
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(
+    store: Store
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,7 +131,7 @@ fun HeaderSection() {
             modifier = Modifier.padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Pizzaria do Bairro", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(store.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             HorizontalDivider(
                 modifier = Modifier
                     .width(20.dp)
@@ -291,5 +301,9 @@ fun MenuItem(icon: ImageVector, title: String, onItemProfileClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun StoreProfileScreenPreview() {
-    StoreProfileContent()
+    StoreProfileContent(
+        store = Store(
+            name = "Doceria",
+        ),
+    )
 }
