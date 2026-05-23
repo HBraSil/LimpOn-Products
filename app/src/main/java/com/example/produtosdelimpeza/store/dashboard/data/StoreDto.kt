@@ -1,6 +1,5 @@
 package com.example.produtosdelimpeza.store.dashboard.data
 
-// Localização: data/remote/dto/StoreDto.kt (ou data/model/StoreDto.kt)
 
 data class StoreDto(
     val id: String = "",

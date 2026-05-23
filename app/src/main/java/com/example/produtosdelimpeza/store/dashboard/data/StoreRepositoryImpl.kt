@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 
 class StoreRepositoryImpl @Inject constructor(
-    private val dashboardRemoteDataSource: StoreRemoteDataSource,
+    private val storeRemoteDataSource: StoreRemoteDataSource,
     private val userSession: LastUserModeLocalStorage, // talvez essa propriedade deva estar no repositoy e n aqui
 ): StoreRepository {
 
@@ -19,7 +19,7 @@ class StoreRepositoryImpl @Inject constructor(
         return try {
             userSession.storeId.collect { storeId ->
                 storeId?.let { storeId ->
-                    val result = dashboardRemoteDataSource.fetchStoreRemote(storeId)
+                    val result = storeRemoteDataSource.fetchStoreRemote(storeId)
 
                     if (result.isSuccess) {
                         val storeDto = result.getOrNull() ?: error("Erro ao obter dados da loja")
@@ -32,5 +32,25 @@ class StoreRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             currentStore.value = null
         }
+    }
+
+    override suspend fun updateName(id: String, name: String): Boolean {
+         val result = storeRemoteDataSource.updateName(
+            storeId = id,
+            newName = name
+        )
+
+        return result.isSuccess
+    }
+
+    override suspend fun updateDescription(
+        id: String,
+        description: String,
+    ): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updatePhone(id: String, phone: String): Boolean {
+        TODO("Not yet implemented")
     }
 }

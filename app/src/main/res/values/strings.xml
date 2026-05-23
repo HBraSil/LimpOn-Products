@@ -157,4 +157,6 @@
     <string name="create_promotion">Nova promoção</string>
     <string name="orders">Pedidos</string>
     <string name="search_store_order_placeholder">Buscar pedido ou cliente</string>
+    <string name="edit_profile">Editar Perfil</string>
+    <string name="category">Categoria</string>
 </resources>

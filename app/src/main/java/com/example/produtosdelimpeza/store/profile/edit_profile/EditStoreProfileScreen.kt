@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.store.profile.edit_profile
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,7 +10,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -31,89 +31,107 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
+import com.example.produtosdelimpeza.core.domain.model.Store
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen() {
+fun EditProfileScreen(
+    editStoreProfileViewModel: EditStoreProfileViewModel = hiltViewModel(),
+    onBackNavigation: () -> Unit
+) {
+    val store by editStoreProfileViewModel.store.collectAsStateWithLifecycle()
+    val nameUpdated by editStoreProfileViewModel.updatedSuccessfully.collectAsStateWithLifecycle()
 
-    var description by remember {
-        mutableStateOf(
-            "Hamburgueria artesanal com ingredientes selecionados e preparo na hora."
-        )
+    EditProfileContent(
+        store = store ?: Store(),
+        updateName = editStoreProfileViewModel::updateStoreName,
+        onBackNavigation = onBackNavigation
+    )
+
+    if (nameUpdated == true) {
+        Toast.makeText(
+            LocalContext.current,
+            "Nome atualizado com sucesso!",
+            Toast.LENGTH_SHORT
+        ).show()
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileContent(
+    store: Store,
+    updateName: (String, String) -> Unit = {_, _ -> },
+    onBackNavigation: () -> Unit = {}
+) {
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Editar Perfil", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.edit_profile), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { /* Voltar */ }) { Icon(Icons.AutoMirrored.Filled.ArrowBackIos, null) }
+                    IconButton(onClick = onBackNavigation) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+                            contentDescription = stringResource(R.string.back_button)
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
-    ) { padding ->
-        var phone by remember { mutableStateOf("(11) 99999-9999") }
-        var email by remember { mutableStateOf("contato@burgerhouse.com") }
-        var address by remember { mutableStateOf("Av. Paulista, 1000 - São Paulo") }
-
-        LazyColumn (
+    ) { innerPadding ->
+        Column (
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 16.dp)
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = padding
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState()),
         ) {
-            item{
                 HeaderAvatarSection(
-                    initialStoreName = "Burger House",
+                    initialStoreName = store.name,
                     onSaveName = { novoNome ->
-                        // Aqui você atualiza o seu banco de dados ou estado principal
-                        println("Salvando novo nome: $novoNome")
+                        updateName(store.id, novoNome)
                     },
                     onImageEditClick = { /* Abrir Galeria */ }
                 )
-            }
-            item {
                 StoreDescriptionOutlinedCard(
-                    description = description,
-                    onDescriptionChange = { description = it }
+                    description = store.description,
+                    onDescriptionChange = { /*TODO: change the store description*/}
                 )
-            }
-            item {
                 Column(
                     Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedTextField(
-                        value = "Hamburgueria & Lanches",
+                        value = store.category,
                         onValueChange = { },
-                        label = { Text("Categoria") },
+                        label = { Text(stringResource(R.string.category)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
                     )
                 }
-            }
-
-            item{
                 EditableContactAndAddressCard(
-                    phone = phone,
-                    onPhoneChange = { phone = it },
-                    email = email,
-                    onEmailChange = { email = it },
-                    address = address,
-                    onAddressChange = { address = it }
+                    phone = store.phone,
+                    email = store.email,
+                    address = store.address,
+                    onPhoneChange = {},
+                    onEmailChange = {},
+                    onAddressChange = {}
                 )
             }
-        }
     }
 }
 
@@ -217,7 +235,7 @@ fun HeaderAvatarSection(
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4CAF50), // Verde de sucesso
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.background
                     ),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
@@ -236,7 +254,7 @@ fun StoreDescriptionOutlinedCard(
     onDescriptionChange: (String) -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -268,74 +286,65 @@ fun StoreDescriptionOutlinedCard(
 @Composable
 fun EditableContactAndAddressCard(
     phone: String,
-    onPhoneChange: (String) -> Unit,
     email: String,
-    onEmailChange: (String) -> Unit,
     address: String,
+    onPhoneChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
     onAddressChange: (String) -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(Modifier.padding(12.dp)){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background),
+    ){
+        Text(
+            "Contato e Endereço",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.TouchApp,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(Modifier.width(4.dp))
             Text(
-                "Contato e Endereço",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.TouchApp,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "Toque nos campos para editar",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontStyle = FontStyle.Italic
-                    ),
-                    color = Color.Gray
-                )
-            }
-        }
-
-        Column(
-            Modifier.padding(start = 30.dp, top = 10.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-
-            InlineEditableText(
-                icon = Icons.Default.Phone,
-                label = "Telefone",
-                value = phone,
-                onValueChange = onPhoneChange,
-                keyboardType = KeyboardType.Phone
-            )
-
-            InlineEditableText(
-                icon = Icons.Default.Email,
-                label = "E-mail",
-                value = email,
-                onValueChange = onEmailChange,
-                keyboardType = KeyboardType.Email
-            )
-
-            InlineEditableText(
-                icon = Icons.Default.LocationOn,
-                label = "Endereço",
-                value = address,
-                onValueChange = onAddressChange,
-                singleLine = false
+                text = "Toque nos campos para editar",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontStyle = FontStyle.Italic
+                ),
+                color = Color.Gray
             )
         }
+
+        Spacer(Modifier.height(20.dp))
+        InlineEditableText(
+            icon = Icons.Default.Phone,
+            label = "Telefone",
+            value = phone.ifBlank { "Nenhum telefone cadastrado" },
+            onValueChange = onPhoneChange,
+            keyboardType = KeyboardType.Phone
+        )
+        Spacer(Modifier.height(20.dp))
+        InlineEditableText(
+            icon = Icons.Default.Email,
+            label = "E-mail",
+            value = email,
+            onValueChange = onEmailChange,
+            keyboardType = KeyboardType.Email
+        )
+        Spacer(Modifier.height(20.dp))
+        InlineEditableText(
+            icon = Icons.Default.LocationOn,
+            label = "Endereço",
+            value = address,
+            onValueChange = onAddressChange,
+            singleLine = false
+        )
     }
 }
 
@@ -418,5 +427,13 @@ fun InlineEditableText(
 @Preview(showBackground = true)
 @Composable
 fun PreviewEditProfile() {
-    EditProfileScreen()
+    EditProfileContent(
+        store = Store(
+            name = "Burger House",
+            phone = "(11) 99999-9999",
+            email = "contato@burgerhouse.com",
+            address = "Av. Paulista, 1000 - São Paulo",
+            description = "Uma descrição legal iria aqui"
+        )
+    )
 }

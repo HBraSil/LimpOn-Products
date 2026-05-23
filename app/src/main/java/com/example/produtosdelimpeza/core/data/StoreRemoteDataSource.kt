@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.core.data
 
+import android.util.Log
 import com.example.produtosdelimpeza.store.dashboard.data.StoreDto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,7 +18,9 @@ class StoreRemoteDataSource @Inject constructor(
             val userUid = firebase.currentUser?.uid
             val uid = userUid ?: error("Usuário não autenticado")
 
-            val docRef = firestore.collection("stores")
+            Log.d("StoreRemoteDataSource", "Store: $uid")
+            val docRef = firestore
+                .collection("stores")
                 .document()
 
             val storeWithOwner = store.copy(
@@ -83,6 +86,20 @@ class StoreRemoteDataSource @Inject constructor(
             throw e
         } catch (e: Exception) {
             throw e
+        }
+    }
+
+    suspend fun updateName(storeId: String, newName: String): Result<Boolean> {
+        return try {
+            val storeRef = firestore.collection("stores").document(storeId)
+
+            storeRef.update("name", newName).await()
+                ?: Log.d("StoreRemoteDataSource", "Falha ao atualizar")
+
+            Log.d("StoreRemoteDataSource", "Nome da loja atualizado com sucesso")
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

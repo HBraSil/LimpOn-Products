@@ -153,7 +153,7 @@ private fun NavGraphBuilder.storeMainGraph(
         startDestination = StoreScreen.DASHBOARD.route
     ) {
         composable(route = StoreScreen.DASHBOARD.route) {
-            DashboardScreen(
+             DashboardScreen(
                 paddingValues = innerPadding,
                 onNotificationsScreenClick = {
                     navController.navigate(CustomerScreen.NOTIFICATIONS.route)
@@ -207,7 +207,11 @@ private fun NavGraphBuilder.storeMainGraph(
         }
 
         composable(StoreScreen.STORE_EDIT_PROFILE.route) {
-            EditProfileScreen()
+            EditProfileScreen(
+                onBackNavigation = {
+                    navController.navigateUp()
+                }
+            )
         }
 
         composable(StoreScreen.LOGISTIC.route) {

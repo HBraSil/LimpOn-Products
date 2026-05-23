@@ -132,7 +132,7 @@ fun DashboardScreen(
     val dashboardState by dashboardViewModel.uiState.collectAsState()
 
     if(dashboardState == null) {
-            DashboardCircularProgressIndicator()
+        DashboardCircularProgressIndicator()
     } else {
         DashboardContent(
             paddingValues = paddingValues,
