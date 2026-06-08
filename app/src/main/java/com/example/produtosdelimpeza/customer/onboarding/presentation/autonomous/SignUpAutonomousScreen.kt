@@ -586,6 +586,7 @@ private fun ProfessionSection(
     }
 }
 
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ProfessionChips(

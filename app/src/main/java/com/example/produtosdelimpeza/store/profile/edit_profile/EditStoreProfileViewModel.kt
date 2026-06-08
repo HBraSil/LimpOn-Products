@@ -33,7 +33,6 @@ class EditStoreProfileViewModel @Inject constructor(
                     it.copy(
                         originalStore = store,
                         editableStore = store,
-                        isLoading = false
                     )
                 }
             }

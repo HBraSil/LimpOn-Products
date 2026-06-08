@@ -100,11 +100,11 @@ fun EditProfileContent(
             HeaderAvatarSection(
                 originalName = uiState.originalStore?.name ?: "",
                 editedName = uiState.editableStore?.name ?: "no name",
+                onEditName = updateName,
                 onSaveName = { novoNome ->
                     saveName(novoNome)
                 },
-                onImageEditClick = { /* Abrir Galeria */ },
-                onEditName = updateName
+                onImageEditClick = { /* Abrir Galeria */ }
             )
 
             StoreDescriptionOutlinedCard(
@@ -146,6 +146,7 @@ fun EditProfileContent(
         }
     }
 
+
     if (uiState.isLoading) {
         LoadingOverlay()
     }
@@ -153,8 +154,8 @@ fun EditProfileContent(
 
 @Composable
 fun HeaderAvatarSection(
-    originalName: String? = "",
     editedName: String? = "",
+    originalName: String? = "",
     onSaveName: (String) -> Unit = {},
     onImageEditClick: () -> Unit,
     onEditName: (String) -> Unit
