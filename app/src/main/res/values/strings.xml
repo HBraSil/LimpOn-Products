@@ -159,4 +159,6 @@
     <string name="search_store_order_placeholder">Buscar pedido ou cliente</string>
     <string name="edit_profile">Editar Perfil</string>
     <string name="category">Categoria</string>
+    <string name="switch_profile">Escolher perfil</string>
+    <string name="profile_updated">Perfil editado com sucesso</string>
 </resources>

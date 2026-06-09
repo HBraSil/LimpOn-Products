@@ -4,28 +4,28 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-04-29T01:30:56.796216100Z">
+        <DropdownSelection timestamp="2026-05-23T16:59:35.525764400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Windows\.android\avd\Pixel_4a.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=0077004562" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="AutonomousDashboardScreen">
+      <SelectionState runConfigName="LoadingPreview1">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewProfessionalProfile">
+      <SelectionState runConfigName="ScreenTeste">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ProfilePreview">
+      <SelectionState runConfigName="CadastroProfissionalScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="LimpOnSectionHeaderPreview">
+      <SelectionState runConfigName="ProfessionalRegisterScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MoreProductsPreview">
+      <SelectionState runConfigName="PreviewProfessionalRegister">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

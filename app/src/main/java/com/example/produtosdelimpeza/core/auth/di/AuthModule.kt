@@ -5,13 +5,13 @@ import com.example.produtosdelimpeza.core.auth.domain.AuthRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 abstract class AuthModule {
     @Binds
-    @Singleton
+    @ViewModelScoped
     abstract fun providesAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 }

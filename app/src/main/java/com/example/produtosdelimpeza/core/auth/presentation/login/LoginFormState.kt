@@ -5,5 +5,6 @@ import com.example.produtosdelimpeza.core.presentation.FieldState
 data class LoginFormState(
     val email: FieldState = FieldState(),
     val password: FieldState = FieldState(),
+    val isPasswordHidden: Boolean = true,
     val isLoginFieldValid: Boolean = false,
 )

@@ -1,5 +1,6 @@
 package com.example.produtosdelimpeza.store.dashboard.presentation
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -130,6 +131,7 @@ fun DashboardScreen(
     dashboardViewModel: DashboardViewModel = hiltViewModel()
 ) {
     val dashboardState by dashboardViewModel.uiState.collectAsState()
+    Log.d("DashboardScreen", "dashboardState: $dashboardState")
 
     if(dashboardState == null) {
         DashboardCircularProgressIndicator()
@@ -142,7 +144,6 @@ fun DashboardScreen(
             onNavigateToAnalyticsScreenClick = onNavigateToAnalyticsScreenClick
         )
     }
-
 }
 
 @Composable

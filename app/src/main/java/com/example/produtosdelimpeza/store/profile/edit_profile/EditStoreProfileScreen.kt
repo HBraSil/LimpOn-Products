@@ -1,6 +1,6 @@
 package com.example.produtosdelimpeza.store.profile.edit_profile
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -40,7 +39,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.produtosdelimpeza.R
 import com.example.produtosdelimpeza.core.component.LimpOnDescriptionTextField
-import com.example.produtosdelimpeza.core.domain.model.Store
+import com.example.produtosdelimpeza.core.component.LoadingOverlay
+import com.example.produtosdelimpeza.store.component.SuccessRegistrationOverlay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,30 +49,27 @@ fun EditProfileScreen(
     editStoreProfileViewModel: EditStoreProfileViewModel = hiltViewModel(),
     onBackNavigation: () -> Unit
 ) {
-    val store by editStoreProfileViewModel.store.collectAsStateWithLifecycle()
-    val nameUpdated by editStoreProfileViewModel.updatedSuccessfully.collectAsStateWithLifecycle()
+    val uiState by editStoreProfileViewModel.uiState.collectAsStateWithLifecycle()
+
+    Log.d("EditProfileScreen", "uiState: ${uiState.editableStore?.name ?: "no name"}")
 
     EditProfileContent(
-        store = store ?: Store(),
+        uiState = uiState,
         updateName = editStoreProfileViewModel::updateStoreName,
+        saveName = editStoreProfileViewModel::saveName,
+        resetViewModel = editStoreProfileViewModel::reset,
         onBackNavigation = onBackNavigation
     )
-
-    if (nameUpdated == true) {
-        Toast.makeText(
-            LocalContext.current,
-            "Nome atualizado com sucesso!",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileContent(
-    store: Store,
-    updateName: (String, String) -> Unit = {_, _ -> },
-    onBackNavigation: () -> Unit = {}
+    uiState: EditStoreProfileUiState,
+    updateName: (String) -> Unit = {} ,
+    saveName: (String) -> Unit = {},
+    resetViewModel: () -> Unit = {},
+    onBackNavigation: () -> Unit = {},
 ) {
 
     Scaffold(
@@ -100,52 +97,73 @@ fun EditProfileContent(
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState()),
         ) {
-                HeaderAvatarSection(
-                    initialStoreName = store.name,
-                    onSaveName = { novoNome ->
-                        updateName(store.id, novoNome)
-                    },
-                    onImageEditClick = { /* Abrir Galeria */ }
-                )
-                StoreDescriptionOutlinedCard(
-                    description = store.description,
-                    onDescriptionChange = { /*TODO: change the store description*/}
-                )
-                Column(
-                    Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = store.category,
-                        onValueChange = { },
-                        label = { Text(stringResource(R.string.category)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) }
-                    )
-                }
-                EditableContactAndAddressCard(
-                    phone = store.phone,
-                    email = store.email,
-                    address = store.address,
-                    onPhoneChange = {},
-                    onEmailChange = {},
-                    onAddressChange = {}
+            HeaderAvatarSection(
+                originalName = uiState.originalStore?.name ?: "",
+                editedName = uiState.editableStore?.name ?: "no name",
+                onSaveName = { novoNome ->
+                    saveName(novoNome)
+                },
+                onImageEditClick = { /* Abrir Galeria */ },
+                onEditName = updateName
+            )
+
+            StoreDescriptionOutlinedCard(
+                description = uiState.originalStore?.description,
+                onDescriptionChange = { /*TODO: change the store description*/}
+            )
+
+            Column(
+                Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = uiState.editableStore?.category ?: "",
+                    onValueChange = { },
+                    label = { Text(stringResource(R.string.category)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, stringResource(R.string.categories)) }
                 )
             }
+
+            EditableContactAndAddressCard(
+                phone = uiState.originalStore?.phone,
+                email = uiState.originalStore?.email,
+                address = uiState.originalStore?.address,
+                onPhoneChange = {},
+                onEmailChange = {},
+                onAddressChange = {}
+            )
+        }
+    }
+
+
+    if (uiState.success) {
+        SuccessRegistrationOverlay(
+            message = stringResource(R.string.profile_updated),
+            visible = true
+        ) {
+            resetViewModel()
+        }
+    }
+
+    if (uiState.isLoading) {
+        LoadingOverlay()
     }
 }
 
 @Composable
 fun HeaderAvatarSection(
-    initialStoreName: String,
-    onSaveName: (String) -> Unit, // Callback para quando clicar em salvar
-    onImageEditClick: () -> Unit
+    originalName: String? = "",
+    editedName: String? = "",
+    onSaveName: (String) -> Unit = {},
+    onImageEditClick: () -> Unit,
+    onEditName: (String) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
-    var currentName by remember { mutableStateOf(initialStoreName) }
-    val isChanged = currentName != initialStoreName
+
+    val isChanged = originalName != editedName
 
     Column(
         modifier = Modifier
@@ -153,12 +171,10 @@ fun HeaderAvatarSection(
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // --- PARTE 1: FOTO DE PERFIL COM BADGE DE EDIÇÃO ---
         Box(
             modifier = Modifier.size(120.dp),
             contentAlignment = Alignment.BottomEnd
         ) {
-            // Círculo da Foto
             Surface(
                 modifier = Modifier.fillMaxSize(),
                 shape = CircleShape,
@@ -202,8 +218,8 @@ fun HeaderAvatarSection(
             modifier = Modifier.padding(horizontal = 32.dp)
         ) {
             BasicTextField(
-                value = currentName,
-                onValueChange = { currentName = it },
+                value = editedName ?: "",
+                onValueChange = onEditName,
                 interactionSource = interactionSource,
                 textStyle = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
@@ -230,11 +246,11 @@ fun HeaderAvatarSection(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Button(
-                    onClick = { onSaveName(currentName) },
+                    onClick = { onSaveName(editedName ?: "") },
                     modifier = Modifier.padding(top = 12.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50), // Verde de sucesso
+                        containerColor = MaterialTheme.colorScheme.secondary, // Verde de sucesso
                         contentColor = MaterialTheme.colorScheme.background
                     ),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
@@ -250,7 +266,7 @@ fun HeaderAvatarSection(
 
 @Composable
 fun StoreDescriptionOutlinedCard(
-    description: String,
+    description: String? = "",
     onDescriptionChange: (String) -> Unit
 ) {
     Card(
@@ -275,7 +291,7 @@ fun StoreDescriptionOutlinedCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            LimpOnDescriptionTextField(description = description){
+            LimpOnDescriptionTextField(description = description ?: ""){
                 onDescriptionChange(it)
             }
         }
@@ -285,9 +301,9 @@ fun StoreDescriptionOutlinedCard(
 
 @Composable
 fun EditableContactAndAddressCard(
-    phone: String,
-    email: String,
-    address: String,
+    phone: String? = "",
+    email: String? = "",
+    address: String? = "",
     onPhoneChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onAddressChange: (String) -> Unit
@@ -325,7 +341,7 @@ fun EditableContactAndAddressCard(
         InlineEditableText(
             icon = Icons.Default.Phone,
             label = "Telefone",
-            value = phone.ifBlank { "Nenhum telefone cadastrado" },
+            value = phone?.ifBlank { "Nenhum telefone cadastrado" } ?: "",
             onValueChange = onPhoneChange,
             keyboardType = KeyboardType.Phone
         )
@@ -333,7 +349,7 @@ fun EditableContactAndAddressCard(
         InlineEditableText(
             icon = Icons.Default.Email,
             label = "E-mail",
-            value = email,
+            value = email ?: "",
             onValueChange = onEmailChange,
             keyboardType = KeyboardType.Email
         )
@@ -341,7 +357,7 @@ fun EditableContactAndAddressCard(
         InlineEditableText(
             icon = Icons.Default.LocationOn,
             label = "Endereço",
-            value = address,
+            value = address ?: "",
             onValueChange = onAddressChange,
             singleLine = false
         )
@@ -428,12 +444,6 @@ fun InlineEditableText(
 @Composable
 fun PreviewEditProfile() {
     EditProfileContent(
-        store = Store(
-            name = "Burger House",
-            phone = "(11) 99999-9999",
-            email = "contato@burgerhouse.com",
-            address = "Av. Paulista, 1000 - São Paulo",
-            description = "Uma descrição legal iria aqui"
-        )
+        uiState = EditStoreProfileUiState()
     )
 }

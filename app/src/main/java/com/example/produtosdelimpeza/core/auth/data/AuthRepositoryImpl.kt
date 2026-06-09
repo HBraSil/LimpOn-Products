@@ -89,8 +89,11 @@ class AuthRepositoryImpl @Inject constructor(
             emit(LoginResponse.Loading)
 
 
+            Log.d("GOOGLE_FIREBASE", "firebaseCredential: $firebaseCredential")
             val signinResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            Log.d("GOOGLE_FIREBASE", "signinResult: $signinResult")
             val user = signinResult.user ?: throw Exception("Usuário não encontrado após login")
+            Log.d("GOOGLE_FIREBASE","user: $user")
             val existingUser = userLocalDataSource.getUserById(user.uid)
 
             if (existingUser == null) {
@@ -100,10 +103,11 @@ class AuthRepositoryImpl @Inject constructor(
                     email = user.email ?: ""
                 )
 
+
                 saveUserInRoom(userProperties)
                 saveUserInFirestore(userProperties, user)
             }
-
+            Log.d("GOOGLE_FIREBASE", "caiu aqui")
             emit(LoginResponse.Success)
         } catch (e: NoCredentialException) {
             emit(LoginResponse.Error("Nenhuma conta no dispositivo detectada"))

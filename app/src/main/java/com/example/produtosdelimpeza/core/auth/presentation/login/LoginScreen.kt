@@ -48,13 +48,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.produtosdelimpeza.R
+import com.example.produtosdelimpeza.core.auth.presentation.AuthUiState
 import com.example.produtosdelimpeza.core.domain.model.ProfileMode
 import com.example.produtosdelimpeza.core.component.LimpOnAuthButton
 import com.example.produtosdelimpeza.core.component.LimpOnTextField
 import com.example.produtosdelimpeza.core.presentation.NavigationLastUserModeViewModel
+import com.example.produtosdelimpeza.core.theme.ProdutosDeLimpezaTheme
 import com.example.produtosdelimpeza.core.ui.util.asString
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -66,16 +69,39 @@ import com.facebook.login.LoginResult
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    onSignupClick: () -> Unit,
+    onLoginClick: () -> Unit,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onSignupClick: () -> Unit = {},
-    onLoginClick: () -> Unit = {},
     navigationLastUserModeViewModel: NavigationLastUserModeViewModel = hiltViewModel(),
 ) {
-    val verticalScrollState = rememberScrollState()
     val uiState by loginViewModel.loginUiState.collectAsState()
+    val formState by loginViewModel.loginFormState.collectAsState()
 
+    LoginContent(
+        uiState = uiState,
+        loginFormState = formState,
+        onEvent = loginViewModel::onEvent,
+        onSignupClick = onSignupClick,
+        onLoginClick = onLoginClick,
+        saveLastUserMode = {
+            navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
+        }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginContent(
+    uiState: AuthUiState = AuthUiState(),
+    loginFormState: LoginFormState,
+    onEvent: (LoginFormEvent) -> Unit = {},
+    onSignupClick: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
+    saveLastUserMode: () -> Unit = {},
+) {
     LaunchedEffect(Unit) {
-        navigationLastUserModeViewModel.saveLastUserMode(ProfileMode.LoggedOut)
+        saveLastUserMode()
     }
 
     Box {
@@ -105,7 +131,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = contentPadding.calculateTopPadding())
-                    .verticalScroll(verticalScrollState)
+                    .verticalScroll(rememberScrollState())
                     .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -120,11 +146,14 @@ fun LoginScreen(
                     fontWeight = Bold,
                 )
                 ContentLoginScreen(
-                    loginViewModel = loginViewModel,
+                    state = uiState,
+                    loginFormState = loginFormState,
                     onLoginClick = onLoginClick,
+                    onEvent = onEvent
                 )
             }
         }
+
 
         if (uiState.isLoading) {
             LoadingLoginOverlay()
@@ -134,14 +163,13 @@ fun LoginScreen(
 
 @Composable
 fun ContentLoginScreen(
-    loginViewModel: LoginViewModel,
+    state: AuthUiState = AuthUiState(),
+    loginFormState: LoginFormState,
     onLoginClick: () -> Unit,
+    onEvent: (LoginFormEvent) -> Unit,
 ) {
 
     val context = LocalContext.current
-    val state by loginViewModel.loginUiState.collectAsState()
-    val passwordHidden by loginViewModel.passwordHidden.collectAsState()
-
     val callbackManager = remember {
         CallbackManager.Factory.create()
     }
@@ -153,7 +181,7 @@ fun ContentLoginScreen(
             result.data,
             object: FacebookCallback<LoginResult> {
                 override fun onSuccess(result: LoginResult) {
-                    loginViewModel.loginWithFacebook(result.accessToken.token)
+                    //loginFormState.loginWithFacebook(result.accessToken.token)
                 }
                 override fun onCancel() {
                     println("onCancel")
@@ -177,17 +205,19 @@ fun ContentLoginScreen(
             Toast.LENGTH_LONG
         ).show()
 
-        loginViewModel.cleanErrorMessage()
+        onEvent(
+            LoginFormEvent.CleanErrorMessage
+        )
     }
 
 
     LimpOnTextField(
-        value = loginViewModel.loginFormState.email.field,
-        onValueChange = { loginViewModel.updateEmail(it) },
+        value = loginFormState.email.field,
+        onValueChange = { onEvent(LoginFormEvent.UpdateEmail(it)) },
         modifier = Modifier.padding(top = 10.dp,start = 20.dp, end = 20.dp),
         label = R.string.email,
         placeholder = R.string.hint_email,
-        errorMessage = loginViewModel.loginFormState.email.error?.asString(),
+        errorMessage = loginFormState.email.error?.asString(),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Email,
@@ -199,13 +229,13 @@ fun ContentLoginScreen(
 
 
     LimpOnTextField(
-        value = loginViewModel.loginFormState.password.field,
-        onValueChange = { loginViewModel.updatePassword(it) },
+        value = loginFormState.password.field,
+        onValueChange = { onEvent(LoginFormEvent.UpdatePassword(it)) },
         modifier = Modifier.padding(start = 20.dp, end = 20.dp),
         label = R.string.password,
         placeholder = R.string.hint_password,
-        obfuscate = passwordHidden,
-        errorMessage = loginViewModel.loginFormState.password.error?.asString(),
+        obfuscate = loginFormState.isPasswordHidden,
+        errorMessage = loginFormState.password.error?.asString(),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Lock,
@@ -214,13 +244,13 @@ fun ContentLoginScreen(
             )
         },
         trailingIcon = {
-            IconButton(onClick = { loginViewModel.changePasswordVisibility() }) {
-                val image = if (passwordHidden) {
+            IconButton(onClick = { onEvent(LoginFormEvent.ChangePasswordVisibility) }) {
+                val image = if (loginFormState.isPasswordHidden) {
                     Icons.Filled.VisibilityOff
                 } else {
                     Icons.Filled.Visibility
                 }
-                val description = if (passwordHidden) {
+                val description = if (loginFormState.isPasswordHidden) {
                     stringResource(id = R.string.show_password)
                 } else {
                     stringResource(id = R.string.hide_password)
@@ -253,10 +283,10 @@ fun ContentLoginScreen(
         modifier = Modifier.padding(top = 30.dp, bottom = 30.dp),
     ){
         if (
-            loginViewModel.loginFormState.email.field.isNotEmpty() &&
-            loginViewModel.loginFormState.password.field.isNotEmpty()
+            loginFormState.email.field.isNotEmpty() &&
+            loginFormState.password.field.isNotEmpty()
         ){
-            loginViewModel.loginWithEmailAndPassword()
+            onEvent(LoginFormEvent.LoginWithEmailAndPassword)
         }
     }
 
@@ -278,7 +308,7 @@ fun ContentLoginScreen(
                     .size(30.dp)
                     .wrapContentSize(Alignment.Center)
                     .clickable {
-                        loginViewModel.loginWithGoogle()
+                        onEvent(LoginFormEvent.LoginWithGoogle)
                     }
             )
         }
@@ -316,11 +346,18 @@ fun ContentLoginScreen(
     }
 }
 
-/*
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     ProdutosDeLimpezaTheme {
-        LoginScreen(onSignupClick = {})
+        LoginContent(
+            uiState = AuthUiState(),
+            loginFormState = LoginFormState(),
+            onEvent = {},
+            onSignupClick = {},
+            onLoginClick = {},
+            saveLastUserMode = {}
+        )
     }
-}*/
+}

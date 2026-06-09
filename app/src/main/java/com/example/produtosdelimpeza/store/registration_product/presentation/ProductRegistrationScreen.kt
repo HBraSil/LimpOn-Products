@@ -234,8 +234,10 @@ fun ProductRegistrationScreen(
 
             SuccessRegistrationOverlay(
                 message = stringResource(R.string.product_created),
-                uiState.success
-            )
+                visible = uiState.success
+            ) {
+                productRegistrationViewModel.reset()
+            }
         }
 
 

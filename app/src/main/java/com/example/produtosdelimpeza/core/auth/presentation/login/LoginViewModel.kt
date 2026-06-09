@@ -1,9 +1,6 @@
 package com.example.produtosdelimpeza.core.auth.presentation.login
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.produtosdelimpeza.core.auth.data.LoginResponse
@@ -25,7 +22,8 @@ class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ): ViewModel() {
 
-    var loginFormState by mutableStateOf(LoginFormState())
+    private val _loginFormState = MutableStateFlow(LoginFormState())
+    val loginFormState = _loginFormState.asStateFlow()
 
     private var _passwordHidden = MutableStateFlow(true)
     var passwordHidden: StateFlow<Boolean> = _passwordHidden.asStateFlow()
@@ -33,25 +31,42 @@ class LoginViewModel @Inject constructor(
     private val _authUiState = MutableStateFlow(AuthUiState())
     val loginUiState = _authUiState.asStateFlow()
 
+
+    fun onEvent(event: LoginFormEvent) {
+        when(event) {
+            is LoginFormEvent.UpdateEmail -> updateEmail(event.email)
+            is LoginFormEvent.UpdatePassword -> updatePassword(event.password)
+            is LoginFormEvent.ChangePasswordVisibility -> changePasswordVisibility()
+            is LoginFormEvent.LoginWithEmailAndPassword -> loginWithEmailAndPassword()
+            is LoginFormEvent.LoginWithGoogle -> loginWithGoogle()
+            is LoginFormEvent.CleanErrorMessage -> cleanErrorMessage()
+        }
+    }
+
+
     fun updateEmail(email: String) {
         val isEmailValidate = EmailValidator.validate(email)
-        loginFormState = loginFormState.copy(
-            email = loginFormState.email.copy(
-                field = email,
-                error = isEmailValidate,
-                isValid = isEmailValidate == null
+        _loginFormState.update {
+            it.copy(
+                email = it.email.copy(
+                    field = email,
+                    error = isEmailValidate,
+                    isValid = isEmailValidate == null
+                )
             )
-        )
+        }
     }
     fun updatePassword(password: String) {
         val isPasswordValidate = PasswordValidator.isValidPassword(password)
-        loginFormState = loginFormState.copy(
-            password = loginFormState.password.copy(
-                field = password,
-                error = isPasswordValidate,
-                isValid = isPasswordValidate == null
+        _loginFormState.update {
+            it.copy(
+                password = it.password.copy(
+                    field = password,
+                    error = isPasswordValidate,
+                    isValid = isPasswordValidate == null
+                )
             )
-        )
+        }
     }
 
     fun changePasswordVisibility() {
@@ -63,7 +78,10 @@ class LoginViewModel @Inject constructor(
         _authUiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
-            val result = authRepository.signInWithEmailAndPassword(loginFormState.email.field, loginFormState.password.field)
+            val result = authRepository.signInWithEmailAndPassword(
+                email = _loginFormState.value.email.field,
+                password = _loginFormState.value.password.field
+            )
 
             when(result) {
                 is LoginResponse.Success -> _authUiState.update { it.copy(success = true, isLoading = false) }
@@ -78,8 +96,12 @@ class LoginViewModel @Inject constructor(
             authRepository.signInWithGoogle().collect { result ->
                 when(result) {
                     is LoginResponse.Loading -> _authUiState.update { it.copy(isLoading = true) }
-                    is LoginResponse.Success -> _authUiState.update { it.copy(success = true, isLoading = false) }
-                    is LoginResponse.Error -> _authUiState.update { it.copy(error = result.error) }
+                    is LoginResponse.Success -> _authUiState.update {
+                        Log.d("LoginViewModel", "loginWithGoogle? ${it.success} -- erro? ${it.error}")
+                        it.copy(success = true, isLoading = false) }
+                    is LoginResponse.Error -> _authUiState.update {
+                        Log.e("LoginViewModel", "loginWithGoogle: ${result.error}")
+                        it.copy(error = result.error) }
                 }
             }
         }

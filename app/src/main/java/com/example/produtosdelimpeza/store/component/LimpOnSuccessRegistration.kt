@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun SuccessRegistrationOverlay(message: String, visible: Boolean) {
+fun SuccessRegistrationOverlay(message: String, visible: Boolean, onDismiss: () -> Unit = {}) {
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn() + scaleIn(),
@@ -36,7 +37,8 @@ fun SuccessRegistrationOverlay(message: String, visible: Boolean) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.2f)),
+                .background(Color.Black.copy(alpha = 0.45f))
+                .clickable { onDismiss() },
             contentAlignment = Alignment.Center
         ) {
             Card(

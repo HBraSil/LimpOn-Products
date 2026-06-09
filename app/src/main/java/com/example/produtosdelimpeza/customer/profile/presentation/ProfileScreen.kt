@@ -59,136 +59,136 @@ fun ProfileScreen(
     val user by profileViewModel.user.collectAsState()
     val profiles by profileViewModel.allStores.collectAsState()
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            item {
-                HeaderSection(
-                    userName = user.name,
-                    userInitials = "HB",
-                    onClickEditUserProfile = navigateToEditUserProfileScreen
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .padding(paddingValues),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        item {
+            HeaderSection(
+                userName = user.name,
+                userInitials = "HB",
+                onClickEditUserProfile = navigateToEditUserProfileScreen
+            )
+        }
+
+        item {
+            QuickActionsSection(
+                onClickNotificationsScreen = navigateToNotificationsScreen,
+                onClickHelpScreen = navigateToHelpScreen,
+                onClickPaymentMethods = navigateToPaymentMethodsScreen,
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            InfoSection(title = "Benefícios") {
+                InfoItem(
+                    icon = Icons.Default.Star,
+                    text = "Créditos e Fidelidade",
+                    endText = "R$ 0,00",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Discount,
+                    text = "Cupons",
+                    onClick = navigateToCouponsScreen
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Discount,
+                    text = "Quero vender no app",
+                    onClick = onSellInTheApp
                 )
             }
+        }
 
-            item {
-                QuickActionsSection(
-                    onClickNotificationsScreen = navigateToNotificationsScreen,
-                    onClickHelpScreen = navigateToHelpScreen,
-                    onClickPaymentMethods = navigateToPaymentMethodsScreen,
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            InfoSection(title = "Minha Conta") {
+                InfoItem(
+                    icon = Icons.Default.LocationOn,
+                    text = "Meus Endereços",
+                    onClick = navigateToAddressScreen
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.CreditCard,
+                    text = "Formas de Pagamento",
+                    onClick = navigateToPaymentMethodsScreen
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.History,
+                    text = "Histórico de Pedidos",
+                    onClick = navigateToOrderScreen
                 )
             }
+        }
 
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                InfoSection(title = "Benefícios") {
-                    InfoItem(
-                        icon = Icons.Default.Star,
-                        text = "Créditos e Fidelidade",
-                        endText = "R$ 0,00",
-                        onClick = { /* Ação */ }
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.Discount,
-                        text = "Cupons",
-                        onClick = navigateToCouponsScreen
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.Discount,
-                        text = "Quero vender no app",
-                        onClick = onSellInTheApp
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                InfoSection(title = "Minha Conta") {
-                    InfoItem(
-                        icon = Icons.Default.LocationOn,
-                        text = "Meus Endereços",
-                        onClick = navigateToAddressScreen
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = Color.LightGray.copy(alpha = 0.5f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.CreditCard,
-                        text = "Formas de Pagamento",
-                        onClick = navigateToPaymentMethodsScreen
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = Color.LightGray.copy(alpha = 0.5f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.History,
-                        text = "Histórico de Pedidos",
-                        onClick = navigateToOrderScreen
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                InfoSection(title = "Suporte e Informações") {
-                    InfoItem(
-                        icon = Icons.AutoMirrored.Filled.Help,
-                        text = "Ajuda e FAQ",
-                        onClick = navigateToHelpScreen
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = Color.LightGray.copy(alpha = 0.5f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.Policy,
-                        text = "Termos de Uso e Privacidade",
-                        onClick = { /* Ação */ }
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 48.dp),
-                        thickness = 1.dp,
-                        color = Color.LightGray.copy(alpha = 0.5f)
-                    )
-                    InfoItem(
-                        icon = Icons.Default.Policy,
-                        text = stringResource(R.string.about),
-                        onClick = navigateToAboutScreen
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-                AccountFooterSection(
-                    userProfiles = profiles,
-                    onSignOutClick = onSignOutClick,
-                    signOut = { profileViewModel.signOut() },
-                    onSwitchProfileClick = {
-                        onSwitchProfileClick()
-                        profileViewModel.saveLastUserMode(it)
-                    }
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            InfoSection(title = "Suporte e Informações") {
+                InfoItem(
+                    icon = Icons.AutoMirrored.Filled.Help,
+                    text = "Ajuda e FAQ",
+                    onClick = navigateToHelpScreen
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Policy,
+                    text = "Termos de Uso e Privacidade",
+                    onClick = { /* Ação */ }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 48.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray.copy(alpha = 0.5f)
+                )
+                InfoItem(
+                    icon = Icons.Default.Policy,
+                    text = stringResource(R.string.about),
+                    onClick = navigateToAboutScreen
+                )
             }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            AccountFooterSection(
+                userProfiles = profiles,
+                onSignOutClick = onSignOutClick,
+                signOut = { profileViewModel.signOut() },
+                onSwitchProfileClick = {
+                    onSwitchProfileClick()
+                    profileViewModel.saveLastUserMode(it)
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
     }
 }
 
@@ -200,8 +200,6 @@ fun AccountFooterSection(
     onSignOutClick: () -> Unit = {},
     onSwitchProfileClick: (String) -> Unit = {}
 ) {
-    //val profiles by mapOf(CustomerScreen.CUSTOMER_HOME.route to "Hilquias", StoreScreen.AUTONOMOUS_DASHBOARD.route to "Doceria")
-
     var isSheetOpen by remember { mutableStateOf(false) }
     var signOutClickAlertDialog by remember { mutableStateOf(false) }
 
@@ -209,7 +207,6 @@ fun AccountFooterSection(
     if (isSheetOpen) {
         ModalBottomSheet(
             onDismissRequest = { isSheetOpen = false },
-            dragHandle = {  },
             containerColor = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
             shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
@@ -217,7 +214,7 @@ fun AccountFooterSection(
 
             if (!userProfiles.isEmpty()) {
                 Text(
-                    text = "Escolher perfil",
+                    text = stringResource(R.string.switch_profile),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier
                         .padding(vertical = 8.dp)

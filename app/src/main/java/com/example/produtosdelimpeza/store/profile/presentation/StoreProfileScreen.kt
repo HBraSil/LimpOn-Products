@@ -55,7 +55,9 @@ fun StoreProfileScreen(
     onItemProfileClick: (String) -> Unit,
     storeProfileViewModel: StoreProfileViewModel = hiltViewModel()
 ) {
-    val store by storeProfileViewModel.storeProfile.collectAsStateWithLifecycle()
+    val store by storeProfileViewModel.storeProfile.collectAsStateWithLifecycle(
+        initialValue = Store()
+    )
 
     StoreProfileContent(
         store = store ?: Store(),
